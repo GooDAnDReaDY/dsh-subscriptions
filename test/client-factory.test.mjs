@@ -20,3 +20,10 @@ test('client factory uses CommonJS shim and scoped id', () => {
   assert.match(src, /\/dsh-subscriptions\/oauth/)
   assert.match(src, /settings\.section/)
 })
+
+test('registers plugin.item card with NS key, section as fallback', () => {
+  assert.match(src, /settings\.plugin\.item/)
+  assert.match(src, /key: NS/)
+  // fallback path kept for builds without the slot
+  assert.match(src, /settings\.section/)
+})
