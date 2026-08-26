@@ -153,7 +153,7 @@ From the chat, without opening Settings:
 
 ## /subscriptions page
 
-A localhost-only summary page at `/subscriptions` lists every account slot,
+A localhost-only summary page at `/dsh-subscriptions/subscriptions` lists every account slot,
 connection status, usage percent, remaining quota and reset time across all
 providers. Requests from non-loopback hosts get 403.
 
