@@ -130,6 +130,41 @@ A small widget in the composer bar shows the active subscription provider;
 clicking cycles among logged-in providers without opening Settings. It does not
 change the session model picker state.
 
+## Session header chip
+
+A compact chip in the conversation header shows how many subscriptions are
+connected. It polls `/dsh-subscriptions/status` every minute and turns green
+when at least one account is active.
+
+## Quota reset countdown
+
+When a vendor reports a quota window reset timestamp, the account card shows a
+live `reset HH:MM:SS` countdown next to the quota bar, updating every second.
+
+## Slash commands
+
+From the chat, without opening Settings:
+
+```
+/login <provider>     # start OAuth for codex|claude|grok|antigravity (opens the vendor page)
+/login status         # insert the connected providers into the composer
+/logout <provider>    # disconnect that provider
+```
+
+## /subscriptions page
+
+A localhost-only summary page at `/subscriptions` lists every account slot,
+connection status, usage percent, remaining quota and reset time across all
+providers. Requests from non-loopback hosts get 403.
+
+## Import a token directly
+
+In any account card, paste an existing refresh token (or API key) and click
+**Import token** to sign in without the browser OAuth round trip. The token is
+written straight to the host credentials store via
+`POST /dsh-subscriptions/import-token { provider, index, refreshToken }`.
+
+
 ## Credential names
 
 Tokens are JSON blobs in the DSH credentials store. Names look like:
