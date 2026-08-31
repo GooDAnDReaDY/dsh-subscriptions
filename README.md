@@ -1,233 +1,149 @@
-# dsh-subscriptions
+# 📦 @goodandready/dsh-subscriptions
 
-Use **ChatGPT Codex**, **Claude**, **Grok**, and **Antigravity**
-subscriptions as DeepSeek Harness LLM providers. Log in from
-**Settings → Plugins → Plugin settings → Subscriptions**.
-Several accounts per provider rotate on quota inside this plugin.
+<div align="center">
 
-This package is original software. It speaks vendor-public OAuth and LLM HTTP
-contracts. It does not ship tools (`x_search`, image, or video).
+<h3>Personal AI Subscription Bridge, Multi-Account Pool Rotation & Zero-Leak OAuth for DeepSeek Harness</h3>
 
-## Install
+<p align="center">
+  <a href="https://www.npmjs.com/package/@goodandready/dsh-subscriptions"><img src="https://img.shields.io/npm/v/@goodandready/dsh-subscriptions.svg?style=for-the-badge&color=6366f1&labelColor=1e1b4b" alt="npm version"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-10b981.svg?style=for-the-badge&color=10b981&labelColor=064e3b" alt="license"></a>
+  <a href="https://github.com/topics/dsh-plugin"><img src="https://img.shields.io/badge/DSH-Plugin-8b5cf6.svg?style=for-the-badge&labelColor=2e1065" alt="DSH Plugin"></a>
+  <a href="https://nodejs.org"><img src="https://img.shields.io/badge/Node-20%2B-f59e0b.svg?style=for-the-badge&labelColor=451a03" alt="Node version"></a>
+</p>
+
+<p align="center">
+  <a href="https://goodandready.app/"><img src="https://img.shields.io/badge/All_Author_Projects-goodandready.app-ff4500.svg?style=for-the-badge&logo=rocket&logoColor=white&labelColor=1a1a2e" alt="All Author Projects"></a>
+</p>
+
+<p align="center">
+  <a href="README.md"><b>🇬🇧 English</b></a> •
+  <a href="README.ru.md"><b>🇷🇺 Русский</b></a> •
+  <a href="README.zh.md"><b>🇨🇳 中文说明</b></a>
+</p>
+
+</div>
+
+---
+
+## ⚡ Overview
+
+**`dsh-subscriptions`** bridges your paid personal AI subscriptions directly into **DeepSeek Harness** as first-class LLM providers.
+
+Instead of burning expensive pay-as-you-go API credits for everyday agent tasks, `dsh-subscriptions` allows you to authenticate your existing web subscriptions via standard OAuth PKCE. It features **multi-account rotation pools** (automatically switching accounts when a rate limit or cooldown is reached), **preemptive quota switching**, and an **in-process Cordis service (`ctx.subscriptions`)** that safely powers sibling plugins like [`dsh-image-gen`](https://github.com/GooDAnDReaDY/dsh-image-gen) and [`dsh-grok-xsearch`](https://github.com/GooDAnDReaDY/dsh-grok-xsearch) with zero token leakage.
+
+```mermaid
+graph LR
+    subgraph DSHCore [DeepSeek Harness Session]
+        Agent[🤖 DSH Agent Execution] --> Router{Provider Router}
+    end
+
+    subgraph SubscriptionsCore [dsh-subscriptions Engine]
+        Router --> Pool{Multi-Account Vendor Pool}
+        Pool -->|Account #1| Acc1[👤 Primary Account: Active]
+        Pool -->|Account #2| Acc2[👤 Secondary Account: Standby]
+        Pool -->|Account #3| Acc3[👤 Fallback Account: Cooldown]
+        Acc1 -->|HTTP 429 / Quota Limit| Rotate[Smart Quota & Cooldown Rotator]
+        Rotate -->|Switches Traffic| Acc2
+    end
+
+    subgraph VendorBridges [4 Upstream Vendor Bridges]
+        Acc1 --> B1[ChatGPT / Codex Backend]
+        Acc1 --> B2[Claude Pro / Max Protocol]
+        Acc1 --> B3[xAI / Grok Subscriptions]
+        Acc1 --> B4[Google Cloud Code Assist / Antigravity]
+    end
+
+    subgraph EcosystemBridge [In-Process Cordis Service: ctx.subscriptions]
+        Pool --> ImgGen[dsh-image-gen: Zero-Cost Image Drawing]
+        Pool --> XSearch[dsh-grok-xsearch: Live Twitter Search]
+    end
+
+    style DSHCore fill:#1e1e2e,stroke:#89b4fa,stroke-width:2px,color:#cdd6f4
+    style SubscriptionsCore fill:#181825,stroke:#cba6f7,stroke-width:2px,color:#cdd6f4
+    style VendorBridges fill:#11111b,stroke:#a6e3a1,stroke-width:2px,color:#cdd6f4
+    style EcosystemBridge fill:#181825,stroke:#f38ba8,stroke-width:2px,color:#cdd6f4
+```
+
+---
+
+## ✨ Key Features & Capabilities
+
+### 1. 🌐 4 Supported Built-in Subscription Vendors
+
+| Vendor Key | Subscription Tier | Protocol & Features |
+|---|---|---|
+| `codex` | ChatGPT Plus / Pro | Codex streaming responses, tool calling & image drawing (`/backend-api/codex/...`) |
+| `claude` | Claude Pro / Max | Native Claude Messages protocol, usage tracking (`/v1/messages`, `/api/oauth/...`) |
+| `grok` | xAI / X Premium | Real-time reasoning responses, billing checks & social search |
+| `antigravity` | Google Cloud Code Assist | Antigravity engine (`/v1/loadCodeAssist`, `/v1/streamGenerateContent`) |
+
+*Custom vendors can also be dynamically registered via the `createVendorFromProfile` factory.*
+
+---
+
+### 2. 🔄 Multi-Account Rotation & Rate-Limit Mitigation (`rotate.js`, `ratelimit.js`)
+* **Multi-Account Pooling**: Attach multiple accounts per vendor (e.g. `CODEX_OAUTH_1`, `CODEX_OAUTH_2`, `CODEX_OAUTH_3`).
+* **Automatic 429 Failover**: When an account encounters a rate limit (`HTTP 429`, `RATE_LIMIT`, `QUOTA_EXCEEDED`), traffic instantly fails over to the next healthy account in the pool.
+* **Preemptive Quota Switching (`switchAtRemaining`)**: Automatically rotates to the next account before hitting zero if the rate-limit window reset is imminent.
+* **Dynamic Cooldown Calculation**: Parses upstream headers (`Retry-After`, `x-ratelimit-reset`, ISO dates, epoch timestamps) and auto-restores cooled-down accounts when their window resets.
+
+---
+
+### 3. 🔒 Zero-Leak Credential Security & Headless OAuth
+* **Zero Token Leakage**: OAuth tokens are **never** returned over HTTP API endpoints or rendered in the Web UI. The UI only receives masked account labels, connection health, and quota bars.
+* **Secure Host Storage**: Tokens reside in encrypted `$DSH_HOME/.credentials.yaml` managed by the host credentials service.
+* **Headless / Remote Login Fallback**: If running DSH on a headless server over SSH where browser popups cannot redirect to `localhost`, simply paste the redirected callback URL or authorization code directly into the account card.
+* **Proactive Background Token Refresh**: Access tokens are refreshed automatically before expiration.
+
+---
+
+### 4. 🧩 In-Process Cordis Service (`ctx.subscriptions`)
+Sibling plugins can tap into subscription capabilities directly in memory via Cordis:
+```javascript
+// Example in dsh-image-gen or custom plugins:
+const res = await ctx.subscriptions.request('codex', '/backend-api/codex/images/generations', {
+  method: 'POST',
+  body: JSON.stringify({ prompt: 'Cyberpunk landscape', size: '1024x1024' }),
+})
+```
+* **Zero Overhead**: Eliminates intermediate HTTP loops and keeps auth tokens strictly in-memory.
+* **Strict Path Allowlist (`ALLOWLIST`)**: Restricts calls to verified vendor endpoints, preventing SSRF vulnerabilities.
+
+---
+
+## 📦 Quick Installation
 
 ```bash
 dsh plugin --profile web add @goodandready/dsh-subscriptions
 ```
 
-Local checkout (development):
+> [!IMPORTANT]
+> Restart DSH Web UI after installation (`systemctl --user restart dsh-web`) and navigate to **Settings → Subscriptions** to link your accounts.
 
-```bash
-dsh plugin --profile web add file:/path/to/dsh-subscriptions
+---
+
+## ⚙️ Configuration Reference (`settings.yaml`)
+
+```yaml
+dsh-subscriptions:
+  switchAtRemaining: 1
+  cooldownMs: 60000
+  accounts:
+    codex:
+      - ref: CODEX_OAUTH_1
+        label: "Work Pro Account"
+      - ref: CODEX_OAUTH_2
+        label: "Personal Plus Account"
+    claude:
+      - ref: CLAUDE_OAUTH_1
+        label: "Claude Max"
+    grok:
+      - ref: GROK_OAUTH_1
+        label: "X Premium"
 ```
 
-After a `file:` install, remove then add again if you added new files under
-`lib/` — pnpm reuses the previous copy otherwise.
+---
 
-## Settings
+## 📄 License
 
-Settings live on a collapsible card in **Settings → Plugins → Plugin settings**
-(not a sidebar entry). Click **Show** to expand it.
-
-1. Pick a provider block and click **Connect**. Complete sign-in in the browser.
-2. **+ Add account** adds another account slot for the same provider; every
-   account participates in rotation.
-3. **Disconnect** removes that account's token; **Reconnect** repeats OAuth on
-   the same slot. The × button disconnects and drops the slot.
-4. If the provider redirects to a localhost or vendor URL that this host cannot
-   receive, paste the full redirected URL (or the `code` value) into the
-   account row and click **Submit code**.
-5. Logged-in providers appear in the session model picker.
-
-Leave **Use this Web UI origin as OAuth redirect_uri** off unless you registered
-your own OAuth client for this origin. Vendor CLI clients typically require
-their published redirect URI plus the paste step.
-
-## Accounts and rotation
-
-Each provider holds any number of account slots (`CODEX_OAUTH_1`,
-`CODEX_OAUTH_2`, …). On `RATE_LIMIT`, `QUOTA`, or HTTP 429 the plugin cools the
-account down (`cooldownMs`, default 30 minutes) and retries the same request on
-the next account of the same provider — never a different provider.
-
-Beyond error-driven rotation, accounts are proactively skipped when:
-
-- usage is at 100% for the current window (vendor-reported), or
-- remaining quota fraction is at or below `switchAtRemaining`
-  (default `0.01` = 1%), or
-- the window resets within one minute (no point spending the tail).
-
-When every account is below threshold, the request still goes out on the first
-exhausted account — a refusal beats silence.
-
-## Quota visibility
-
-Vendors that report usage expose named windows (Claude `5h`/`7d apps`,
-Codex primary/secondary, Grok credits). Each window renders as a progress bar
-with percent; colors follow theme variables (normal / warning ≥70% / exhausted
-100%). The last known snapshot persists across harness restarts and refreshes
-on the next successful request.
-
-The plugin also estimates remaining requests for the primary window
-(`≈ N (5h)`) once enough request history exists — hidden when data is thin.
-
-### Limit notifications
-
-When a window crosses 70%, 90%, or 100%, the plugin logs a warning and emits a
-`subscriptions.limit-notice` event (provider, ref, window id, usedPercent,
-threshold). Each threshold fires once per window until it resets. Toggle with
-`notifyLimits` in Config.
-
-## Background maintenance
-
-Two timers run while the plugin is loaded:
-
-- **Token refresh ahead**: expiring tokens are refreshed before they are needed
-  (`refreshAheadMs`, default 5 min). Failures back off via `refreshRetryMs`
-  (default 10 min) and mark the card as *reconnect required*.
-- **Health probe loop**: every `probeIntervalMin` minutes (default 15, 0
-  disables) each connected account gets a cheap vendor check. Dead accounts
-  surface in the card; probes never set cooldown.
-
-Both timers clean up on plugin dispose.
-
-## HTTP proxy
-
-`POST|GET /dsh-subscriptions/proxy/{provider}/{path…}` forwards to the vendor
-API on behalf of a logged-in account — through the same allowlist, rotation,
-and quota accounting as model traffic. Same-origin only; no token ever appears
-in a response or log. Paths outside the per-provider allowlist get 403.
-
-Example:
-
-```bash
-curl -X POST https://<host>:3080/dsh-subscriptions/proxy/codex/models \
-  -H 'Content-Type: application/json' -d '{}'
-```
-
-## Export / import
-
-Tokens live in the host credentials store and normally tie the installation to
-one machine. To move them:
-
-```bash
-# export (returns an encrypted DSHE1 payload)
-curl -X POST https://<host>:3080/dsh-subscriptions/export \
-  -H 'Content-Type: application/json' -d '{"passphrase":"strong-passphrase"}'
-
-# import
-curl -X POST https://<host>:3080/dsh-subscriptions/import \
-  -H 'Content-Type: application/json' \
-  -d '{"passphrase":"strong-passphrase","payload":"DSHE1:…"}'
-```
-
-Bundles are AES-256-GCM encrypted with a key derived from your passphrase
-(scrypt). Without the passphrase nothing decrypts; wrong passphrase fails with
-a clear error. Tokens are never logged.
-
-## Composer provider switcher
-
-A small widget in the composer bar shows the active subscription provider;
-clicking cycles among logged-in providers without opening Settings. It does not
-change the session model picker state.
-
-## Session header chip
-
-A compact chip in the conversation header shows how many subscriptions are
-connected. It polls `/dsh-subscriptions/status` every minute and turns green
-when at least one account is active.
-
-## Quota reset countdown
-
-When a vendor reports a quota window reset timestamp, the account card shows a
-live `reset HH:MM:SS` countdown next to the quota bar, updating every second.
-
-## Slash commands
-
-From the chat, without opening Settings:
-
-```
-/login <provider>     # start OAuth for codex|claude|grok|antigravity (opens the vendor page)
-/login status         # insert the connected providers into the composer
-/logout <provider>    # disconnect that provider
-```
-
-## /subscriptions page
-
-A localhost-only summary page at `/dsh-subscriptions/subscriptions` lists every account slot,
-connection status, usage percent, remaining quota and reset time across all
-providers. Requests from non-loopback hosts get 403.
-
-## Import a token directly
-
-In any account card, paste an existing refresh token (or API key) and click
-**Import token** to sign in without the browser OAuth round trip. The token is
-written straight to the host credentials store via
-`POST /dsh-subscriptions/import-token { provider, index, refreshToken }`.
-
-
-## Credential names
-
-Tokens are JSON blobs in the DSH credentials store. Names look like:
-
-```text
-CODEX_OAUTH_1
-CLAUDE_OAUTH_2
-```
-
-`<PROVIDER>` is `CODEX`, `CLAUDE`, `GROK`, or `ANTIGRAVITY`.
-Settings GET never returns access or refresh tokens — only
-`{ configured, label, usagePercent, cooldownUntil, ref }`.
-
-## Providers
-
-| Key | Subscription | Default OAuth client |
-|---|---|---|
-| `codex` | ChatGPT / Codex | Vendor-public Codex CLI client id |
-| `claude` | Claude Pro/Max | Vendor-public Claude Code client id |
-| `grok` | xAI / SuperGrok | Vendor-public Grok CLI client id |
-| `antigravity` | Google Antigravity | Your OAuth client id + secret in Config |
-
-Override `codexClientId`, `claudeClientId`, and the other empty Config fields
-if you register your own OAuth app.
-
-Live requests use the vendor subscription surfaces, not API-key hosts:
-Codex `chatgpt.com/backend-api/codex/responses`, Claude Messages with the
-OAuth beta header, Grok `cli-chat-proxy.grok.com` with CLI identity headers,
-and Antigravity Cloud Code Assist (`loadCodeAssist` then
-`streamGenerateContent`). Usage endpoints, when they answer, feed the skip
-logic above. If a live model list fails, the built-in catalog is used.
-
-Antigravity uses a confidential Google OAuth client: set `antigravityClientId`
-and `antigravityClientSecret` in plugin Config (Settings) — nothing is baked
-into the repository.
-
-Default model catalogs are built-in lists you can replace with
-`codexModels`, `claudeModels`, `grokModels`, `antigravityModels`
-in the plugin Config.
-
-### Config reference
-
-| Key | Default | Meaning |
-|---|---|---|
-| `cooldownMs` | 1800000 | Cooldown after RATE_LIMIT/QUOTA/429 |
-| `switchAtRemaining` | 0.01 | Skip account when remaining ≤ this (fraction <1 or absolute ≥1); 0 disables |
-| `refreshAheadMs` | 300000 | Refresh tokens expiring within this window |
-| `refreshRetryMs` | 600000 | Backoff after a failed background refresh |
-| `probeIntervalMin` | 15 | Account health-check interval, minutes; 0 disables |
-| `notifyLimits` | true | Emit notices when usage crosses 70/90/100% |
-| `useWebCallback` | false | Use Web UI origin as OAuth redirect_uri |
-| `<vendor>Models` | built-in | Replace default model catalog per vendor |
-
-## Identity
-
-These three names must match:
-
-| Place | Value |
-|---|---|
-| `package.json` `name` | `@goodandready/dsh-subscriptions` |
-| `cordis.patch.yml` `name:` | `@goodandready/dsh-subscriptions` |
-| `lib/client.js` loader `id` | `@goodandready/dsh-subscriptions` |
-
-## License
-
-MIT
+MIT © [GooDAnDReaDY](https://github.com/GooDAnDReaDY)
