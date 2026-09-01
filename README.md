@@ -111,6 +111,31 @@ const res = await ctx.subscriptions.request('codex', '/backend-api/codex/images/
 
 ---
 
+### 5. 🔐 Login Without a Browser: Loopback & Device Code (`v0.4.9`)
+* **Automatic Loopback Callback (`autoLoopback`, on by default)**: For vendors whose OAuth redirect URI is a loopback address (Codex `:1455`, Grok `:56121`), the plugin spins up a temporary local HTTP server and catches the callback by itself — no URL pasting needed. The paste fallback always stays available.
+* **Device Code Login (Codex)**: On fully headless machines (no browser on any reachable host), use the **Device login** button in the Codex account card. The plugin requests a short user code from `auth.openai.com`, you open `https://auth.openai.com/codex/device` on any device, enter the code, and the plugin completes the standard PKCE exchange automatically.
+* **Classic Fallbacks Intact**: Web-origin redirect (`useWebCallback`) and manual paste of the redirected URL / authorization code remain available for custom OAuth clients.
+
+### 6. 🌍 Per-Account HTTP/SOCKS Proxy (`v0.4.9`)
+* **Individual Proxy per Account (`proxyUrl`)**: Every account slot accepts its own proxy URL (`http://`, `https://`, `socks5://[user:pass@]host:port`). All requests for that account — OAuth token refresh, vendor checks, model requests — are routed through it. Empty = direct connection.
+* **One-Click Proxy Check**: The account card has a **Check proxy** button: it performs a real request to the vendor base URL through the configured proxy and shows the round-trip latency or the failure reason.
+* **Request History Timings**: Every recorded request now carries its duration (`ms`) in the history store, so you can compare direct vs proxied latency over time.
+
+### 7. 🕶️ Privacy Masking & Diagnostics Report (`v0.4.9`)
+* **Privacy Masking (`privacyMask`)**: One toggle in the settings card masks personal data across the whole UI: emails render as `j***n@example.com` everywhere (account lists, status labels, check results). Designed for screen sharing and streaming. Server-side masking means labels never leak through API responses either; the underlying account data is never overwritten.
+* **Anonymized Diagnostics Report**: The settings card has a **Generate diagnostics report** block: one click fetches an anonymized report (plugin/runtime versions, OS, per-vendor health counters, aggregate HTTP status counts, last ≥400 errors with timings, non-secret settings) and copies it to the clipboard. Tokens, emails, credential refs and proxy URLs are strictly excluded (verified by tests).
+* **Issue-Ready**: The same block links to the project issue tracker, so a bug report is: generate → paste → submit.
+
+### 8. 🔌 HTTP API (added in `v0.4.9`)
+| Route | Method | Purpose |
+|---|---|---|
+| `/dsh-subscriptions/diagnostics` | GET | Anonymized diagnostics report (no secrets, no tokens, no proxy URLs) |
+| `/dsh-subscriptions/proxy-check` | POST | Latency check of a slot's proxy against its vendor base URL |
+| `/dsh-subscriptions/oauth/device/start` | POST | Begin Codex device-code login (returns user code + verification URL) |
+| `/dsh-subscriptions/oauth/device/poll` | POST | Poll device-code authorization status |
+
+---
+
 ## 📦 Quick Installation
 
 ```bash
@@ -128,6 +153,9 @@ dsh plugin --profile web add @goodandready/dsh-subscriptions
 dsh-subscriptions:
   switchAtRemaining: 1
   cooldownMs: 60000
+  autoLoopback: true        # v0.4.9: catch loopback OAuth callbacks automatically
+  privacyMask: false        # v0.4.9: mask emails and account identifiers in the UI
+  # Per-slot fields (v0.4.9): expiresAt (ms epoch), proxyUrl (http/https/socks5://)
   accounts:
     codex:
       - ref: CODEX_OAUTH_1
