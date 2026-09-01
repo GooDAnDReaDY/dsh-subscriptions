@@ -136,6 +136,22 @@ const res = await ctx.subscriptions.request('codex', '/backend-api/codex/images/
 
 ---
 
+### 9. 🦛 Local Ollama Gateway & Seamless Fallback (`v0.4.17`)
+* **Native Provider (`ollama`)**: When a local Ollama is reachable at `ollamaBaseUrl` (default `http://127.0.0.1:11434`), it appears in the native DSH model picker with the models discovered from `/api/tags`. No API key needed.
+* **Seamless Quota Fallback (`ollamaFallback`, on by default)**: When every account of a provider is exhausted (or unreachable) and nothing has been streamed yet, the chat continues on a local model (`ollamaFallbackModel`, or the first model from `/api/tags`). The fallback is logged and recorded in request history as `kind: fallback`.
+* **Free ($0) Emergency Path**: Works with no internet and no quota — ideal for offline demos.
+
+### 10. ⚡ Reasoning Effort, Verbosity & Fast Mode (`v0.4.17`)
+* **Reasoning Effort**: Codex models advertise their supported effort levels from the live catalog; the native picker validates and the chosen effort is transmitted as `reasoning.effort` in the Codex `/responses` protocol. Grok forwards effort with its own catalog-aware filtering.
+* **Verbosity (`codexVerbosity`)**: `low` / `medium` / `high` is sent as `text.verbosity` for Codex reasoning models. Empty = protocol default.
+* **Fast Mode (`codexFastMode`)**: Sends `service_tier: priority` (1.5x speed billing tier) with every Codex request. The active-subscription chip shows a `⚡` prefix while enabled.
+
+### 11. 🚦 Family-Scoped Cooldowns & Model Filtering (`v0.4.17`)
+* **Reasoning vs Standard**: A 429 on a reasoning model (claude `*thinking*`, grok `*reasoning*`, all codex models) cools down only the reasoning family of that account — standard models on the same account keep working immediately. Legacy cooldowns (from older versions) still block the whole account until expiry.
+* **Hide Deprecated Models (`hideDeprecatedModels`)**: Filters `test`/`preview`/`dev`/`alpha`/`beta`/`legacy` model ids out of the native picker (applies to live catalogs and the static fallback).
+
+---
+
 ## 📦 Quick Installation
 
 ```bash
@@ -155,6 +171,12 @@ dsh-subscriptions:
   cooldownMs: 60000
   autoLoopback: true        # v0.4.9: catch loopback OAuth callbacks automatically
   privacyMask: false        # v0.4.9: mask emails and account identifiers in the UI
+  ollamaBaseUrl: http://127.0.0.1:11434  # v0.4.17: local Ollama gateway
+  ollamaFallback: true      # v0.4.17: seamless fallback when all accounts are exhausted
+  ollamaFallbackModel: ''   # v0.4.17: e.g. qwen2.5-coder; empty = first model from /api/tags
+  hideDeprecatedModels: false # v0.4.17: filter test/preview/beta/legacy model ids
+  codexVerbosity: ''        # v0.4.17: low | medium | high (text.verbosity)
+  codexFastMode: false      # v0.4.17: service_tier priority (1.5x speed tier)
   # Per-slot fields (v0.4.9): expiresAt (ms epoch), proxyUrl (http/https/socks5://)
   accounts:
     codex:

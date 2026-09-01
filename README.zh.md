@@ -89,6 +89,20 @@ graph LR
 * 每个账号可配置独立代理（`http://`、`https://`、`socks5://`）；令牌刷新、供应商检查、模型请求均走该代理。
 * 账号卡片内的 **Check proxy** 按钮一键检测代理延迟。
 
+### 本地 Ollama 网关与无缝回退（`v0.4.17`）
+* **原生 provider (`ollama`)**：本地 Ollama 可达时（`ollamaBaseUrl`，默认 `http://127.0.0.1:11434`），自动出现在 DSH 原生模型选择器中（模型来自 `/api/tags`），无需密钥。
+* **无缝配额回退 (`ollamaFallback`，默认开启)**：某供应商的所有账号耗尽或不可达且尚未输出任何内容时，对话自动切换到本地模型（`ollamaFallbackModel` 或 `/api/tags` 第一个模型），并记录到请求历史（`kind: fallback`）。
+* 免费（$0）应急通道：无网络、无配额也能用。
+
+### Effort、Verbosity 与 Fast Mode（`v0.4.17`）
+* **推理力度 (Effort)**：Codex 模型从实时目录上报支持的力度等级，原生选择器校验后以 `reasoning.effort` 传入 `/responses` 协议；Grok 按自身目录过滤转发。
+* **详略程度 (`codexVerbosity`)**：`low`/`medium`/`high` 以 `text.verbosity` 传给 Codex 推理模型；留空为协议默认。
+* **Fast Mode (`codexFastMode`)**：每次 Codex 请求携带 `service_tier: priority`（1.5x 速度计费档）；启用时活动订阅芯片显示 `⚡`。
+
+### 按模型家族的冷却与模型过滤（`v0.4.17`）
+* **Reasoning 与 Standard 分离**：推理模型（claude `*thinking*`、grok `*reasoning*`、全部 codex 模型）触发 429 时，只冷却该账号的 reasoning 家族——同账号的 standard 模型立即可用；旧版冷却仍按整账号生效。
+* **隐藏过时模型 (`hideDeprecatedModels`)**：从原生选择器中过滤 `test`/`preview`/`dev`/`alpha`/`beta`/`legacy` 模型 id（同时作用于实时目录与静态回退）。
+
 ### 隐私模式与诊断报告（`v0.4.9`）
 * **`privacyMask`**：一个开关即可在整个界面隐藏个人数据（邮箱显示为 `j***n@example.com`），服务端遮蔽，适合屏幕共享。
 * **匿名诊断报告**：设置卡片内一键生成（插件/运行时版本、系统、各供应商健康状态、HTTP 状态聚合、最近错误与耗时、非敏感配置）并自动复制到剪贴板；令牌、邮箱、凭据名与代理地址严格排除。

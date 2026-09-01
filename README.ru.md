@@ -136,6 +136,22 @@ const res = await ctx.subscriptions.request('codex', '/backend-api/codex/images/
 
 ---
 
+### 9. 🦛 Локальный шлюз Ollama и бесшовный фолбэк (`v0.4.17`)
+* **Нативный провайдер (`ollama`)**: если локальный Ollama доступен по `ollamaBaseUrl` (по умолчанию `http://127.0.0.1:11434`), он появляется в нативном селекторе моделей DSH с моделями из `/api/tags`. Ключ не нужен.
+* **Бесшовный фолбэк (`ollamaFallback`, включён по умолчанию)**: когда все аккаунты провайдера исчерпаны (или недоступны) и ещё ничего не выведено, чат продолжается на локальной модели (`ollamaFallbackModel`, либо первая из `/api/tags`). Фолбэк пишется в журнал и в историю запросов как `kind: fallback`.
+* **Бесплатный ($0) аварийный путь**: работает без интернета и без квот — удобно для офлайн-демо.
+
+### 10. ⚡ Effort, Verbosity и Fast Mode (`v0.4.17`)
+* **Уровень рассуждений (Effort)**: модели Codex объявляют поддерживаемые уровни из живого каталога; нативный селектор валидирует выбор, и выбранный уровень передаётся как `reasoning.effort` в протокол `/responses`. Grok передаёт effort со своей каталог-осознанной фильтрацией.
+* **Детализация (`codexVerbosity`)**: `low` / `medium` / `high` передаётся как `text.verbosity` для reasoning-моделей Codex. Пусто = дефолт протокола.
+* **Fast Mode (`codexFastMode`)**: c каждым Codex-запросом передаётся `service_tier: priority` (платный скоростной тир 1.5x). В чипе активной подписки при включённом режиме отображается `⚡`.
+
+### 11. 🚦 Кулдауны по семействам и фильтрация моделей (`v0.4.17`)
+* **Reasoning vs Standard**: 429 на reasoning-модели (claude `*thinking*`, grok `*reasoning*`, все codex-модели) охлаждает только семейство reasoning этого аккаунта — standard-модели того же аккаунта продолжают работать. Legacy-кулдауны (от старых версий) по-прежнему блокируют весь аккаунт до истечения.
+* **Скрыть устаревшие модели (`hideDeprecatedModels`)**: убирает из нативного селектора id с `test`/`preview`/`dev`/`alpha`/`beta`/`legacy` (действует и на живые каталоги, и на статичный фолбэк).
+
+---
+
 ## 📦 Быстрая установка
 
 ```bash
@@ -152,6 +168,12 @@ dsh-subscriptions:
   cooldownMs: 60000
   autoLoopback: true        # v0.4.9: автоматически ловить loopback-callback
   privacyMask: false        # v0.4.9: маскировать email и учётные записи в UI
+  ollamaBaseUrl: http://127.0.0.1:11434  # v0.4.17: локальный шлюз Ollama
+  ollamaFallback: true      # v0.4.17: бесшовный фолбэк при исчерпании всех аккаунтов
+  ollamaFallbackModel: ''   # v0.4.17: например qwen2.5-coder; пусто = первая модель из /api/tags
+  hideDeprecatedModels: false # v0.4.17: фильтровать test/preview/beta/legacy id моделей
+  codexVerbosity: ''        # v0.4.17: low | medium | high (text.verbosity)
+  codexFastMode: false      # v0.4.17: service_tier priority (скоростной тир 1.5x)
   # Поля слота (v0.4.9): expiresAt (ms), proxyUrl (http/https/socks5://)
   accounts:
     codex:
