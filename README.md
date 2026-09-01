@@ -152,6 +152,30 @@ const res = await ctx.subscriptions.request('codex', '/backend-api/codex/images/
 
 ---
 
+### 12. 🧯 Safe Reset Credits (`v0.4.18`)
+* **Reset Card Visibility**: The Codex account card shows how many ChatGPT quota reset cards are available and when the earliest one expires.
+* **Deliberate Confirmation Flow**: Consuming a card requires an explicit checkbox ("I understand one attempt will be consumed") plus a mandatory 5-second cooldown before the Reset button activates.
+* **Double-Click Proof**: A host-side single-flight gate (synchronous pending lock before the first network await) makes it impossible for a double click or a concurrent call to consume two cards. Uncertain network results return the challenge to "prepared" for a safe retry of the same request.
+* **Honest Results**: Server verdicts are shown verbatim: `reset` / `nothing to reset` (nothing consumed) / `no usable credit` / `already redeemed`.
+
+### 13. 📊 Composer Quota Indicator & Runway Forecast (`v0.4.18`)
+* **Placement**: Renders in the input area next to the model switcher (`conversation.input.right` slot).
+* **Four display modes (`composerQuota` setting)**: `off` / `percent` (`85%`) / `bar` (40px mini bar, green>30 / amber 10-30 / red <10) / `forecast`.
+* **Runway Forecast**: A sliding 24h window of remaining-percent samples (up to 192 points) feeds a recency-weighted least-squares burn rate; below 30 min of observation or <1% consumed it stays `calibrating…`, with no consumption it says `no usage`. Ready state shows `~4.5h` / `~12m`.
+* **Auto-Hide**: No indicator for local Ollama or when nothing is active.
+
+### 14. 🧑‍💻 SUBS Pill & Session Console (`v0.4.18`)
+* **Pill in the Session Header**: `SUBS (N)` in the session header actions area with a pool-health LED: green <50% max usage, amber 50-90%, red ≥90%, gray when nothing is connected.
+* **Modal Console**: Clicking the pill opens an in-session modal listing every account (provider #index, connected/not, cooldown, quota %) and a shortcut to the settings card. Closes on outside click, ✕ or Escape.
+
+### 15. 🫧 Draggable HUD Widget (`v0.4.18`)
+* **Floating Bubble** on `shell.overlay`: a 64px circle with an SVG ring gauge of the active subscription balance, mounted via `createPortal`.
+* **Drag & Dock**: Drag anywhere; it snaps to any screen edge within 24px (peek-style half-hidden until hovered) and remembers its position in `localStorage`.
+* **Frosted Panel**: Hovering reveals a `backdrop-filter: blur(28px)` panel listing every account with usage bars. Clicking the bubble refreshes quota data; data also refreshes every 60 s.
+* **Settings Card Polish (`v0.4.18`)**: Chevron switched to the core `IconChevronDownOutline14` primitive; explicit settings snapshot states (loading / unavailable + Retry) guard against phantom input.
+
+---
+
 ## 📦 Quick Installation
 
 ```bash
@@ -177,6 +201,7 @@ dsh-subscriptions:
   hideDeprecatedModels: false # v0.4.17: filter test/preview/beta/legacy model ids
   codexVerbosity: ''        # v0.4.17: low | medium | high (text.verbosity)
   codexFastMode: false      # v0.4.17: service_tier priority (1.5x speed tier)
+  composerQuota: 'off'      # v0.4.18: composer indicator: off | percent | bar | forecast
   # Per-slot fields (v0.4.9): expiresAt (ms epoch), proxyUrl (http/https/socks5://)
   accounts:
     codex:

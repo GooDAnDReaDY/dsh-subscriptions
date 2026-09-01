@@ -174,6 +174,7 @@ dsh-subscriptions:
   hideDeprecatedModels: false # v0.4.17: фильтровать test/preview/beta/legacy id моделей
   codexVerbosity: ''        # v0.4.17: low | medium | high (text.verbosity)
   codexFastMode: false      # v0.4.17: service_tier priority (скоростной тир 1.5x)
+  composerQuota: 'off'      # v0.4.18: индикатор в строке ввода: off | percent | bar | forecast
   # Поля слота (v0.4.9): expiresAt (ms), proxyUrl (http/https/socks5://)
   accounts:
     codex:
