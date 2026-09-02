@@ -30,3 +30,18 @@ test('retries the next account after 429', async () => {
   assert.deepEqual(seen, ['CODEX_OAUTH_1', 'CODEX_OAUTH_2'])
   assert.equal(chunks[0].text, 'ok')
 })
+
+test('SubscriptionAdapter.prepareCall returns model and stream callable', async () => {
+  const { SubscriptionAdapter } = await import('../lib/adapter.js')
+  const adapter = new SubscriptionAdapter({
+    listAccounts: async () => [{ hasToken: true, ref: 'CODEX_OAUTH_1' }],
+    vendorConfig: () => ({ models: ['gpt-5.4-mini'] }),
+    ensureFresh: async (p, b) => b,
+    loadBlob: async () => ({ access_token: 'tok' }),
+    cooldownMs: () => 1000,
+  })
+  const prepared = await adapter.prepareCall('codex', 'gpt-5.4-mini')
+  assert.ok(prepared)
+  assert.equal(prepared.model.id, 'gpt-5.4-mini')
+  assert.equal(typeof prepared.stream, 'function')
+})
