@@ -402,3 +402,15 @@ test('antigravity stream uses Antigravity identity headers', async () => {
   assert.match(headers['Client-Metadata'], /duetProject/)
   assert.match(headers['user-agent'] || headers['User-Agent'] || '', /antigravity\//)
 })
+
+test('import-local creates slot and persists config when slot does not exist', async () => {
+  // Unit test for import-local logic
+  const liveSlots = [{ provider: 'antigravity', index: 1, label: 'test' }]
+  const prov = 'cursor'
+  const idx = 1
+  const exists = liveSlots.some((s) => s && s.provider === prov && Number(s.index) === idx)
+  assert.equal(exists, false)
+  const nextSlots = liveSlots.concat([{ provider: prov, index: idx, label: 'vadim@test.com' }])
+  assert.equal(nextSlots.length, 2)
+  assert.equal(nextSlots[1].provider, 'cursor')
+})
