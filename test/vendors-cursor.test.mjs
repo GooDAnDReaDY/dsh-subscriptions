@@ -10,7 +10,7 @@ test('cursor providerInfo and defaults', () => {
 })
 
 test('cursor listModels returns models with contextWindow', async () => {
-  const models = await cursor.listModels()
+  const models = await cursor.listModels(null, cursor.defaults())
   assert.ok(models.length >= 3)
   const composer = models.find((m) => m.id === 'composer-2')
   assert.equal(composer.contextWindow, 200000)
