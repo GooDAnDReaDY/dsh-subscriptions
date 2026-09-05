@@ -1,6 +1,6 @@
 {
   "name": "@goodandready/dsh-subscriptions",
-  "version": "0.5.22",
+  "version": "0.5.23",
   "description": "Use ChatGPT Codex, Claude, Grok, and Antigravity subscriptions as DeepSeek Harness LLM providers via OAuth.",
   "license": "MIT",
   "type": "module",
@@ -35,7 +35,7 @@
     "url": "https://github.com/GooDAnDReaDY/dsh-subscriptions/issues"
   },
   "scripts": {
-    "test": "node --test test/*.test.mjs"
+    "test": "eslint lib/ && node --test test/*.test.mjs"
   },
   "dsh": {
     "bundle": {
