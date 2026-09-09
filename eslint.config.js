@@ -48,7 +48,7 @@ export default [
     }
   },
   {
-    files: ["lib/client.js"],
+    files: ["lib/client.js", "lib/ui/**/*.js"],
     languageOptions: {
       globals: {
         window: "readonly",
