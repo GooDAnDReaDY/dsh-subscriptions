@@ -31,7 +31,7 @@ zero-token-leak proxying.
 - `lib/oauth.js`, `lib/pkce.js`, `lib/loopback.js`, `lib/jwt.js` — auth stack.
 - `lib/rotate.js`, `lib/ratelimit.js`, `lib/quarantine.js` — account pools,
   rate-limit parsing, family-scoped cooldowns.
-- `test/` — 52 suites (213 tests) covering protocols, parsers, rotation and borders.
+- `test/` — 55+ suites covering protocols, parsers, rotation and borders.
 
 ## Dependencies
 
