@@ -6,7 +6,7 @@ Kiro, Copilot, Qwen, ERNIE, Spark, JetBrains, Perplexity, Replit, Cody) as
 native DSH LLM providers with multi-account rotation, quota fallback and
 zero-token-leak proxying.
 
-- Status: published on npm (`@goodandready/dsh-subscriptions`), active 0.5.x
+- Status: published on npm (`@goodandready/dsh-subscriptions`), active 0.6.x
   development. Map verified: 2026-09-09.
 - Spec: [docs/architecture/2026-08-20-dsh-subscriptions-design.md](docs/architecture/2026-08-20-dsh-subscriptions-design.md)
 - Plan: [docs/plans/2026-08-20-dsh-subscriptions.md](docs/plans/2026-08-20-dsh-subscriptions.md)
