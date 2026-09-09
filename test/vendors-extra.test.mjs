@@ -24,6 +24,15 @@ const VENDORS = [
   ['cody', 'Sourcegraph Cody', 'https://sourcegraph.com/'],
 ]
 
+test('BUILTIN_PROVIDERS matches the builtins registry', async () => {
+  const { BUILTIN_PROVIDERS } = await import('../lib/refs.js')
+  const registry = await import('../lib/vendors/index.js')
+  // registry exposes a Proxy of vendor namespaces; enumerate via getVendor probes
+  const expected = ['codex','claude','grok','antigravity','kimi','glm','cursor','kiro','copilot','qwen','ernie','spark','jetbrains','perplexity','replit','cody']
+  for (const id of expected) assert.ok(registry.isProvider(id), id + ' must be registered')
+  assert.deepEqual([...BUILTIN_PROVIDERS].sort(), [...expected].sort())
+})
+
 for (const [id, name, authHost] of VENDORS) {
   test(`${id} is registered with catalog and defaults`, async () => {
     const vendor = getVendor(id)
