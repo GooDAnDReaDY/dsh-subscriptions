@@ -138,6 +138,12 @@ dsh plugin --profile web add @goodandready/dsh-subscriptions
 
 ---
 
+## 🌐 本地化
+
+插件源语言仅为英语。俄语及其他翻译由独立的语言插件（如俄化插件）在运行时对注册的本地化键进行翻译，包本身不内置翻译（Changed in 0.6.1）。
+
+---
+
 ## 📄 开源协议
 
 MIT © [GooDAnDReaDY](https://github.com/GooDAnDReaDY)
