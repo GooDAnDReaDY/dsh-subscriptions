@@ -68,13 +68,25 @@ graph LR
 
 ## ✨ 核心功能
 
-### 支持的内置订阅供应商
+### 支持的 16 个内置订阅供应商
 | 供应商 | 订阅级别 | 协议 |
 |---|---|---|
 | `codex` | ChatGPT Plus / Pro | 流式响应、工具调用、图像生成 |
 | `claude` | Claude Pro / Max | 原生 Messages 协议、用量跟踪 |
 | `grok` | xAI / X Premium | 实时推理、计费检查 |
 | `antigravity` | Google Cloud Code Assist | 流式生成 |
+| `kimi` | Moonshot Kimi | OAuth Device Flow 登录（`auth.kimi.com`）、OpenAI 兼容聊天 |
+| `glm` | Z.ai GLM Coding Plan | GLM 编码端点（`api.z.ai`）、实时配额监控 |
+| `cursor` | Cursor | Cursor 后端（`api2.cursor.sh`）、用量面板解析 |
+| `kiro` | AWS Kiro | Kiro 桌面 OAuth（`app.kiro.dev`）、流式输出 |
+| `copilot` | GitHub Copilot | GitHub Device Flow 登录、Copilot 聊天补全 |
+| `qwen` | 阿里 Qwen（DashScope） | OpenAI 兼容端点、API Key 认证 |
+| `ernie` | 百度 ERNIE（千帆） | OAuth2 令牌刷新（API Key + Secret Key） |
+| `spark` | 讯飞星火 | OpenAI 兼容 HTTP API |
+| `jetbrains` | JetBrains AI Assistant | JetBrains AI 中继（`api.jetbrains.ai`） |
+| `perplexity` | Perplexity Pro | Sonar 模型目录（`api.perplexity.ai`） |
+| `replit` | Replit Core | Replit AI API、connect-token 认证 |
+| `cody` | Sourcegraph Cody Pro | Sourcegraph API、access-token 认证 |
 
 ### 多账号轮换与限流保护
 * 每个供应商可挂多个账号（如 `CODEX_OAUTH_1`、`CODEX_OAUTH_2`）。
@@ -107,6 +119,14 @@ graph LR
 * **`privacyMask`**：一个开关即可在整个界面隐藏个人数据（邮箱显示为 `j***n@example.com`），服务端遮蔽，适合屏幕共享。
 * **匿名诊断报告**：设置卡片内一键生成（插件/运行时版本、系统、各供应商健康状态、HTTP 状态聚合、最近错误与耗时、非敏感配置）并自动复制到剪贴板；令牌、邮箱、凭据名与代理地址严格排除。
 * 同区块提供问题追踪器链接，便于提交 issue。
+
+### HTTP API 路由（`v0.4.9`）
+| 路由 | 方法 | 用途 |
+|---|---|---|
+| `/dsh-subscriptions/diagnostics` | GET | 匿名诊断报告（无密钥、无令牌、无代理地址） |
+| `/dsh-subscriptions/proxy-check` | POST | 检测槽位代理到供应商基础地址的延迟 |
+| `/dsh-subscriptions/oauth/device/start` | POST | 发起 Codex 设备码登录（返回用户码与验证地址） |
+| `/dsh-subscriptions/oauth/device/poll` | POST | 轮询设备码授权状态 |
 
 ---
 

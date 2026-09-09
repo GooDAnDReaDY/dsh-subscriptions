@@ -68,7 +68,7 @@ graph LR
 
 ## ✨ Ключевые возможности
 
-### 1. 🌐 4 Поддерживаемых встроенных вендора подписок
+### 1. 🌐 16 Поддерживаемых встроенных вендоров подписок
 
 | Ключ вендора | Тариф подписки | Протокол и возможности |
 |---|---|---|
@@ -76,6 +76,18 @@ graph LR
 | `claude` | Claude Pro / Max | Нативный протокол Claude Messages, трекинг расхода (`/v1/messages`, `/api/oauth/...`) |
 | `grok` | xAI / X Premium | Ответы с рассуждениями, проверка баланса и поиск в соцсети |
 | `antigravity` | Google Cloud Code Assist | Движок Antigravity (`/v1/loadCodeAssist`, `/v1/streamGenerateContent`) |
+| `kimi` | Moonshot Kimi | Вход по OAuth Device Flow (`auth.kimi.com`), OpenAI-совместимый чат |
+| `glm` | Z.ai GLM Coding Plan | Кодинг-эндпоинт GLM (`api.z.ai`), живой монитор квоты (`/api/monitor/usage/quota/limit`) |
+| `cursor` | Cursor | Бэкенд Cursor (`api2.cursor.sh`), разбор дашборда расхода за период |
+| `kiro` | AWS Kiro | Десктопный OAuth Kiro (`app.kiro.dev`), стриминг кода |
+| `copilot` | GitHub Copilot | Вход по GitHub Device Flow (`github.com/login/device`), chat completions Copilot |
+| `qwen` | Alibaba Qwen (DashScope) | OpenAI-совместимый эндпоинт (`dashscope.aliyuncs.com/compatible-mode/v1`), вход по API-ключу |
+| `ernie` | Baidu ERNIE (Qianfan) | Продление OAuth2-токена по связке API Key + Secret Key, чат Wenxinworkshop |
+| `spark` | iFlytek Spark | OpenAI-совместимый HTTP API Spark (`spark-api-open.xf-yun.com/v1`) |
+| `jetbrains` | JetBrains AI Assistant | Релей JetBrains AI (`api.jetbrains.ai`) |
+| `perplexity` | Perplexity Pro | Каталог моделей Sonar (`api.perplexity.ai`) |
+| `replit` | Replit Core | Replit AI API (`replit.com/api/v1/ai`), вход по connect-токену |
+| `cody` | Sourcegraph Cody Pro | Sourcegraph API (`sourcegraph.com/.api`), вход по access-токену |
 
 *Также поддерживается регистрация кастомных вендоров через фабрику профилей `createVendorFromProfile`.*
 

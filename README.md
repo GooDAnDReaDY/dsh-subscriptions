@@ -68,7 +68,7 @@ graph LR
 
 ## ✨ Key Features & Capabilities
 
-### 1. 🌐 4 Supported Built-in Subscription Vendors
+### 1. 🌐 16 Supported Built-in Subscription Vendors
 
 | Vendor Key | Subscription Tier | Protocol & Features |
 |---|---|---|
@@ -76,6 +76,18 @@ graph LR
 | `claude` | Claude Pro / Max | Native Claude Messages protocol, usage tracking (`/v1/messages`, `/api/oauth/...`) |
 | `grok` | xAI / X Premium | Real-time reasoning responses, billing checks & social search |
 | `antigravity` | Google Cloud Code Assist | Antigravity engine (`/v1/loadCodeAssist`, `/v1/streamGenerateContent`) |
+| `kimi` | Moonshot Kimi | OAuth Device Flow login (`auth.kimi.com`), OpenAI-compatible chat |
+| `glm` | Z.ai GLM Coding Plan | GLM coding endpoint (`api.z.ai`), live quota monitor (`/api/monitor/usage/quota/limit`) |
+| `cursor` | Cursor | Cursor backend (`api2.cursor.sh`), billing-period usage dashboard parsing |
+| `kiro` | AWS Kiro | Kiro desktop OAuth (`app.kiro.dev`), streaming code assistance |
+| `copilot` | GitHub Copilot | GitHub Device Flow login (`github.com/login/device`), Copilot chat completions |
+| `qwen` | Alibaba Qwen (DashScope) | OpenAI-compatible endpoint (`dashscope.aliyuncs.com/compatible-mode/v1`), API key auth |
+| `ernie` | Baidu ERNIE (Qianfan) | OAuth2 token refresh via API Key + Secret Key, Wenxinworkshop chat |
+| `spark` | iFlytek Spark | OpenAI-compatible Spark HTTP API (`spark-api-open.xf-yun.com/v1`) |
+| `jetbrains` | JetBrains AI Assistant | JetBrains AI relay (`api.jetbrains.ai`) |
+| `perplexity` | Perplexity Pro | Sonar model catalog (`api.perplexity.ai`) |
+| `replit` | Replit Core | Replit AI API (`replit.com/api/v1/ai`), connect-token auth |
+| `cody` | Sourcegraph Cody Pro | Sourcegraph API (`sourcegraph.com/.api`), access-token auth |
 
 *Custom vendors can also be dynamically registered via the `createVendorFromProfile` factory.*
 
