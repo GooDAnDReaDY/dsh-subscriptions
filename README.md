@@ -231,6 +231,12 @@ dsh-subscriptions:
 
 ---
 
+## 🌐 Localization
+
+The plugin source language is English only. Russian and other translations are provided at runtime by separate language plugins (for example the russification plugin), which translate the registered locale keys - the package itself ships no bundled translations (Changed in 0.6.1).
+
+---
+
 ## 📄 License
 
 MIT © [GooDAnDReaDY](https://github.com/GooDAnDReaDY)
