@@ -172,6 +172,11 @@ dsh plugin --profile web add @goodandready/dsh-subscriptions
 
 ---
 
+
+> [!TIP]
+> **Карточка настроек в UI vs Настройки в YAML**:
+> Все основные параметры (слоты аккаунтов, перехват autoLoopback, privacyMask, индикатор composerQuota, оповещение expiryNotifyDays, codexFastMode, codexVerbosity, ollamaFallback/baseUrl/model, интервалы cooldown и probe) настраиваются напрямую в Web UI: **«Настройки → Плагины → Настройки плагинов → Subscriptions»**. Низкоуровневые оверрайды (собственные OAuth Client ID / Redirect URI, Base URL для прокси, кастомные вендоры) задаются в `settings.yaml`.
+
 ## ⚙️ Пример конфигурации (`settings.yaml`)
 
 ```yaml

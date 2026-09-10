@@ -13,9 +13,9 @@
 ## User Surfaces
 - Web/UI: одна карточка в «Настройки → Плагины → Настройки плагинов»
   (слот `settings.plugin.item`, ключ = пространство настроек
-  `dsh-subscriptions`). Fallback: если ядро не объявляет слот настроечной
-  вкладки, плагин регистрирует собственный раздел `settings.section`
-  (совместимость со старыми ядрами, помечено к удалению).
+  `dsh-subscriptions`). Боковой раздел `settings.section` полностью удалён
+  (issue #282) — плагин живёт строго внутри вкладки «Настройки плагинов» и не
+  засоряет боковое меню ядра.
 - Карточка: свёрнута по умолчанию; заголовок-кнопка с `aria-expanded`,
   ядровый шеврон `IconChevronDownOutline14` с SVG-fallback; внутри — карточки
   аккаунтов по вендорам, статусы, квоты, кнопки OAuth-входа, диагностика.
@@ -96,10 +96,51 @@
   владельца.
 - 2026-08-20 — ключи вендоров только через сервис учётных данных DSH;
   clientSecret выведен из схемы настроек (issue #252).
-- 2026-09-04 — карточка настроек в `settings.plugin.item` с fallback на
-  `settings.section` только для старых ядер (#244); условие пересмотра —
-  удаление fallback после минимальной поддерживаемой версии ядра.
+- 2026-09-04 — карточка настроек в `settings.plugin.item` (#244).
+- 2026-09-10 — удаление fallback `settings.section` (issue #282): плагин регистрирует
+  только карточку `settings.plugin.item`; собственный пункт верхнего уровня в плоском
+  списке ядра ликвидирован.
+- 2026-09-10 — аудит 30 полей схемы настроек (issue #282): все настраиваемые пользователем
+  поля выведены в UI карточки; низкоуровневые override-поля документированы как YAML/config-only.
 - 2026-09-09 — локальный контракт (#273; Changed in 0.6.1): исходный язык плагина — только английский; русский во время работы предоставляет отдельный плагин русификации. Встроенный `ru`-словарь реестра и его регистрация удалены (были дублем того, что даёт плагин русификации); захардкоженные русские строки в ошибках маршрутов и логах переведены на английский. Осознанные исключения (структурный per-language контент, недоступный плагину русификации): INSTRUCTIONS.stepsRu в ui/locale-data.js, RELATIVE_UNITS.ru в relative-time.js, пары {ru,en} в usage.js, isRu-условные строки в ui/bits.js и ui/subs-section.js. Условие пересмотра: если плагин русификации научится переводить нерегистровый контент.
 - 2026-09-08 — приватность по умолчанию: токены никогда не покидают сервер
   (проксирование через `ctx.subscriptions.request`), маскирование —
   серверное, до отдачи в UI.
+
+
+## Settings Schema Audit & Coverage (#282)
+
+Полная инспекция всех 30 полей схемы (`lib/config-schema.js`):
+
+| # | Поле схемы | Тип | Где настраивается | Назначение / Обоснование |
+|---|------------|-----|-------------------|--------------------------|
+| 1 | `slots` | array | UI (Карточки аккаунтов) | Список настроенных слотов провайдеров и учётных записей. |
+| 2 | `useWebCallback` | boolean | UI (Чекбокс) | Использовать текущий Web UI origin как redirect_uri для OAuth. |
+| 3 | `privacyMask` | boolean | UI (Чекбокс) | Маскирование email и идентификаторов в UI для демонстраций. |
+| 4 | `autoLoopback` | boolean | UI (Чекбокс) | Автоматический перехват токена на локальном loopback-порту. |
+| 5 | `hideDeprecatedModels` | boolean | UI (Чекбокс) | Скрытие устаревших моделей вендоров в интерфейсе. |
+| 6 | `composerQuota` | string (enum) | UI (Выпадающий список) | Отображение индикатора квоты в composer (`off`, `percent`, `bar`, `forecast`). |
+| 7 | `expiryNotifyDays` | number | UI (Числовое поле) | Порог предупреждения об истечении подписки в днях (0 — выкл). |
+| 8 | `codexFastMode` | boolean | UI (Чекбокс) | Ускоренный режим 1.5x для моделей OpenAI Codex. |
+| 9 | `codexVerbosity` | string (enum) | UI (Выпадающий список) | Детализация стриминга Codex (`default`, `low`, `medium`, `high`). |
+| 10 | `ollamaFallback` | boolean | UI (Чекбокс) | Включение резервного переключения на локальный Ollama при исчерпании квот. |
+| 11 | `ollamaBaseUrl` | string | UI (Текстовое поле) | URL локального сервера Ollama (`http://localhost:11434`). |
+| 12 | `ollamaFallbackModel` | string | UI (Текстовое поле) | Имя fallback-модели в Ollama (`llama3:latest`). |
+| 13 | `cooldownMs` | number | UI (Числовое поле в деталях) | Время паузы аккаунта при сбоях/429 (в минутах в UI). |
+| 14 | `probeIntervalMin` | number | UI (Числовое поле в деталях) | Интервал фоновой проверки здоровья и баланса квот (в минутах). |
+| 15 | `notifyLimits` | boolean | UI (Чекбокс в деталях) | Уведомления при достижении лимитов использования. |
+| 16 | `switchAtRemaining` | number | YAML/config-only | Низкоуровневый порог переключения аккаунтов по квоте (дефолт: 0.05). Регулируется инфраструктурно. |
+| 17 | `refreshAheadMs` | number | YAML/config-only | Упреждающее время обновления токенов до их истечения (дефолт: 5 мин). Внутренний тайминг OAuth. |
+| 18 | `refreshRetryMs` | number | YAML/config-only | Пауза перед повторной попыткой обновления токена при сбое (дефолт: 30 с). Внутренний тайминг. |
+| 19 | `codexClientId` | string | YAML/config-only | Переопределение OAuth Client ID для Codex. Требуется только при собственной регистрации приложения. |
+| 20 | `codexRedirectUri` | string | YAML/config-only | Переопределение redirect_uri для Codex OAuth. |
+| 21 | `codexBaseUrl` | string | YAML/config-only | Переопределение endpoint API Codex (для enterprise/mock proxy). |
+| 22 | `claudeClientId` | string | YAML/config-only | Переопределение OAuth Client ID для Claude. |
+| 23 | `claudeRedirectUri` | string | YAML/config-only | Переопределение redirect_uri для Claude OAuth. |
+| 24 | `grokClientId` | string | YAML/config-only | Переопределение OAuth Client ID для Grok. |
+| 25 | `grokRedirectUri` | string | YAML/config-only | Переопределение redirect_uri для Grok OAuth. |
+| 26 | `grokBaseUrl` | string | YAML/config-only | Переопределение базового URL для Grok API. |
+| 27 | `grokClientVersion`| string | YAML/config-only | Версия клиента для телеметрии Grok. Регулируется версионированием плагина. |
+| 28 | `antigravityClientId` | string | YAML/config-only | Переопределение OAuth Client ID для Antigravity. |
+| 29 | `antigravityRedirectUri` | string | YAML/config-only | Переопределение redirect_uri для Antigravity OAuth. |
+| 30 | `customVendors` | array | YAML/config-only | Декларация нестандартных vendor-адаптеров через конфигурационный файл DSH. |

@@ -195,9 +195,14 @@ dsh plugin --profile web add @goodandready/dsh-subscriptions
 ```
 
 > [!IMPORTANT]
-> Restart DSH Web UI after installation (`systemctl --user restart dsh-web`) and navigate to **Settings → Subscriptions** to link your accounts.
+> Restart DSH Web UI after installation (`systemctl --user restart dsh-web`) and navigate to **Settings → Plugins → Plugin Settings → Subscriptions** to link your accounts.
 
 ---
+
+
+> [!TIP]
+> **UI Settings Card vs YAML Overrides**:
+> All common options (account slots, autoLoopback, privacyMask, composerQuota, expiryNotifyDays, codexFastMode, codexVerbosity, ollamaFallback/baseUrl/model, and cooldown/probe intervals) can be managed directly in the Web UI card (**Settings → Plugins → Plugin Settings → Subscriptions**). Low-level parameters such as OAuth client IDs/redirect URIs, API base URL overrides, and custom vendors are configured in `settings.yaml`.
 
 ## ⚙️ Configuration Reference (`settings.yaml`)
 
