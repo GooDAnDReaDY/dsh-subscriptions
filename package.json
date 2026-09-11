@@ -1,6 +1,6 @@
 {
   "name": "@goodandready/dsh-subscriptions",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "description": "Use ChatGPT Codex, Claude, Grok, Antigravity, Kimi, GLM, Cursor, Kiro, Copilot, Qwen, ERNIE, Spark, JetBrains, Perplexity, Replit, and Cody subscriptions as DeepSeek Harness LLM providers via OAuth.",
   "license": "MIT",
   "type": "module",
