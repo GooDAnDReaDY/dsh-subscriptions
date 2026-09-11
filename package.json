@@ -35,7 +35,8 @@
     "url": "https://github.com/GooDAnDReaDY/dsh-subscriptions/issues"
   },
   "scripts": {
-    "test": "eslint lib/ && node --test test/*.test.mjs"
+    "test": "eslint lib/ && node --test test/*.test.mjs",
+    "typecheck": "tsc -p tsconfig.checkjs.json"
   },
   "dsh": {
     "bundle": {
@@ -62,6 +63,8 @@
     "undici": "^8.10.1"
   },
   "devDependencies": {
-    "@deepseek-ai/dsh-llm": "0.1.0-rc.8"
+    "@deepseek-ai/dsh-llm": "0.1.0-rc.8",
+    "@types/node": "^22.20.2",
+    "typescript": "^7.0.2"
   }
 }
