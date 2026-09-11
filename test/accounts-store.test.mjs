@@ -166,3 +166,24 @@ test('listAccounts and loggedInProviders survive an empty store', async () => {
   const providers = await store.loggedInProviders()
   assert.equal(typeof providers, 'object')
 })
+
+test('describeRef exposes the cooldown scope and the quarantine reason', async () => {
+  const store = makeStore(fakeCredentials())
+  const ref = 'CURSOR_OAUTH_1'
+  store.rememberCooldown(ref, Date.now() + 60000, ['reasoning'])
+  store.rememberQuarantine(ref, 'VERIFY', Date.now() + 60000)
+  const info = await store.describeRef(ref)
+  assert.deepEqual(info.cooldownFamilies, ['reasoning'])
+  assert.equal(info.quarantineReason, 'VERIFY')
+  assert.ok(info.quarantineUntil > Date.now())
+})
+
+test('describeRef reports no scope for a whole-account cooldown', async () => {
+  const store = makeStore(fakeCredentials())
+  const ref = 'CURSOR_OAUTH_2'
+  store.rememberCooldown(ref, Date.now() + 60000)
+  const info = await store.describeRef(ref)
+  assert.equal(info.cooldownFamilies, null)
+  assert.equal(info.quarantineReason, null)
+  assert.equal(info.quarantineUntil, 0)
+})
