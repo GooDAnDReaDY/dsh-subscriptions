@@ -41,3 +41,11 @@ test('exposes schema controls in SubsSection', () => {
   assert.match(src, /probeIntervalMin/)
   assert.match(src, /notifyLimits/)
 })
+
+test('client includes clinebot-style status badges, telemetry cards and smoke ping', () => {
+  assert.match(src, /dsub-header-bar/)
+  assert.match(src, /dsub-badge/)
+  assert.match(src, /dsub-stat-box/)
+  assert.match(src, /runSmokeTest/)
+  assert.match(src, /reloadTelemetry/)
+})

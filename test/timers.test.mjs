@@ -46,7 +46,7 @@ test('background ticks are safe no-ops on an empty config and never touch the ne
     const { ctx, state } = fakeCtx({})
     mod.apply(ctx, mod.Config({}))
     await mock.timers.tick(10 * 60 * 1000)
-    await new Promise((r) => setImmediate(r))
+    await new Promise((r) => globalThis.setImmediate(r))
 
     const external = fetchCalls.filter((u) => !String(u).includes('127.0.0.1') && !String(u).includes('localhost'))
     assert.deepEqual(external, [], 'empty config must not trigger any external vendor request')
@@ -69,7 +69,7 @@ test('refresh-ahead skips blobs that are far from expiry', async () => {
     const { ctx, state } = fakeCtx(cfg)
     mod.apply(ctx, mod.Config(cfg))
     await mock.timers.tick(5 * 60 * 1000)
-    await new Promise((r) => setImmediate(r))
+    await new Promise((r) => globalThis.setImmediate(r))
 
     const external = fetchCalls.filter((u) => !String(u).includes('127.0.0.1') && !String(u).includes('localhost'))
     // Eager usage/model probes (#75) are expected at startup; a token

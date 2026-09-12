@@ -186,6 +186,13 @@ const res = await ctx.subscriptions.request('codex', '/backend-api/codex/images/
 * **Frosted Panel**: Hovering reveals a `backdrop-filter: blur(28px)` panel listing every account with usage bars. Clicking the bubble refreshes quota data; data also refreshes every 60 s.
 * **Settings Card Polish (`v0.4.18`)**: Chevron switched to the core `IconChevronDownOutline14` primitive; explicit settings snapshot states (loading / unavailable + Retry) guard against phantom input.
 
+### 16. ⚡ ClineBot-Inspired UI & Hardened Telemetry (`v0.6.6`)
+* **Live Status Badge Bar**: Instant latency check to the host (`Host online (XX ms)`), real-time connected account indicators, and pool size at a glance.
+* **One-Click Smoke Test (Ping)**: Test live connectivity to the active upstream subscription provider and measure real round-trip latency.
+* **Session Telemetry Dashboard**: Visual stat cards displaying successful/total requests, average latency, session success rate, and last request activity.
+* **Curated Models Catalog**: Quick preview of supported model families with context windows and capability tags (Vision, Reasoning, Hybrid).
+* **Non-Blocking Storage**: `HistoryStore` debounces disk persistence asynchronously to prevent blocking the Node.js event loop during high-throughput streaming.
+
 ---
 
 ## 📦 Quick Installation
