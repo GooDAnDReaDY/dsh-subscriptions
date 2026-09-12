@@ -243,6 +243,15 @@ dsh-subscriptions:
 
 ---
 
+## 🧠 Claude Adaptive Thinking & Effort (Added in v0.6.7)
+
+Supports Anthropic's adaptive thinking (`thinking: { type: "adaptive" }`) and reasoning effort steering (`output_config: { effort }`):
+- **Model Support**: Automatically gates effort levels for Opus 4.6+, Opus 4.7+, Opus 5 (`low`, `medium`, `high`, `xhigh`, `max`) and Sonnet 4.6+, Sonnet 5 (`low`, `medium`, `high`).
+- **Safe Fallback**: Models that do not support adaptive thinking (Haiku, Fable, 4.5 and earlier) reject the parameter cleanly and leave requests unaugmented to prevent 400 Bad Request API errors.
+- **Dynamic Catalog**: The provider model catalog exports matching `reasoning.efforts` options to the DeepSeek Harness interface.
+
+---
+
 ## 🌐 Localization
 
 The plugin source language is English only. Russian and other translations are provided at runtime by separate language plugins (for example the russification plugin), which translate the registered locale keys - the package itself ships no bundled translations (Changed in 0.6.1).

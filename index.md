@@ -21,7 +21,7 @@ zero-token-leak proxying.
 - `lib/index.js` — server half: cordis plugin (`llm`, `credentials`,
   `webServer`, `settings`), `ctx.subscriptions` service for sibling plugins.
 - `lib/client.js` — browser half: self-contained settings card (`settings.plugin.item`), account/vendor cards, live telemetry and smoke ping, OAuth/device-flow UX.
-- `lib/vendors/` — 16 built-in vendor adapters; `lib/vendor-factory.js` —
+- `lib/vendors/` — 16 built-in vendor adapters (with adaptive thinking/reasoning effort for Claude); `lib/vendor-factory.js` —
   declarative profile-based custom vendors.
 - `lib/routes.js` — `/dsh-subscriptions/*` HTTP API (diagnostics, proxy-check,
   device flow).

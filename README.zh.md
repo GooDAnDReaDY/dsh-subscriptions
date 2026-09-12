@@ -138,6 +138,15 @@ dsh plugin --profile web add @goodandready/dsh-subscriptions
 
 ---
 
+## 🧠 Claude 自适应思考与推理深度控制 (v0.6.7 新增)
+
+支持 Anthropic 自适应思考 (`thinking: { type: "adaptive" }`) 及推理深度调节 (`output_config: { effort }`):
+- **模型支持**: 针对 Opus 4.6+、Opus 4.7+、Opus 5 (`low`, `medium`, `high`, `xhigh`, `max`) 及 Sonnet 4.6+、Sonnet 5 (`low`, `medium`, `high`) 自动提供对应推理级别。
+- **安全降级**: 不支持自适应思考的模型（如 Haiku、Fable、4.5 及更早版本）保持原始请求，防止出现 400 Bad Request 错误。
+- **动态目录**: 模型列表自动暴露 `reasoning.efforts`，供 DeepSeek Harness 界面选择。
+
+---
+
 ## 🌐 本地化
 
 插件源语言仅为英语。俄语及其他翻译由独立的语言插件（如俄化插件）在运行时对注册的本地化键进行翻译，包本身不内置翻译（Changed in 0.6.1）。

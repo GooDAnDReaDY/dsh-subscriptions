@@ -163,3 +163,13 @@
 | 28 | `antigravityClientId` | string | YAML/config-only | Переопределение OAuth Client ID для Antigravity. |
 | 29 | `antigravityRedirectUri` | string | YAML/config-only | Переопределение redirect_uri для Antigravity OAuth. |
 | 30 | `customVendors` | array | YAML/config-only | Декларация нестандартных vendor-адаптеров через конфигурационный файл DSH. |
+
+## Claude Adaptive Thinking & Reasoning Effort (v0.6.7)
+- **Управление рассуждениями**: для моделей Claude Anthropic поддерживается адаптивное мышление (`thinking: { type: "adaptive" }`) и передача уровня усилия (`output_config: { effort }`).
+- **Спецификация уровней по поколениям**:
+  - `claude-opus-5`, `claude-opus-4-7`: `["low", "medium", "high", "xhigh", "max"]`
+  - `claude-opus-4-6`: `["low", "medium", "high", "max"]`
+  - `claude-sonnet-5`, `claude-sonnet-4-6`: `["low", "medium", "high"]`
+  - Модели поколений 4.5 и ниже, а также семейства Haiku/Fable, не поддерживающие adaptive thinking, возвращают `null` и не рекламируют уровни усилия во избежание ошибок Anthropic API (400 Bad Request).
+- **Каталог моделей**: метод `listModels()` для поддерживаемых моделей автоматически декорирует манифест секцией `reasoning: { efforts: levels.map(...) }`.
+- **Поведение стриминга**: если `options.reasoningEffort` не задан или равен `"off"`, запрос уходит в Anthropic API без изменений.
