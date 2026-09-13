@@ -252,6 +252,14 @@ Supports Anthropic's adaptive thinking (`thinking: { type: "adaptive" }`) and re
 
 ---
 
+## 🌐 Full Bilingual Localization (EN / ZH) & Account Health (Added in v0.6.8)
+
+- **Strict Localization Standards**: Built-in UI dictionary is now 100% bilingual with complete English (`en`) and Simplified Chinese (`zh`) translation dictionaries and instruction guides.
+- **Decoupled Translations**: Russian and other localized translations are provided at runtime via standalone dictionary packages (such as `dsh-russian-lang`), leaving the core plugin codebase lean and zero-hardcoded.
+- **Per-Account Health & Latency Probe**: The slot check button now records live upstream round-trip latency (`latencyMs`) for each individual subscription account slot.
+
+---
+
 ## 🌐 Localization
 
 The plugin source language is English only. Russian and other translations are provided at runtime by separate language plugins (for example the russification plugin), which translate the registered locale keys - the package itself ships no bundled translations (Changed in 0.6.1).
