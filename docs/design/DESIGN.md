@@ -181,3 +181,17 @@
 - **Индивидуальный статус-чекер аккаунта**:
   - Кнопка «Check» в карточке аккаунта отправляет `POST /dsh-subscriptions/check`.
   - Маршрут теперь измеряет фактическое время ответа (`latencyMs`) и возвращает его в UI для мгновенной оценки здоровья и задержки конкретного слота.
+
+## Host One-Click Updater & Stability Hardening (v0.6.9)
+- **One-Click Plugin Updater (`/dsh-subscriptions/update`)**:
+  - `GET /dsh-subscriptions/update`: возвращает снимок статуса версии плагина: `packageName`, `currentVersion`, `latestVersion`, `updateAvailable`, `profileName`, `canAutoUpdate`.
+  - `POST /dsh-subscriptions/update`: выполняет установку точной спецификации пакета через CLI DSH (`dsh plugin --profile <profile> add --config.minimumReleaseAge=0 <package>@<version>`).
+  - **Защита эндпоинта**: строгая проверка loopback (`isLoopback` для IPv4 `127.0.0.1`, IPv6 `::1`, `localhost`), валидация заголовков `x-dsh-plugin-update` и `Origin`/`Host`, защита от повторных параллельных вызовов (single-flight locking со статусом 409 Busy).
+  - **UI интеграция**: в шапке (`.dsub-header-bar`) отображается текущая версия, предупреждающий бейдж при наличии обновления и кнопка быстрого обновления («Update → vX.Y.Z») со статусом перезапуска службы.
+- **Таймауты и сетевая отказоустойчивость**:
+  - Добавлен гарантированный таймаут `AbortSignal.timeout(15_000)` при проверках баланса/квот и smoke-тестах в `lib/routes/status.js`.
+  - Поддержка объединения с внешним `init.signal` через `AbortSignal.any`.
+- **Нормализация параметров**:
+  - Эндпоинты `/check` толерантны к алиасам `provider || vendor` и `index || accountIndex`.
+- **Дедупликация в обработке аккаунтов**:
+  - Устранен дублирующий цикл нотификаций по пороговым значениям квот `snap.windows` в `lib/accounts.js`.
