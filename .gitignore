@@ -7,3 +7,4 @@ node_modules/
 credentials.yaml
 .planning/
 *.log
+openwiki/
