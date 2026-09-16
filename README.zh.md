@@ -165,6 +165,19 @@ dsh plugin --profile web add @goodandready/dsh-subscriptions
 
 ---
 
+---
+
+## 🛡️ 稳定性与代码质量强化 (v0.6.10 新增)
+
+- **结构化异常降级**: 全面移除运行时空 catch 块，统一采用带诊断日志的 `bestEffort` 安全兜底机制。
+- **原生上下文日志**: 所有日志统一接入 Cordis 规范子系统 `ctx.logger('subscriptions')`。
+- **外部网络超时保护**: 为所有模型商 API 网络调用（`listModels`、`fetchFor`、`quotaFetch`、`jsonTokenRequest`）建立 `fetchWithTimeout` 与 `AbortSignal.timeout` 超时熔断保护。
+- **设计系统主题对齐**: 将 `client.js` 中的静态样式硬编码替换为 DeepSeek Harness 原生 CSS 主题令牌（`--dsw-alias-*`、`color-mix`），彻底消除独立的 `rgba` 颜色。
+- **客户端依赖注入显式化**: 在 `package.json` 清单中显式声明前端所需平台注入项（`@deepseek-ai/dsh-client-locale` 与 `@deepseek-ai/dsh-client-ui-slots`）。
+- **公开仓库卫生规范**: 将内部研发指令与计划文件移出 Git 跟踪并加入 `.gitignore`，确保公开版本干净无私有残余。
+
+---
+
 ## 🌐 本地化
 
 插件源语言仅为英语。俄语及其他翻译由独立的语言插件（如俄化插件）在运行时对注册的本地化键进行翻译，包本身不内置翻译（Changed in 0.6.1）。

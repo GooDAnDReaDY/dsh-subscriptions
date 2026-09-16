@@ -270,6 +270,19 @@ Supports Anthropic's adaptive thinking (`thinking: { type: "adaptive" }`) and re
 
 ---
 
+---
+
+## 🛡️ Reliability & Quality Hardening (Added in v0.6.10)
+
+- **Structured Error Handling**: Eliminated all empty catch blocks across the plugin runtime via safe `bestEffort` helper logging debug diagnostics.
+- **Native Context Logger**: Migrated all plugin logging to the canonical Cordis `ctx.logger('subscriptions')` subsystem.
+- **Network Timeout Protection**: Hardened external vendor API calls (`listModels`, `fetchFor`, `quotaFetch`, `jsonTokenRequest`) with explicit `fetchWithTimeout` and `AbortSignal.timeout` safeguards.
+- **Design System Theming**: Replaced hardcoded styling values with native DeepSeek Harness CSS theme tokens (`--dsw-alias-*`, `color-mix`), achieving 100% theme token coverage and zero standalone `rgba` values.
+- **Client Dependency Injections**: Explicitly declared required client platform dependencies (`@deepseek-ai/dsh-client-locale`, `@deepseek-ai/dsh-client-ui-slots`) in package manifest.
+- **Strict Repository Hygiene**: Removed internal development instructions and planning artifacts from git tracking, enforcing clean public releases.
+
+---
+
 ## 🌐 Localization
 
 The plugin source language is English only. Russian and other translations are provided at runtime by separate language plugins (for example the russification plugin), which translate the registered locale keys - the package itself ships no bundled translations (Changed in 0.6.1).
