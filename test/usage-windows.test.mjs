@@ -1,4 +1,3 @@
-
 import { test } from "node:test"
 import assert from "node:assert/strict"
 import { usageWindows } from "../lib/usage.js"
@@ -13,8 +12,10 @@ test("usageWindows extracts named windows (claude five_hour/seven_day)", () => {
   assert.equal(wins.length, 2)
   const byId = Object.fromEntries(wins.map((w) => [w.id, w]))
   assert.equal(byId.five_hour.usedPercent, 39.4)
-  assert.equal(byId.five_hour.ru, "5ч")
-  assert.equal(byId.seven_day_oauth_apps.ru, "7д прил.")
+  assert.equal(byId.five_hour.en, "5h")
+  assert.equal(byId.five_hour.zh, "5小时")
+  assert.equal(byId.seven_day_oauth_apps.en, "7d apps")
+  assert.equal(byId.seven_day_oauth_apps.zh, "7天应用")
 })
 
 test("usageWindows reads remainingFraction as used", () => {
@@ -22,6 +23,7 @@ test("usageWindows reads remainingFraction as used", () => {
   assert.ok(Math.abs(wins[0].usedPercent - 39) < 0.01)
   assert.equal(wins[0].id, "primary")
   assert.equal(wins[0].en, "primary")
+  assert.equal(wins[0].zh, "主配额")
 })
 
 test("usageWindows returns null for silent vendors", () => {
@@ -34,7 +36,7 @@ test("blob round-trips persisted usage windows", () => {
     accessToken: "at",
     refreshToken: "rt",
     expiresAt: 1,
-    usage: [{ id: "five_hour", ru: "5ч", en: "5h", usedPercent: 39 }],
+    usage: [{ id: "five_hour", en: "5h", zh: "5小时", usedPercent: 39 }],
     usageAt: 12345,
   })
   const parsed = parseBlob(raw)

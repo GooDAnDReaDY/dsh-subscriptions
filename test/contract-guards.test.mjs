@@ -51,8 +51,8 @@ test('no orphan exports: every lib export is referenced outside its own declarat
 const CYR_ALLOWED = new Set([
   // Documented locale-contract exceptions (DESIGN.md, decision 2026-09-09):
   'lib/client.js',          // INSTRUCTIONS.stepsRu + isRu-conditional strings
-  'lib/usage.js',           // {ru,en} window label pairs
-  'lib/relative-time.js',   // RELATIVE_UNITS.ru
+  // lib/usage.js: ru removed (pure EN/ZH)
+  // lib/relative-time.js: ru removed (pure EN/ZH)
 ])
 
 const CYR = new RegExp('[' + String.fromCharCode(0x410) + '-' + String.fromCharCode(0x44F) + String.fromCharCode(0x401) + String.fromCharCode(0x451) + ']')

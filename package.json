@@ -44,7 +44,7 @@
     },
     "client": {
       "platform": "web",
-      "inject": []
+      "inject": ["slots", "locale", "sessions"]
     }
   },
   "peerDependencies": {
