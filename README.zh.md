@@ -167,6 +167,14 @@ dsh plugin --profile web add @goodandready/dsh-subscriptions
 
 ---
 
+## 🔒 OAuth Client ID 校验保护与控制台地址更新 (v0.6.11 新增)
+
+- **Google OAuth Client ID 校验保护 (GitHub #2)**：uildAuthorizeUrl 和 ntigravity.authorizeUrl 严格要求非空 clientId。未配置时服务端返回明确的 HTTP 400 (missing_client_id)，前端界面提示用户在插件设置中填写 ntigravityClientId 或使用“📥 从 CLI 导入”，避免浏览器跳转至 Google OAuth 400 报错页面。
+- **配置架构新增密钥项**：在插件 Config 架构中新增 ntigravityClientSecret，方便用户在设置中配置客户端密钥，并在公共接口中自动脱敏脱密。
+- **智谱 GLM 控制台地址迁移 (GitHub #3)**：将智谱 GLM 授权与 API Key 获取链接更新为最新控制台有效路由 (https://bigmodel.cn/usercenter/proj-mgmt/apikeys)，彻底解决因服务商控制台路由调整导致的 404 错误。
+
+---
+
 ## 🛡️ 稳定性与代码质量强化 (v0.6.10 新增)
 
 - **结构化异常降级**: 全面移除运行时空 catch 块，统一采用带诊断日志的 `bestEffort` 安全兜底机制。

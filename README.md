@@ -272,6 +272,14 @@ Supports Anthropic's adaptive thinking (`thinking: { type: "adaptive" }`) and re
 
 ---
 
+## 🔒 OAuth Client Validation & Route Updates (Added in v0.6.11)
+
+- **OAuth Client ID Guard (GitHub #2)**: uildAuthorizeUrl and ntigravity.authorizeUrl now strictly require a non-empty clientId. If unconfigured, the endpoint returns an explicit HTTP 400 (missing_client_id) and the UI prompts the user to configure ntigravityClientId in plugin settings or use "From CLI" instead of directing the browser to a failing Google OAuth page.
+- **Config Schema Secret Key**: Added ntigravityClientSecret to the plugin configuration schema, allowing convenient entry of private client secrets alongside ntigravityClientId with automatic masking in public endpoints.
+- **Zhipu GLM Console Route Migration (GitHub #3)**: Updated the Zhipu GLM authorization and API key center link to the active console route (https://bigmodel.cn/usercenter/proj-mgmt/apikeys), eliminating 404 navigation errors caused by vendor console restructuring.
+
+---
+
 ## 🛡️ Reliability & Quality Hardening (Added in v0.6.10)
 
 - **Structured Error Handling**: Eliminated all empty catch blocks across the plugin runtime via safe `bestEffort` helper logging debug diagnostics.
