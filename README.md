@@ -272,6 +272,15 @@ Supports Anthropic's adaptive thinking (`thinking: { type: "adaptive" }`) and re
 
 ---
 
+## 🛡️ Token Usage Normalization & Session Projection Fix (Added in v0.6.12)
+
+- **Session Projection Fix (GitHub #4)**: Fixed an issue where ChatGPT Codex and other streaming provider responses caused DSH session recovery to fail on page reload with `received NaN, expected number on uncachedInputTokens and outputTokens`.
+- **Canonical `TokenUsage` Normalization**: Introduced `toTokenUsage()` across all streaming pipelines (`codexResponsesStream`, `openaiChatStream`, `anthropicStream`, and `googleStream`) to map raw vendor usage payloads into canonical DSH `TokenUsage` (`inputTokens`, `outputTokens`, `cacheReadTokens`, `cacheWriteTokens`, `reasoningTokens`, `totalTokens`).
+- **Strict Integer Guard**: All token counts are strictly guarded to non-negative finite integers (guaranteeing `0` fallback, never `NaN` or `undefined`). Disjoint uncached token calculation is performed when cached tokens are folded into prompt totals.
+- **Defense in Depth**: Added adapter-level stream validation in `SubscriptionAdapter` to prevent malformed or invalid token usage chunks from ever reaching DSH session persistence.
+
+---
+
 ## 🔒 OAuth Client Validation & Route Updates (Added in v0.6.11)
 
 - **OAuth Client ID Guard (GitHub #2)**: uildAuthorizeUrl and ntigravity.authorizeUrl now strictly require a non-empty clientId. If unconfigured, the endpoint returns an explicit HTTP 400 (missing_client_id) and the UI prompts the user to configure ntigravityClientId in plugin settings or use "From CLI" instead of directing the browser to a failing Google OAuth page.
