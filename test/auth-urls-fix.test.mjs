@@ -15,7 +15,7 @@ test('kimi authorizeUrl points to Moonshot console api-keys', () => {
 
 test('glm authorizeUrl points to Zhipu usercenter apikeys', () => {
   const url = getVendor('glm').authorizeUrl()
-  assert.equal(url, 'https://open.bigmodel.cn/usercenter/apikeys')
+  assert.equal(url, 'https://bigmodel.cn/usercenter/proj-mgmt/apikeys')
 })
 
 test('discoverLocalCliSessions detects cursor from cli-config or env', async () => {
