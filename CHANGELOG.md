@@ -2,6 +2,15 @@
 
 Notable changes to `@goodandready/dsh-subscriptions`.
 
+## 0.6.15
+
+### Fixed
+- **Settings reachable again on the plugin's own page**: the current DSH core
+  (0.1.6-alpha.2) renders a plugin's configuration page only for entries registered
+  in the plugin-list seat `plugins.item`. The view-aware card is now registered there
+  (`id: 'dsh-subscriptions'`, order 60, static label); the row seat and the legacy
+  `settings.plugin.item` card stay as fallbacks.
+
 ## 0.6.14
 
 ### Fixed
