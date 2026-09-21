@@ -84,3 +84,46 @@ test('devicePoll throws on unexpected HTTP error', async () => {
   const fetchImpl = async () => jsonResponse(500, {})
   await assert.rejects(() => codex.devicePoll(CFG, { deviceAuthId: 'd', userCode: 'U' }, fetchImpl))
 })
+
+const copilot = await import("../lib/vendors/copilot.js")
+
+test("copilot deviceStart maps user_code/device_code/interval", async () => {
+  const fetchImpl = async () => jsonResponse(200, {
+    user_code: "1234-5678",
+    device_code: "dc_abc",
+    interval: 5,
+    verification_uri: "https://github.com/login/device",
+  })
+  const out = await copilot.deviceStart({}, fetchImpl)
+  assert.equal(out.userCode, "1234-5678")
+  assert.equal(out.deviceAuthId, "dc_abc")
+  assert.equal(out.intervalMs, 5000)
+  assert.equal(out.authUrl, "https://github.com/login/device")
+})
+
+test("copilot devicePoll returns pending on authorization_pending", async () => {
+  const fetchImpl = async () => jsonResponse(200, { error: "authorization_pending" })
+  const out = await copilot.devicePoll({}, { deviceAuthId: "dc_abc", userCode: "1234-5678" }, fetchImpl)
+  assert.equal(out.status, "pending")
+})
+
+test("copilot devicePoll exchanges GitHub token for Copilot token", async () => {
+  const fetchImpl = async (url) => {
+    const s = String(url)
+    if (s.includes("/login/oauth/access_token")) {
+      return jsonResponse(200, { access_token: "gh_tok_123" })
+    }
+    if (s.includes("/copilot_internal/v2/token")) {
+      return jsonResponse(200, { token: "copilot_tok_456", expires_at: 1800000000 })
+    }
+    if (s.includes("/user")) {
+      return jsonResponse(200, { login: "octocat", email: "octo@github.com" })
+    }
+    return jsonResponse(404, {})
+  }
+  const out = await copilot.devicePoll({}, { deviceAuthId: "dc_abc", userCode: "1234-5678" }, fetchImpl)
+  assert.equal(out.status, "authorized")
+  assert.equal(out.blob.accessToken, "copilot_tok_456")
+  assert.equal(out.blob.refreshToken, "gh_tok_123")
+  assert.equal(out.blob.label, "octocat")
+})

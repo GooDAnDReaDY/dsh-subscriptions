@@ -48,3 +48,15 @@ test("history prunes expired rows by ttl", () => {
     assert.equal(h2.size(), 0) // pruned
   } finally { rmSync(dir, { recursive: true, force: true }) }
 })
+
+test("history debounceMs writes asynchronously or on flush", async () => {
+  const dir = tmp()
+  try {
+    const h = new HistoryStore(dir, 7 * 24 * 60 * 60 * 1000, 200)
+    h.add({ provider: "codex", model: "gpt-5", path: "/responses", status: 200 })
+    assert.equal(h.size(), 1)
+    h.flush()
+    const raw = JSON.parse(readFileSync(join(dir, "history.json"), "utf8"))
+    assert.equal(raw.length, 1)
+  } finally { rmSync(dir, { recursive: true, force: true }) }
+})

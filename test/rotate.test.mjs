@@ -22,3 +22,12 @@ test('markCooldown sets a future timestamp', () => {
   const next = markCooldown({ ref: 'X' }, 1000, 500)
   assert.equal(next.cooldownUntil, 1500)
 })
+
+test("healthScore prioritizes healthier accounts when usage is equal", () => {
+  const now = 1_000
+  const accounts = [
+    { ref: "ACC_DEGRADED", hasToken: true, usagePercent: 10, cooldownUntil: 0, healthScore: 70 },
+    { ref: "ACC_HEALTHY", hasToken: true, usagePercent: 10, cooldownUntil: 0, healthScore: 100 },
+  ]
+  assert.equal(pickAccount(accounts, now).ref, "ACC_HEALTHY")
+})

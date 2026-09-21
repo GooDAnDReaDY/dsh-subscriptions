@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { pinSession, getPinnedAccountRef, unpinSession, clearSessionPins } from '../lib/session-pin.js'
+import { pinSession, getPinnedAccountRef, unpinSession, clearSessionPins, pruneSessionPins } from '../lib/session-pin.js'
 
 // #288 follow-up: session-pin had 34% coverage. Pin lifecycle matters
 // for account stickiness during a conversation.
@@ -55,4 +55,12 @@ test('unpin removes a single session, clear removes all', () => {
   assert.equal(getPinnedAccountRef('s6'), null)
   unpinSession(undefined)
   unpinSession('')
+})
+
+test("pruneSessionPins purges expired entries without reading them", async () => {
+  clearSessionPins()
+  pinSession("s-exp", "REF_EXP", 1)
+  await new Promise((r) => setTimeout(r, 5))
+  pruneSessionPins()
+  assert.equal(getPinnedAccountRef("s-exp"), null)
 })
