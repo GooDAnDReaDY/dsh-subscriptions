@@ -64,6 +64,11 @@ test('isTrustedSettingsRequest rejects cross-site only', () => {
   assert.equal(isTrustedSettingsRequest({ headers: { 'sec-fetch-site': 'same-origin' } }), true)
   assert.equal(isTrustedSettingsRequest({ headers: { 'sec-fetch-site': 'same-site' } }), true)
   assert.equal(isTrustedSettingsRequest({ headers: {} }), true)
+  // Cross-origin checks when sec-fetch-site is absent
+  assert.equal(isTrustedSettingsRequest({ headers: { origin: 'http://evil.com', host: 'dsh.local:5140' } }), false)
+  assert.equal(isTrustedSettingsRequest({ headers: { origin: 'http://dsh.local:5140', host: 'dsh.local:5140' } }), true)
+  assert.equal(isTrustedSettingsRequest({ headers: { referer: 'http://evil.com/csrf', host: 'dsh.local:5140' } }), false)
+  assert.equal(isTrustedSettingsRequest({ headers: { referer: 'http://dsh.local:5140/panel', host: 'dsh.local:5140' } }), true)
 })
 
 test('queryOf parses the query string and tolerates bad urls', () => {
