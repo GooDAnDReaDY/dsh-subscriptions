@@ -2,6 +2,13 @@
 
 Notable changes to `@goodandready/dsh-subscriptions`.
 
+## 0.6.21
+
+### Bug Fixes
+- **Codex Tool Output HTTP 400 Repair (#369)**: mapped messages with `role: "tool"` to `function_call_output` in `codexResponsesBody`, added bidirectional reconciliation for OpenAI Responses protocol (synthesizing outputs for interrupted tool calls and dropping orphan outputs) to prevent vendor 400 errors.
+- **Account Proxy Support in `listModels` (#369)**: passed account proxy fetch dispatcher via `pickFetch(this.deps, targetAccount.ref)` in `SubscriptionAdapter.prototype.listModels`, enabling live catalog fetching from geo-blocked regions.
+- **Catalog Freshness (#369)**: updated default model list with modern models including GPT-5.6 Luna, GPT-5.3 Codex, and GPT-5.2 Codex.
+
 ## 0.6.20
 
 ### Performance
