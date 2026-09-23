@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { openaiMessages, openaiTools, modelCatalog } from '../lib/messages.js'
+import { openaiMessages, openaiTools, modelCatalog, codexResponsesBody, reconcileResponsesInput } from '../lib/messages.js'
 import { httpError, tokenBlobFromOAuth, readJson, openaiChatStream, formTokenRequest, jsonTokenRequest } from '../lib/wire.js'
 
 // #288 follow-up: request-body builders and the SSE/wire helpers.
@@ -202,4 +202,87 @@ test('jsonTokenRequest posts a json body', async () => {
   assert.equal(json.ok, true)
   assert.equal(calls[0].init.method, 'POST')
   assert.deepEqual(JSON.parse(calls[0].init.body), { code: 'c' })
+})
+
+test('openaiMessages handles role: "tool" message with toolCallId', () => {
+  const out = openaiMessages({
+    messages: [
+      { role: 'tool', toolCallId: 'call_123', content: [{ type: 'text', text: 'result data' }] },
+      { role: 'tool', tool_call_id: 'call_456', content: 'string data' },
+    ],
+  })
+  assert.equal(out.length, 2)
+  assert.equal(out[0].role, 'tool')
+  assert.equal(out[0].tool_call_id, 'call_123')
+  assert.equal(out[0].content, 'result data')
+  assert.equal(out[1].role, 'tool')
+  assert.equal(out[1].tool_call_id, 'call_456')
+  assert.equal(out[1].content, 'string data')
+})
+
+test('codexResponsesBody maps role: "tool" messages to function_call_output items', () => {
+  const body = codexResponsesBody({
+    model: 'gpt-5.6-luna',
+    messages: [
+      {
+        role: 'assistant',
+        content: [{ type: 'tool-call', id: 'call_00_zcd1W8HK9CljdHoRVQIS8511', name: 'bash', arguments: '{}' }],
+      },
+      {
+        role: 'tool',
+        toolCallId: 'call_00_zcd1W8HK9CljdHoRVQIS8511',
+        content: [{ type: 'text', text: 'SyntaxError output' }],
+      },
+    ],
+  }, 'instr', {})
+  assert.equal(body.input.length, 2)
+  assert.equal(body.input[0].type, 'function_call')
+  assert.equal(body.input[0].call_id, 'call_00_zcd1W8HK9CljdHoRVQIS8511')
+  assert.equal(body.input[1].type, 'function_call_output')
+  assert.equal(body.input[1].call_id, 'call_00_zcd1W8HK9CljdHoRVQIS8511')
+  assert.equal(body.input[1].output, 'SyntaxError output')
+})
+
+test('codexResponsesBody synthesizes missing function_call_output for orphaned tool calls', () => {
+  const body = codexResponsesBody({
+    model: 'gpt-5.6-luna',
+    messages: [
+      {
+        role: 'assistant',
+        content: [{ type: 'tool-call', id: 'call_orphan_99', name: 'fetch', arguments: '{}' }],
+      },
+      {
+        role: 'user',
+        content: 'Next turn after cancelled tool',
+      },
+    ],
+  }, 'instr', {})
+  assert.equal(body.input.length, 3)
+  assert.equal(body.input[0].type, 'function_call')
+  assert.equal(body.input[0].call_id, 'call_orphan_99')
+  // Synthesized output injected before user message!
+  assert.equal(body.input[1].type, 'function_call_output')
+  assert.equal(body.input[1].call_id, 'call_orphan_99')
+  assert.equal(body.input[1].output, '{"status":"interrupted"}')
+  assert.equal(body.input[2].role, 'user')
+})
+
+test('codexResponsesBody drops orphaned function_call_output without preceding call', () => {
+  const body = codexResponsesBody({
+    model: 'gpt-5.6-luna',
+    messages: [
+      {
+        role: 'tool',
+        toolCallId: 'call_without_parent',
+        content: 'dangling result',
+      },
+      {
+        role: 'user',
+        content: 'Hello',
+      },
+    ],
+  }, 'instr', {})
+  // Orphan output dropped to avoid OpenAI "No function call found with call_id"
+  assert.equal(body.input.length, 1)
+  assert.equal(body.input[0].role, 'user')
 })

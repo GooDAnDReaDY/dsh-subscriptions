@@ -234,14 +234,14 @@ test('codex listModels sends client_version and uses slug/display_name', async (
   assert.equal(rows[0].name, 'GPT-5.1')
 })
 
-test('codex listModels falls back to 5.1 catalog when live list is empty', async () => {
+test('codex listModels falls back to default catalog when live list is empty', async () => {
   const fetchImpl = async () => Response.json({ models: [] })
   const rows = await getVendor('codex').listModels(
     { accessToken: 'at', accountId: 'acc' },
     {},
     fetchImpl,
   )
-  assert.deepEqual(rows.map((row) => row.id), ['gpt-5.1-codex', 'gpt-5.1-codex-mini', 'gpt-5.1'])
+  assert.deepEqual(rows.map((row) => row.id), ['gpt-5.6-luna', 'gpt-5.3-codex', 'gpt-5.2-codex', 'gpt-5.1-codex', 'gpt-5.1-codex-mini', 'gpt-5.1'])
 })
 
 test('claude static catalog matches subscription 5.x ids', () => {

@@ -82,3 +82,24 @@ test("SubscriptionAdapter.stream does not await refreshUsage before yielding chu
   assert.equal(refreshStarted, true)
   assert.equal(refreshFinished, false, "first chunk was yielded before refreshUsage completed")
 })
+
+test("SubscriptionAdapter.listModels uses account proxy via fetchForRef", async () => {
+  const { SubscriptionAdapter } = await import("../lib/adapter.js")
+  let passedRef = null
+  const customFetch = async () => Response.json({
+    models: [{ slug: "custom-live-model", display_name: "Custom Live Model" }],
+  })
+  const adapter = new SubscriptionAdapter({
+    listAccounts: async () => [{ hasToken: true, ref: "PROXY_ACCOUNT_1" }],
+    vendorConfig: () => ({}),
+    ensureFresh: async (p, b) => b,
+    loadBlob: async () => ({ accessToken: "tok" }),
+    fetchForRef: (ref) => {
+      passedRef = ref
+      return customFetch
+    },
+  })
+  const models = await adapter.listModels("codex")
+  assert.equal(passedRef, "PROXY_ACCOUNT_1")
+  assert.ok(models.some((m) => m.id === "custom-live-model"))
+})
