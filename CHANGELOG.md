@@ -2,6 +2,11 @@
 
 Notable changes to `@goodandready/dsh-subscriptions`.
 
+## 0.6.20
+
+### Performance
+- **Immutable Config Snapshot & Hot Path Optimization (#367)**: eliminated expensive `scope.get()` and `structuredClone()` calls from hot request paths and loops, caching an immutable config snapshot invalidated only via `settings/document-updated` or explicit mutation; read config once per operation in `lib/accounts.js`.
+
 ## 0.6.19
 
 ### Security
