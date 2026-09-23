@@ -2,6 +2,11 @@
 
 Notable changes to `@goodandready/dsh-subscriptions`.
 
+## 0.6.19
+
+### Security
+- **Cross-site protection on POST /smoke (#359)**: added `isTrustedSettingsRequest(req)` guard to `/smoke` endpoint returning 403 Forbidden for cross-site callers, preventing unauthorized token refreshes and quota consumption.
+
 ## 0.6.18
 
 ### Security & Hardening
