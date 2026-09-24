@@ -2,6 +2,17 @@
 
 Notable changes to `@goodandready/dsh-subscriptions`.
 
+## 0.6.22
+
+### Security
+- **Cross-site Protection on Read Routes (#371)**: added `isTrustedSettingsRequest(req)` origin check returning 403 Forbidden for cross-site requests (`sec-fetch-site: cross-site`, cross-origin `Origin`/`Referer`) on read endpoints:
+  - `GET /dsh-subscriptions/status`
+  - `GET /dsh-subscriptions/history`
+  - `GET /dsh-subscriptions/telemetry`
+  - `GET /dsh-subscriptions/alerts`
+  - `GET /dsh-subscriptions/reset-credits`
+  Added regression tests in `test/routes-security.test.mjs` covering cross-site rejection and same-origin acceptance.
+
 ## 0.6.21
 
 ### Bug Fixes
