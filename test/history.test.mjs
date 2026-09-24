@@ -60,3 +60,31 @@ test("history debounceMs writes asynchronously or on flush", async () => {
     assert.equal(raw.length, 1)
   } finally { rmSync(dir, { recursive: true, force: true }) }
 })
+
+test("#377: history caps entries at maxEntries and evicts oldest", () => {
+  const dir = tmp()
+  try {
+    const h = new HistoryStore(dir, 7 * 24 * 60 * 60 * 1000, 0, 3)
+    h.add({ provider: "codex", id: 1 })
+    h.add({ provider: "claude", id: 2 })
+    h.add({ provider: "grok", id: 3 })
+    h.add({ provider: "antigravity", id: 4 })
+    assert.equal(h.size(), 3)
+    const items = h.all()
+    assert.equal(items[0].id, 4) // newest
+    assert.equal(items[1].id, 3)
+    assert.equal(items[2].id, 2)
+  } finally { rmSync(dir, { recursive: true, force: true }) }
+})
+
+test("#377: history dispose clears state and flushes pending writes", () => {
+  const dir = tmp()
+  try {
+    const h = new HistoryStore(dir, 7 * 24 * 60 * 60 * 1000, 500, 10)
+    h.add({ provider: "codex", id: 1 })
+    h.dispose()
+    assert.equal(h.size(), 0)
+    const raw = JSON.parse(readFileSync(join(dir, "history.json"), "utf8"))
+    assert.equal(raw.length, 1)
+  } finally { rmSync(dir, { recursive: true, force: true }) }
+})

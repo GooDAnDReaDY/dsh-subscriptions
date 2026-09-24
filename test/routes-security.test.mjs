@@ -45,7 +45,7 @@ function statusHarness() {
     NS: 'dsh-subscriptions',
     live: () => ({ slots: [] }),
     accountsView: async () => [],
-    getSettingsApi: () => ({}),
+    getSettingsApi: () => ({ replace: async () => {} }),
     syncCustomVendors: () => {},
     syncAdapter: async () => {},
     stripLegacySlots: () => {},
@@ -273,4 +273,51 @@ test('#242: publicConfig redacts nested proxy and custom-vendor credentials', ()
   assert.equal(pub.customVendors[0].headers.Authorization, '••••••')
   assert.equal(pub.customVendors[0].headers['X-Custom-Key'], '••••••')
   assert.equal(pub.customVendors[0].headers.Accept, 'application/json')
+})
+
+test("#379: PUT /config revision CAS conflict detection", async () => {
+  const routes = statusHarness()
+  const route = routes.find((r) => r.path === "/dsh-subscriptions/config")
+  assert.ok(route, "config route should be registered")
+
+  // 1. GET /config returns initial revision
+  const r1 = res()
+  await route.handler({ method: "GET", url: "/dsh-subscriptions/config", headers: { host: "localhost:5140", "sec-fetch-site": "same-origin" } }, r1)
+  assert.equal(r1.code, 200)
+  const d1 = JSON.parse(r1.body)
+  const rev = d1.revision
+  assert.ok(typeof rev === "number", "revision must be a number")
+
+  // 2. PUT with matching revision succeeds
+  const r2 = res()
+  const req2 = {
+    method: "PUT",
+    url: "/dsh-subscriptions/config",
+    headers: { host: "localhost:5140", "sec-fetch-site": "same-origin" },
+    on(event, handler) {
+      if (event === "data") handler(Buffer.from(JSON.stringify({ revision: rev, config: {} })))
+      if (event === "end") handler()
+    }
+  }
+  await route.handler(req2, r2)
+  assert.equal(r2.code, 200)
+  const d2 = JSON.parse(r2.body)
+  assert.equal(d2.revision, rev + 1)
+
+  // 3. PUT with stale revision returns 409 Conflict
+  const r3 = res()
+  const req3 = {
+    method: "PUT",
+    url: "/dsh-subscriptions/config",
+    headers: { host: "localhost:5140", "sec-fetch-site": "same-origin" },
+    on(event, handler) {
+      if (event === "data") handler(Buffer.from(JSON.stringify({ revision: rev, config: {} })))
+      if (event === "end") handler()
+    }
+  }
+  await route.handler(req3, r3)
+  assert.equal(r3.code, 409)
+  const d3 = JSON.parse(r3.body)
+  assert.equal(d3.ok, false)
+  assert.equal(d3.error.code, "conflict")
 })

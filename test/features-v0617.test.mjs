@@ -18,7 +18,7 @@ import {
   getRecentAlerts,
   checkQuotaThresholds,
   notifySessionExpired,
-  clearAlertsForTesting,
+  clearAlerts,
 } from '../lib/alerts.js'
 import { calculateBurnRatePerHour, computePacingRisk } from '../lib/forecast.js'
 import { exportVault, importVault, VAULT_FORMAT } from '../lib/vault.js'
@@ -81,7 +81,7 @@ test('#350: quarantine warmup lifecycle and exponential backoff on probe failure
 })
 
 test('#351: alerts recording, deduplication, and threshold detection', async () => {
-  clearAlertsForTesting()
+  clearAlerts()
   const now = Date.now()
 
   // First alert records successfully
