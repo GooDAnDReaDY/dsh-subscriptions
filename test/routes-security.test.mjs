@@ -2,6 +2,8 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { parseProxyUrl } from '../lib/proxy.js'
 import { registerProxyRoutes } from '../lib/routes/proxy.js'
+import { registerStatusRoutes } from '../lib/routes/status.js'
+import { registerAccountsRoutes } from '../lib/routes/accounts.js'
 
 // #302: the /proxy route is the only prefix route with a caller-controlled
 // path. These tests pin its traversal containment and the provider
@@ -28,6 +30,73 @@ function harness() {
   const proxy = routes.find((r) => r.path === '/dsh-subscriptions/proxy')
   assert.ok(proxy, 'proxy route registered')
   return { proxy, requested }
+}
+
+function statusHarness() {
+  const routes = []
+  const ctx = {
+    webServer: { register(spec) { routes.push(spec); return () => {} } },
+    effect(fn) { fn(); return () => {} },
+    log: { warn() {}, error() {}, info() {} },
+  }
+  const state = {
+    NS: 'dsh-subscriptions',
+    live: () => ({ slots: [] }),
+    accountsView: async () => [],
+    getSettingsApi: () => ({}),
+    syncCustomVendors: () => {},
+    syncAdapter: async () => {},
+    stripLegacySlots: () => {},
+    store: {
+      clearRef: async () => {},
+      loggedInProviders: async () => [],
+      describeRef: async () => ({}),
+      listAccounts: async () => [],
+    },
+    history: {
+      add: () => {},
+      list: () => [],
+      recent: () => [],
+      size: () => 0,
+      telemetrySummary: () => ({
+        totalRequests: 0,
+        requests24h: 0,
+        successRequests: 0,
+        errorRequests: 0,
+        successRate: 100,
+        avgLatencyMs: 0,
+      }),
+    },
+    diagnosticsReport: async () => ({ ok: true }),
+    pmL: (s) => s,
+    pmE: (s) => s,
+  }
+  registerStatusRoutes(ctx, state)
+  return routes
+}
+
+function accountsHarness() {
+  const routes = []
+  const ctx = {
+    webServer: { register(spec) { routes.push(spec); return () => {} } },
+    effect(fn) { fn(); return () => {} },
+    log: { warn() {}, error() {}, info() {} },
+  }
+  const state = {
+    refForSlot: () => 'CODEX_OAUTH_1',
+    store: {
+      slots: async () => [],
+      clearRef: async () => {},
+      accounts: async () => [],
+    },
+    resetCredits: {
+      inspect: async () => ({ availableCount: 1 }),
+      info: async () => ({ availableCount: 1 }),
+      begin: async () => ({}),
+    },
+  }
+  registerAccountsRoutes(ctx, state)
+  return routes
 }
 
 const res = () => {
@@ -82,4 +151,65 @@ test('parseProxyUrl allows only http, https and socks5', () => {
   assert.equal(parseProxyUrl(''), null)
   assert.equal(parseProxyUrl('not a url'), null)
   assert.equal(parseProxyUrl('http://'), null)
+})
+
+const READ_ROUTES_STATUS = [
+  '/dsh-subscriptions/status',
+  '/dsh-subscriptions/history',
+  '/dsh-subscriptions/telemetry',
+  '/dsh-subscriptions/alerts',
+]
+
+test('#371: read status routes reject cross-site requests with 403', async () => {
+  const routes = statusHarness()
+  for (const path of READ_ROUTES_STATUS) {
+    const route = routes.find((r) => r.path === path)
+    assert.ok(route, `route ${path} should be registered`)
+
+    // Cross-site via sec-fetch-site
+    const r1 = res()
+    await route.handler({ method: 'GET', url: path, headers: { 'sec-fetch-site': 'cross-site' } }, r1)
+    assert.equal(r1.code, 403, `${path} should reject cross-site sec-fetch-site`)
+    assert.deepEqual(JSON.parse(r1.body), { ok: false, error: { code: 'forbidden', message: 'same-origin only' } })
+
+    // Cross-site via Origin header mismatch
+    const r2 = res()
+    await route.handler({ method: 'GET', url: path, headers: { origin: 'http://evil.com', host: 'localhost:5140' } }, r2)
+    assert.equal(r2.code, 403, `${path} should reject evil origin`)
+    assert.deepEqual(JSON.parse(r2.body), { ok: false, error: { code: 'forbidden', message: 'same-origin only' } })
+  }
+})
+
+test('#371: reset-credits route rejects cross-site requests with 403', async () => {
+  const routes = accountsHarness()
+  const route = routes.find((r) => r.path === '/dsh-subscriptions/reset-credits')
+  assert.ok(route, 'reset-credits route should be registered')
+
+  // Cross-site via sec-fetch-site
+  const r1 = res()
+  await route.handler({ method: 'GET', url: '/dsh-subscriptions/reset-credits?provider=codex&index=1', headers: { 'sec-fetch-site': 'cross-site' } }, r1)
+  assert.equal(r1.code, 403, 'reset-credits should reject cross-site sec-fetch-site')
+  assert.deepEqual(JSON.parse(r1.body), { ok: false, error: { code: 'forbidden', message: 'same-origin only' } })
+
+  // Cross-site via Origin header mismatch
+  const r2 = res()
+  await route.handler({ method: 'GET', url: '/dsh-subscriptions/reset-credits?provider=codex&index=1', headers: { origin: 'http://evil.com', host: 'localhost:5140' } }, r2)
+  assert.equal(r2.code, 403, 'reset-credits should reject evil origin')
+  assert.deepEqual(JSON.parse(r2.body), { ok: false, error: { code: 'forbidden', message: 'same-origin only' } })
+})
+
+test('#371: read routes allow same-origin requests', async () => {
+  const statusRoutes = statusHarness()
+  for (const path of READ_ROUTES_STATUS) {
+    const route = statusRoutes.find((r) => r.path === path)
+    const r = res()
+    await route.handler({ method: 'GET', url: path, headers: { host: 'localhost:5140', 'sec-fetch-site': 'same-origin' } }, r)
+    assert.equal(r.code, 200, `${path} should allow same-origin`)
+  }
+
+  const accountsRoutes = accountsHarness()
+  const resetRoute = accountsRoutes.find((r) => r.path === '/dsh-subscriptions/reset-credits')
+  const r = res()
+  await resetRoute.handler({ method: 'GET', url: '/dsh-subscriptions/reset-credits?provider=codex&index=1', headers: { host: 'localhost:5140', 'sec-fetch-site': 'same-origin' } }, r)
+  assert.equal(r.code, 200, 'reset-credits should allow same-origin')
 })
