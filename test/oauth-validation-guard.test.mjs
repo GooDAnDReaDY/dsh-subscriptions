@@ -61,15 +61,15 @@ test('glm authorizeUrl points to active bigmodel api keys console without 404 (G
   assert.equal(url, 'https://bigmodel.cn/usercenter/proj-mgmt/apikeys')
 })
 
-test('config schema includes antigravityClientSecret and redacts it in publicConfig', () => {
+test('#252: config schema excludes antigravityClientSecret (stored in credentials)', () => {
   const schemaKeys = Object.keys(Config.dict || {})
-  assert.ok(schemaKeys.includes('antigravityClientSecret'), 'antigravityClientSecret must exist in Config')
+  assert.ok(!schemaKeys.includes('antigravityClientSecret'), 'antigravityClientSecret must NOT exist in Config')
   assert.ok(schemaKeys.includes('antigravityClientId'), 'antigravityClientId must exist in Config')
 
-  const parsed = Config({ antigravityClientId: 'my-id', antigravityClientSecret: 'super-secret' })
-  assert.equal(parsed.antigravityClientSecret, 'super-secret')
+  const parsed = Config({ antigravityClientId: 'my-id' })
+  assert.equal(parsed.antigravityClientId, 'my-id')
 
   const pub = publicConfig(parsed)
   assert.equal(pub.antigravityClientId, 'my-id')
-  assert.equal(pub.antigravityClientSecret, '••••••')
+  assert.equal(pub.antigravityClientSecret, undefined)
 })

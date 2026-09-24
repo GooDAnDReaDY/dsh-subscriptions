@@ -48,7 +48,7 @@ test('telemetry route returns summary object with 200', async () => {
       setHeader() {},
     }
 
-    await telemetryRoute.handler({ method: 'GET', headers: {} }, res)
+    await telemetryRoute.handler({ method: 'GET', headers: { 'sec-fetch-site': 'same-origin' } }, res)
     assert.equal(statusCode, 200)
     assert.equal(payload.ok, true)
     assert.equal(payload.telemetry.totalRequests, 2)
@@ -92,7 +92,7 @@ test('smoke route returns 400 if no connected account', async () => {
 
     const req = {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      headers: { 'content-type': 'application/json', 'sec-fetch-site': 'same-origin' },
       on(event, handler) {
         if (event === 'data') handler(Buffer.from('{}'))
         if (event === 'end') handler()
