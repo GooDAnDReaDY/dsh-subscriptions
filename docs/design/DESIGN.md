@@ -162,15 +162,16 @@
 | 19 | `codexClientId` | string | YAML/config-only | Переопределение OAuth Client ID для Codex. Требуется только при собственной регистрации приложения. |
 | 20 | `codexRedirectUri` | string | YAML/config-only | Переопределение redirect_uri для Codex OAuth. |
 | 21 | `codexBaseUrl` | string | YAML/config-only | Переопределение endpoint API Codex (для enterprise/mock proxy). |
-| 22 | `claudeClientId` | string | YAML/config-only | Переопределение OAuth Client ID для Claude. |
-| 23 | `claudeRedirectUri` | string | YAML/config-only | Переопределение redirect_uri для Claude OAuth. |
-| 24 | `grokClientId` | string | YAML/config-only | Переопределение OAuth Client ID для Grok. |
-| 25 | `grokRedirectUri` | string | YAML/config-only | Переопределение redirect_uri для Grok OAuth. |
-| 26 | `grokBaseUrl` | string | YAML/config-only | Переопределение базового URL для Grok API. |
-| 27 | `grokClientVersion`| string | YAML/config-only | Версия клиента для телеметрии Grok. Регулируется версионированием плагина. |
-| 28 | `antigravityClientId` | string | YAML/config-only | Переопределение OAuth Client ID для Antigravity. |
-| 29 | `antigravityRedirectUri` | string | YAML/config-only | Переопределение redirect_uri для Antigravity OAuth. |
-| 30 | `customVendors` | array | YAML/config-only | Декларация нестандартных vendor-адаптеров через конфигурационный файл DSH. |
+| 22 | `codexClientVersion` | string | YAML/config-only | Версия клиента Codex CLI для фильтрации каталога /models (дефолт: 0.157.1). |
+| 23 | `claudeClientId` | string | YAML/config-only | Переопределение OAuth Client ID для Claude. |
+| 24 | `claudeRedirectUri` | string | YAML/config-only | Переопределение redirect_uri для Claude OAuth. |
+| 25 | `grokClientId` | string | YAML/config-only | Переопределение OAuth Client ID для Grok. |
+| 26 | `grokRedirectUri` | string | YAML/config-only | Переопределение redirect_uri для Grok OAuth. |
+| 27 | `grokBaseUrl` | string | YAML/config-only | Переопределение базового URL для Grok API. |
+| 28 | `grokClientVersion`| string | YAML/config-only | Версия клиента для телеметрии Grok. Регулируется версионированием плагина. |
+| 29 | `antigravityClientId` | string | YAML/config-only | Переопределение OAuth Client ID для Antigravity. |
+| 30 | `antigravityRedirectUri` | string | YAML/config-only | Переопределение redirect_uri для Antigravity OAuth. |
+| 31 | `customVendors` | array | YAML/config-only | Декларация нестандартных vendor-адаптеров через конфигурационный файл DSH. |
 
 ## Claude Adaptive Thinking & Reasoning Effort (v0.6.7)
 - **Управление рассуждениями**: для моделей Claude Anthropic поддерживается адаптивное мышление (`thinking: { type: "adaptive" }`) и передача уровня усилия (`output_config: { effort }`).
@@ -203,3 +204,15 @@
   - Эндпоинты `/check` толерантны к алиасам `provider || vendor` и `index || accountIndex`.
 - **Дедупликация в обработке аккаунтов**:
   - Устранен дублирующий цикл нотификаций по пороговым значениям квот `snap.windows` в `lib/accounts.js`.
+
+## Codex GPT-6 Family Catalog Gating & Client Version (v0.6.24)
+- **Обновление client_version**: эндпоинт `/models` Codex API фильтрует доступные модели по параметру `client_version`. Дефолтная версия повышена с `0.147.0` до `0.157.1` (соответствует актуальному `codex-cli`).
+- **Спецификация моделей**: в каталог по умолчанию включены модели семейства GPT-6 и актуальные GPT-5.x:
+  - `gpt-6-astra` (GPT-6 Astra)
+  - `gpt-6-sol` (GPT-6 Sol)
+  - `gpt-6-luna` (GPT-6 Luna)
+  - `gpt-5.6-sol` (GPT-5.6 Sol)
+  - `gpt-5.6-terra` (GPT-5.6 Terra)
+  - `gpt-5.6-luna` (GPT-5.6 Luna)
+  - `gpt-5.5` (GPT-5.5)
+- **Конфигурируемость**: параметр `codexClientVersion` вынесен в схему `Config` для возможности переопределения версии при необходимости без изменения кода плагина.

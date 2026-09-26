@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import { getVendor } from '../lib/vendors/index.js'
 import { serializeBlob } from '../lib/blob.js'
 import { deepestUsedPercent, grokBillingPercent } from '../lib/usage.js'
+import { vendorConfig } from '../lib/accounts.js'
 
 function sse(lines) {
   return lines.map((l) => `data: ${l}\n\n`).join('') + 'data: [DONE]\n\n'
@@ -216,22 +217,36 @@ test('claude usage maps five_hour utilization', async () => {
 })
 test('codex listModels sends client_version and uses slug/display_name', async () => {
   const fetchImpl = async (url) => {
-    assert.match(url, /client_version=0\.147\.0/)
+    assert.match(url, /client_version=0\.157\.1/)
     return Response.json({
       models: [
-        { slug: 'gpt-5.1-codex', display_name: 'GPT-5.1 Codex', visibility: 'list', priority: 2 },
+        { slug: 'gpt-6-astra', display_name: 'GPT-6 Astra', visibility: 'list', priority: 2 },
         { slug: 'hidden', display_name: 'Hidden', visibility: 'hide', priority: 1 },
-        { slug: 'gpt-5.1', display_name: 'GPT-5.1', visibility: 'list', priority: 1 },
+        { slug: 'gpt-5.6-sol', display_name: 'GPT-5.6 Sol', visibility: 'list', priority: 1 },
       ],
     })
   }
   const rows = await getVendor('codex').listModels(
     { accessToken: 'at', accountId: 'acc' },
-    { baseUrl: 'https://example.invalid/codex', originator: 'codex_cli_rs', clientVersion: '0.147.0' },
+    { baseUrl: 'https://example.invalid/codex', originator: 'codex_cli_rs', clientVersion: '0.157.1' },
     fetchImpl,
   )
-  assert.deepEqual(rows.map((row) => row.id), ['gpt-5.1', 'gpt-5.1-codex'])
-  assert.equal(rows[0].name, 'GPT-5.1')
+  assert.deepEqual(rows.map((row) => row.id), ['gpt-5.6-sol', 'gpt-6-astra'])
+  assert.equal(rows[0].name, 'GPT-5.6 Sol')
+})
+
+test('codex listModels defaults to 0.157.1 client_version if omitted in config', async () => {
+  let requestedUrl = ''
+  const fetchImpl = async (url) => {
+    requestedUrl = url
+    return Response.json({ models: [] })
+  }
+  await getVendor('codex').listModels(
+    { accessToken: 'at', accountId: 'acc' },
+    {},
+    fetchImpl,
+  )
+  assert.match(requestedUrl, /client_version=0\.157\.1/)
 })
 
 test('codex listModels falls back to default catalog when live list is empty', async () => {
@@ -241,7 +256,22 @@ test('codex listModels falls back to default catalog when live list is empty', a
     {},
     fetchImpl,
   )
-  assert.deepEqual(rows.map((row) => row.id), ['gpt-5.6-luna', 'gpt-5.3-codex', 'gpt-5.2-codex', 'gpt-5.1-codex', 'gpt-5.1-codex-mini', 'gpt-5.1'])
+  assert.deepEqual(rows.map((row) => row.id), [
+    'gpt-6-astra',
+    'gpt-6-sol',
+    'gpt-6-luna',
+    'gpt-5.6-sol',
+    'gpt-5.6-terra',
+    'gpt-5.6-luna',
+    'gpt-5.5',
+  ])
+})
+
+test('vendorConfig maps codexClientVersion override and falls back to default', () => {
+  const custom = vendorConfig('codex', { codexClientVersion: '0.160.0' })
+  assert.equal(custom.clientVersion, '0.160.0')
+  const def = vendorConfig('codex', {})
+  assert.equal(def.clientVersion, '0.157.1')
 })
 
 test('claude static catalog matches subscription 5.x ids', () => {
