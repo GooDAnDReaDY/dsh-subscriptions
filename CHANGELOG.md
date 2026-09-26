@@ -2,6 +2,13 @@
 
 Notable changes to `@goodandready/dsh-subscriptions`.
 
+## 0.6.24
+
+### Features & Models Catalog
+- **Codex GPT-6 Catalog Gating (#383, #384)**: bumped default Codex `clientVersion` from `0.147.0` to `0.157.1` in `lib/vendors/codex.js`, unlocking the complete GPT-6 and modern GPT-5.x model family (`gpt-6-astra`, `gpt-6-sol`, `gpt-6-luna`, `gpt-5.6-sol`, `gpt-5.6-terra`, `gpt-5.6-luna`, `gpt-5.5`).
+- **Configurable Codex Client Version**: added `codexClientVersion` property to the `Config` schema in `lib/config-schema.js` with documentation, enabling custom client version override without code modifications.
+- **Modern Fallback Models**: refreshed default Codex catalog fallback list to modern GPT-6 and GPT-5.x generation models when the live `/models` endpoint is unreachable or empty.
+
 ## 0.6.23
 
 ### Security & Privacy
