@@ -3,20 +3,9 @@ import assert from "node:assert/strict"
 import * as codex from "../lib/vendors/codex.js"
 import * as claude from "../lib/vendors/claude.js"
 import * as grok from "../lib/vendors/grok.js"
-import * as antigravity from "../lib/vendors/antigravity.js"
 
 test("codex check hits models endpoint", async () => {
   let url = ""
-  const fakeFetch = async (u, opts) => {
-    url = u
-    return {
-      ok: true,
-      status: 200,
-      headers: new Map([["x-ratelimit-remaining","10"]]),
-      text: async () => JSON.stringify({ models: [] }),
-      json: async () => ({ models: [] })
-    }
-  }
   // need to mock readJson to work with our fake, but codex check uses readJson which does res.text()
   // Our fake returns text that is JSON, readJson will parse
   const blob = { accessToken: "at", refreshToken: "rt" }
@@ -27,7 +16,7 @@ test("codex check hits models endpoint", async () => {
     return {
       ok: true,
       status: 200,
-      headers: { get: (k) => k.toLowerCase()==="x-ratelimit-remaining" ? "10" : null, forEach: (cb)=>{} },
+      headers: { get: (k) => k.toLowerCase()==="x-ratelimit-remaining" ? "10" : null, forEach: (_cb)=>{} },
       text: async () => JSON.stringify({ models: [{ slug: "gpt-4", display_name: "GPT-4" }] })
     }
   }
@@ -77,7 +66,7 @@ test("check does not expose token in error", async () => {
 test("grok check uses models", async () => {
   const blob = { accessToken: "at" }
   const cfg = grok.defaults()
-  const fakeFetch = async (u) => ({
+  const fakeFetch = async (_u) => ({
     ok: true,
     status: 200,
     headers: { get: () => null, forEach: ()=>{} },

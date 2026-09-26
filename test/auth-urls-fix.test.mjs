@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { getVendor } from '../lib/vendors/index.js'
-import { discoverLocalCliSessions, loadLocalCliBlob } from '../lib/import-auth.js'
+import { discoverLocalCliSessions } from '../lib/import-auth.js'
 
 test('cursor authorizeUrl points to https://cursor.com/settings', () => {
   const url = getVendor('cursor').authorizeUrl()

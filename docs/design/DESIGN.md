@@ -216,3 +216,8 @@
   - `gpt-5.6-luna` (GPT-5.6 Luna)
   - `gpt-5.5` (GPT-5.5)
 - **Конфигурируемость**: параметр `codexClientVersion` вынесен в схему `Config` для возможности переопределения версии при необходимости без изменения кода плагина.
+
+## Session Cache Efficiency & Test Lint Hardening (v0.6.25)
+- **Защита эндпоинта analyze-session (#385)**: добавлен обязательный контроль источника `isTrustedSettingsRequest(req)` для `POST /dsh-subscriptions/analyze-session` (возврат 403 Forbidden при cross-site вызовах).
+- **Интеграция в WebUI (#386)**: в блок диагностики добавлен инструмент «Анализ кэша» (`runAnalyzeSession`), отправляющий последние события истории запросов в `/analyze-session` и отображающий метрики эффективности кэширования (`weightedCacheHitPercent`, `savedTokens`).
+- **Качество тестов (#387)**: устранены 25 ошибок линтера в `test/`, скрипт `npm test` расширен на валидацию обоих каталогов (`eslint lib/ test/`).

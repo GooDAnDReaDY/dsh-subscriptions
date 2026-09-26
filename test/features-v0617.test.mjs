@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 
-import { resolveFallbackVendor, mapFallbackModel, DEFAULT_CASCADE_CHAINS } from '../lib/cascade.js'
+import { resolveFallbackVendor, mapFallbackModel } from '../lib/cascade.js'
 import {
   needsWarmupProbe,
   enterProbing,
@@ -21,7 +21,7 @@ import {
   clearAlerts,
 } from '../lib/alerts.js'
 import { calculateBurnRatePerHour, computePacingRisk } from '../lib/forecast.js'
-import { exportVault, importVault, VAULT_FORMAT } from '../lib/vault.js'
+import { exportVault, importVault } from '../lib/vault.js'
 import { pickAccount } from '../lib/rotate.js'
 
 test('#349: resolveFallbackVendor resolves next eligible candidate without cycles', () => {

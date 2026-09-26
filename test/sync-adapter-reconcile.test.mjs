@@ -133,7 +133,7 @@ test('syncAdapter: skips already-bound providers owned by sibling plugin without
   mod.apply(ctx, mod.Config(cfg))
 
   // Allow effects and microtasks to settle
-  await new Promise((r) => setImmediate(r))
+  await new Promise((r) => globalThis.setImmediate(r))
 
   // Sibling provider antigravity was skipped; codex was successfully claimed
   assert.equal(state.registeredAdapters.length, 1)
@@ -162,7 +162,7 @@ test('syncAdapter: handle.replace preserves owned providers and does not drop th
 
   const { ctx, state } = makeCtx({ config: cfg, globalProviders: [], vault })
   mod.apply(ctx, mod.Config(cfg))
-  await new Promise((r) => setImmediate(r))
+  await new Promise((r) => globalThis.setImmediate(r))
 
   assert.equal(state.registeredAdapters.length, 1)
   assert.deepEqual(state.registeredAdapters[0], ['codex'])

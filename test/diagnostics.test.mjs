@@ -1,7 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { createSubscriptionsService } from '../lib/subscriptions.js'
-import { maskText } from '../lib/mask.js'
 
 test('history row carries ms timing', async () => {
   let row = null

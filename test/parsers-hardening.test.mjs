@@ -79,7 +79,7 @@ test('every vendor forwards the caller AbortSignal to its fetch', async () => {
         config: {},
         signal: controller.signal,
       })) { /* consume */ }
-    } catch (e) {
+    } catch {
       // auth/refresh errors before the fetch are acceptable only if no fetch happened
       if (seen.length === 0) continue
     }

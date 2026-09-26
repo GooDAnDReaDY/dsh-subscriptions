@@ -1,9 +1,5 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { createRequire } from 'node:module'
-
-// codex.js imports only local modules — safe without node_modules.
-const require2 = createRequire(import.meta.url)
 const codex = await import('../lib/vendors/codex.js')
 
 const CFG = { clientId: 'app_test', redirectUri: 'http://localhost:1455/auth/callback' }

@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { openaiMessages, openaiTools, modelCatalog, codexResponsesBody, reconcileResponsesInput } from '../lib/messages.js'
+import { openaiMessages, openaiTools, modelCatalog, codexResponsesBody } from '../lib/messages.js'
 import { httpError, tokenBlobFromOAuth, readJson, openaiChatStream, formTokenRequest, jsonTokenRequest } from '../lib/wire.js'
 
 // #288 follow-up: request-body builders and the SSE/wire helpers.

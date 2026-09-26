@@ -321,3 +321,48 @@ test("#379: PUT /config revision CAS conflict detection", async () => {
   assert.equal(d3.ok, false)
   assert.equal(d3.error.code, "conflict")
 })
+
+test('#385: POST /analyze-session rejects cross-site and unauthenticated requests with 403', async () => {
+  assert.ok(typeof isTrustedSettingsRequest === 'function')
+  const routes = []
+  const ctx = {
+    webServer: { register(spec) { routes.push(spec); return () => {} } },
+    effect(fn) { fn(); return () => {} },
+    log: { warn() {}, error() {}, info() {} },
+  }
+  const state = { live: () => ({}), subscriptions: {} }
+  registerProxyRoutes(ctx, state)
+  const route = routes.find((r) => r.path === '/dsh-subscriptions/analyze-session')
+  assert.ok(route, 'analyze-session route should be registered')
+
+  // Cross-site via sec-fetch-site
+  const r1 = res()
+  await route.handler({ method: 'POST', url: '/dsh-subscriptions/analyze-session', headers: { 'sec-fetch-site': 'cross-site' } }, r1)
+  assert.equal(r1.code, 403)
+  assert.deepEqual(JSON.parse(r1.body), { ok: false, error: { code: 'forbidden', message: 'same-origin only' } })
+
+  // Cross-site via Origin header mismatch
+  const r2 = res()
+  await route.handler({ method: 'POST', url: '/dsh-subscriptions/analyze-session', headers: { origin: 'http://evil.com', host: 'localhost:5140' } }, r2)
+  assert.equal(r2.code, 403)
+
+  // Fail-closed without origin headers
+  const r3 = res()
+  await route.handler({ method: 'POST', url: '/dsh-subscriptions/analyze-session', headers: {} }, r3)
+  assert.equal(r3.code, 403)
+
+  // Same-origin allowed
+  const r4 = res()
+  const req4 = {
+    method: 'POST',
+    url: '/dsh-subscriptions/analyze-session',
+    headers: { host: 'localhost:5140', 'sec-fetch-site': 'same-origin' },
+    on(event, handler) {
+      if (event === 'data') handler(Buffer.from(JSON.stringify({ events: [] })))
+      if (event === 'end') handler()
+    },
+  }
+  await route.handler(req4, r4)
+  assert.equal(r4.code, 200)
+  assert.equal(JSON.parse(r4.body).ok, true)
+})

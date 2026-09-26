@@ -1,7 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { getVendor } from '../lib/vendors/index.js'
-import { serializeBlob } from '../lib/blob.js'
 import { deepestUsedPercent, grokBillingPercent } from '../lib/usage.js'
 import { vendorConfig } from '../lib/accounts.js'
 
@@ -137,7 +136,7 @@ test('gemini vendor is removed', () => {
 })
 
 test('antigravity exchangeCode discovers project via loadCodeAssist', async () => {
-  const fetchImpl = async (url, init) => {
+  const fetchImpl = async (url, _init) => {
     if (String(url).includes('oauth2.googleapis.com/token')) {
       return Response.json({ access_token: 'at', refresh_token: 'rt', expires_in: 60 })
     }

@@ -95,8 +95,8 @@ test('quarantine is remembered in account store across listAccounts and cleared 
   const memCreds = new Map()
   const store = createAccountStore({
     credentials: {
-      describe: async (r) => ({ configured: true }),
-      resolve: async (r) => JSON.stringify({ accessToken: 'tok' }),
+      describe: async (_r) => ({ configured: true }),
+      resolve: async (_r) => JSON.stringify({ accessToken: 'tok' }),
       set: async (r, val) => memCreds.set(r.ref, val),
       unset: async (r) => memCreds.delete(r.ref),
     },
@@ -165,7 +165,7 @@ test('iterateSse times out if stream goes idle', async () => {
   }
 
   await assert.rejects(async () => {
-    for await (const chunk of iterateSse(hangingStream, { idleTimeoutMs: 50 })) {
+    for await (const _chunk of iterateSse(hangingStream, { idleTimeoutMs: 50 })) {
       // should never get here
     }
   }, (err) => {

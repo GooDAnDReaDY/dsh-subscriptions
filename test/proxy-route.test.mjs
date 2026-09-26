@@ -1,7 +1,7 @@
 
 import { test } from "node:test"
 import assert from "node:assert/strict"
-import { isAllowed, ALLOWLIST } from "../lib/subscriptions.js"
+import { isAllowed } from "../lib/subscriptions.js"
 
 test("proxy route: allowed paths pass", () => {
   assert.equal(isAllowed("codex", "/responses"), true)

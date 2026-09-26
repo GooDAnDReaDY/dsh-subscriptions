@@ -17,14 +17,14 @@ function fakeCtx(config) {
     inject(names, fn) { fn(ctx); return () => {} },
     llm: { registerAdapter() { return { dispose() {} } } },
     credentials: {
-      async resolve(ref) {
+      async resolve(_ref) {
         if (config && config.slots && config.slots.length) {
           return { value: serializeBlob({ accessToken: 'at', refreshToken: 'rt', expiresAt: Date.now() + 3600 * 1000 }) }
         }
         return null
       },
       async set() {}, async unset() {},
-      async describe(ref) { return { configured: Boolean(config && config.slots && config.slots.length), writable: true } },
+      async describe(_ref) { return { configured: Boolean(config && config.slots && config.slots.length), writable: true } },
     },
     webServer: { register(spec) { state.routes.push(spec); return () => {} }, tapIndex(h) { return h } },
     settings: { register(ns, cfg, opts) { return { get: () => (opts && opts.base) || config || {}, set: async () => {}, watch: () => () => {} } } },

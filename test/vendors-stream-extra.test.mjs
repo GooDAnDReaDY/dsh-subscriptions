@@ -76,7 +76,7 @@ for (const c of CASES) {
 
   test(c.id + ': honors a config apiBase override', async () => {
     const calls = []
-    const fetchImpl = async (url, init) => {
+    const fetchImpl = async (url, _init) => {
       calls.push({ url: String(url) })
       return new Response(sse([JSON.stringify({ choices: [{ delta: { content: 'z' } }] })]), {
         status: 200, headers: { 'Content-Type': 'text/event-stream' },

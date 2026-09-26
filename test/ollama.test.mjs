@@ -67,7 +67,6 @@ test('SubscriptionAdapter: exhausted pool falls back to ollama with no prior out
 })
 
 test('SubscriptionAdapter: fallback not used when disabled', async () => {
-  async function* fakeFallback() { throw new Error('must not be called') }
   const adapter = new SubscriptionAdapter({
     listAccounts: async () => [{ hasToken: true, ref: 'CODEX_OAUTH_1', cooldownUntil: Date.now() + 600000 }],
     refreshUsage: async () => {},

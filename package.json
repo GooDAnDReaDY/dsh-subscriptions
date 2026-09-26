@@ -37,7 +37,7 @@
     "url": "https://github.com/GooDAnDReaDY/dsh-subscriptions/issues"
   },
   "scripts": {
-    "test": "eslint lib/ && node --test test/*.test.mjs",
+    "test": "eslint lib/ test/ && node --test test/*.test.mjs",
     "typecheck": "tsc -p tsconfig.checkjs.json"
   },
   "dsh": {
