@@ -2,6 +2,17 @@
 
 Notable changes to `@goodandready/dsh-subscriptions`.
 
+## 0.6.25
+
+### Security & Hardening
+- **Route Authorization Guard (#385)**: enforced `isTrustedSettingsRequest(req)` on `POST /dsh-subscriptions/analyze-session`, returning `403 Forbidden` on cross-site/unauthenticated requests.
+
+### Features & WebUI
+- **Session Cache Analyzer Integration (#386)**: connected the session cache analyzer to Settings WebUI diagnostics block with an on-demand analysis action (`runAnalyzeSession`) and display of weighted cache hit percentage and saved tokens, localized for `en` and `zh`.
+
+### Technical Debt & Quality
+- **Test Suite Lint Cleanliness (#387)**: fixed all 25 ESLint errors across the `test/` suite and updated `npm test` to validate both `lib/` and `test/` directories (`eslint lib/ test/`).
+
 ## 0.6.24
 
 ### Features & Models Catalog
