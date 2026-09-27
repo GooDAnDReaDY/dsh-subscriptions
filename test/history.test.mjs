@@ -88,3 +88,29 @@ test("#377: history dispose clears state and flushes pending writes", () => {
     assert.equal(raw.length, 1)
   } finally { rmSync(dir, { recursive: true, force: true }) }
 })
+
+test("history accountsTelemetry and accountTelemetry computes ttft and tps averages", () => {
+  const dir = tmp()
+  try {
+    const h = new HistoryStore(dir, 7 * 24 * 60 * 60 * 1000)
+    h.add({ provider: "codex", ref: "CODEX_OAUTH_1", status: 200, ms: 500, ttftMs: 200, tps: 45.5, outputTokens: 90 })
+    h.add({ provider: "codex", ref: "CODEX_OAUTH_1", status: 200, ms: 600, ttftMs: 300, tps: 35.5, outputTokens: 70 })
+    h.add({ provider: "claude", ref: "CLAUDE_OAUTH_1", status: 200, ms: 800, ttftMs: 400, tps: 50.0, outputTokens: 100 })
+
+    const telem = h.telemetrySummary()
+    assert.ok(telem.accounts)
+    assert.equal(telem.accounts["CODEX_OAUTH_1"].totalRequests, 2)
+    assert.equal(telem.accounts["CODEX_OAUTH_1"].avgTtftMs, 250)
+    assert.equal(telem.accounts["CODEX_OAUTH_1"].lastTtftMs, 300)
+    assert.equal(telem.accounts["CODEX_OAUTH_1"].avgTps, 40.5)
+    assert.equal(telem.accounts["CODEX_OAUTH_1"].lastTps, 35.5)
+    assert.equal(telem.accounts["CODEX_OAUTH_1"].totalOutputTokens, 160)
+
+    const single = h.accountTelemetry("CLAUDE_OAUTH_1")
+    assert.equal(single.totalRequests, 1)
+    assert.equal(single.avgTtftMs, 400)
+    assert.equal(single.avgTps, 50.0)
+
+    assert.equal(h.accountTelemetry("NON_EXISTENT"), null)
+  } finally { rmSync(dir, { recursive: true, force: true }) }
+})
