@@ -2,6 +2,14 @@
 
 Notable changes to `@goodandready/dsh-subscriptions`.
 
+## 0.6.28
+
+### Features & Optimization
+- **Prompt Caching Prefix Stabilization & Ephemeral Controls (#400)**: normalized whitespace and CRLF line endings in system prompts and instructions; attached Anthropic ephemeral `cache_control` breakpoints to system text block, the last tool definition, and the second-to-last user conversation turn in multi-turn dialogues to achieve 90%+ cache hit rate and instant TTFT.
+- **Stream Runaway Circuit-Breaker Guard (#401)**: added `RunawayDetector` and `withRunawayGuard` in `lib/runaway-guard.js` to monitor live generation streams, automatically terminating with a clean `stop` finish chunk when consecutive repetitive tokens (>=30) or cyclic n-gram loops (>=6 repetitions) are detected, saving user quota and preventing UI lockups.
+- **Universal Tool Schema Normalizer (#403)**: implemented `normalizeTools` and `normalizeJsonSchema` in `lib/tools-normalizer.js`, stripping unsupported meta properties (`$schema`, `$id`), sanitizing function names (`^[a-zA-Z0-9_-]{1,64}), validating top-level object parameters, and pruning enum lists across OpenAI, Anthropic, Gemini, and Codex.
+- **Universal Multimodal Payload Normalizer (#404)**: added `extractImages` and vendor format converters in `lib/images.js` (`toOpenAiImage`, `toAnthropicImage`, `toGeminiImage`, `toCodexImage`), extracting and cross-converting data URIs, base64 payloads, and image URLs seamlessly for all vision models.
+
 ## 0.6.27
 
 ### Features & WebUI
