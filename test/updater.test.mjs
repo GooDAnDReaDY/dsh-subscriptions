@@ -163,3 +163,61 @@ test('updater: registerPluginUpdater route handles GET, 405 on unsupported metho
   assert.equal(untrustedPayload.ok, false)
   assert.equal(untrustedPayload.error.code, 'forbidden')
 })
+
+test('#409: isTrustedUpdateRequest fails closed when remoteAddress is non-loopback or absent on non-local host', () => {
+  assert.equal(isTrustedUpdateRequest({
+    headers: { host: '192.168.1.111:3000' },
+  }), false)
+
+  assert.equal(isTrustedUpdateRequest({
+    headers: { host: '192.168.1.111:3000' },
+    socket: {},
+  }), false)
+
+  assert.equal(isTrustedUpdateRequest({
+    headers: { host: 'localhost:3000' },
+    socket: { remoteAddress: undefined },
+  }), false)
+})
+
+test('#409: registerPluginUpdater registers canonical aliases and unregisters them on dispose', async () => {
+  const registered = []
+  const unregisterCalls = []
+  const mockCtx = {
+    webServer: {
+      register(spec) {
+        registered.push(spec)
+        return () => { unregisterCalls.push(spec.path) }
+      },
+    },
+    logger: { warn() {} },
+  }
+
+  const dispose = registerPluginUpdater(mockCtx, {
+    endpoint: '/dsh-subscriptions/update',
+    aliases: [
+      '/api/@goodandready/dsh-subscriptions/update',
+      '/api/dsh-subscriptions/update',
+    ],
+    packageName: '@goodandready/dsh-subscriptions',
+    manifestUrl: new URL('../package.json', import.meta.url),
+  })
+
+  assert.equal(registered.length, 3)
+  assert.equal(registered[0].path, '/dsh-subscriptions/update')
+  assert.equal(registered[1].path, '/api/@goodandready/dsh-subscriptions/update')
+  assert.equal(registered[2].path, '/api/dsh-subscriptions/update')
+
+  // Verify all handlers are the same function
+  assert.equal(registered[0].handler, registered[1].handler)
+  assert.equal(registered[1].handler, registered[2].handler)
+
+  // Dispose unregisters all routes
+  dispose()
+  assert.equal(unregisterCalls.length, 3)
+  assert.deepEqual(unregisterCalls, [
+    '/dsh-subscriptions/update',
+    '/api/@goodandready/dsh-subscriptions/update',
+    '/api/dsh-subscriptions/update',
+  ])
+})
