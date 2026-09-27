@@ -49,3 +49,11 @@ test('client includes clinebot-style status badges, telemetry cards and smoke pi
   assert.match(src, /runSmokeTest/)
   assert.match(src, /reloadTelemetry/)
 })
+
+test('#408: PluginCard handles host snapshot status loading and unavailable', () => {
+  const updatedSrc = readFileSync(new URL('../lib/client.js', import.meta.url), 'utf8')
+  assert.match(updatedSrc, /props\.status === 'loading'/)
+  assert.match(updatedSrc, /props\.status === 'unavailable'/)
+  assert.match(updatedSrc, /"unavailable": "Settings are unavailable"/)
+  assert.match(updatedSrc, /"unavailable": "设置不可用"/)
+})
