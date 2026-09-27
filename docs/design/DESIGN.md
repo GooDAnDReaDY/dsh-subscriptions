@@ -238,3 +238,9 @@
 - **Санитизация перечислений в JSON-схемах инструментов (#392, GH #10)**:
   - В `toGeminiSchema` выполняется очистка элементов `schema.enum`: удаление пустых и состоящих из пробелов строк (`.trim()`), фильтрация и дедупликация.
   - Если после фильтрации перечисление оказывается пустым, поле `enum` полностью опускается, предотвращая фатальный отказ Gemini API `400 INVALID_ARGUMENT "...properties[...].enum[...]: cannot be empty"`.
+
+### Release 0.6.27 Specifications (Track 1 & Track 4)
+- **Quota Reset Countdowns (#394)**: `formatRelativeReset` calculates and updates live countdowns (`1h 25m`, `45m`, `12s`) for quota windows across account cards and the top-level session header pill.
+- **Diagnostics Speed Telemetry (#395)**: `HistoryStore.accountsTelemetry()` aggregates TTFT and TPS from streaming events (`streamOnce`), exposing slot telemetry at `GET /dsh-subscriptions/telemetry` and displaying metric badges on slot cards.
+- **Encrypted Profile Backup (#396)**: PBKDF2-SHA256 (100k iterations) key derivation for AES-256-GCM vault export/import (`DSHE2:`) with `DSHE1:` backwards compatibility; exposed at `POST /dsh-subscriptions/export-backup` and `POST /dsh-subscriptions/import-backup` with WebUI modal.
+- **GitHub Copilot Device Code Provider (#398)**: headless OAuth via `COPILOT_DEVICE_CODE_URL`, automatic polling in `devicePoll`, models catalog, and local session detection (`hosts.json`, `apps.json`).
