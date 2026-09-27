@@ -186,3 +186,65 @@ test('fetchWithTimeout aborts if server does not respond in time', async () => {
     return err.name === 'TimeoutError' || err.name === 'AbortError'
   })
 })
+
+import { isRegionError } from '../lib/rotate.js'
+
+test('isRegionError and isSwitchableError classify transient Google 400 region errors (#391 / GH #9)', () => {
+  const regionErr1 = {
+    status: 400,
+    message: 'vendor http 400: { "error": { "code": 400, "message": "User location is not supported for the API use.", "status": "FAILED_PRECONDITION" } }',
+  }
+  const regionErr2 = {
+    statusCode: 400,
+    message: 'FAILED_PRECONDITION: Location unsupported',
+  }
+  const generic400 = {
+    status: 400,
+    message: 'vendor http 400: invalid argument',
+  }
+
+  assert.equal(isRegionError(regionErr1), true)
+  assert.equal(isRegionError(regionErr2), true)
+  assert.equal(isRegionError(generic400), false)
+  assert.equal(isRegionError({ status: 500, message: 'FAILED_PRECONDITION' }), false)
+
+  assert.equal(isSwitchableError(regionErr1), true)
+  assert.equal(isSwitchableError(regionErr2), true)
+  assert.equal(isSwitchableError(generic400), false)
+})
+
+test('streamWithRotation retries in-place on transient region 400 before switching (#391 / GH #9)', async () => {
+  const accounts = [
+    { ref: 'ACC_1', hasToken: true, cooldownUntil: 0 },
+    { ref: 'ACC_2', hasToken: true, cooldownUntil: 0 },
+  ]
+  let attempts = 0
+  const triedAccounts = []
+
+  async function* streamOnce(account) {
+    triedAccounts.push(account.ref)
+    attempts++
+    if (attempts === 1) {
+      const err = new Error('vendor http 400: User location is not supported for the API use. (FAILED_PRECONDITION)')
+      err.status = 400
+      throw err
+    }
+    yield { text: 'recovered after region retry' }
+  }
+
+  const chunks = []
+  for await (const chunk of streamWithRotation({
+    accounts,
+    nowMs: () => 1000,
+    cooldownMs: 5000,
+    switchAtRemaining: 0,
+    streamOnce,
+    options: { provider: 'antigravity', model: 'gemini-3.8-flash-tiered' },
+  })) {
+    chunks.push(chunk)
+  }
+
+  assert.equal(chunks.length, 1)
+  assert.equal(chunks[0].text, 'recovered after region retry')
+  assert.deepEqual(triedAccounts, ['ACC_1', 'ACC_1'], 'Should have retried the same account without rotating')
+})

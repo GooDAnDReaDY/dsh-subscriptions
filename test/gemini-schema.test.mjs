@@ -54,3 +54,29 @@ test('googleContents puts sanitized declarations on Cloud Code tools', () => {
   assert.equal(schema.properties.q.type, 'string')
   assert.equal(schema.properties.q.nullable, true)
 })
+test('toGeminiSchema cleans empty and whitespace-only enum entries and deduplicates (#392 / GH #10)', () => {
+  const schemaWithEmpty = {
+    type: 'object',
+    properties: {
+      permission: { type: 'string', enum: ['read', 'write', 'ask', '', '   ', null, undefined] },
+    },
+  }
+  const out = toGeminiSchema(schemaWithEmpty)
+  assert.deepEqual(out.properties.permission.enum, ['read', 'write', 'ask'])
+
+  // If enum only contains empty entries, enum property should be omitted entirely
+  const schemaOnlyEmpty = {
+    type: 'string',
+    enum: ['', '  ', null],
+  }
+  const outEmpty = toGeminiSchema(schemaOnlyEmpty)
+  assert.equal(outEmpty.enum, undefined)
+
+  // Deduplication check
+  const schemaDupes = {
+    type: 'string',
+    enum: ['a', 'b', 'a'],
+  }
+  const outDupes = toGeminiSchema(schemaDupes)
+  assert.deepEqual(outDupes.enum, ['a', 'b'])
+})

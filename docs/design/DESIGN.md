@@ -221,3 +221,20 @@
 - **Защита эндпоинта analyze-session (#385)**: добавлен обязательный контроль источника `isTrustedSettingsRequest(req)` для `POST /dsh-subscriptions/analyze-session` (возврат 403 Forbidden при cross-site вызовах).
 - **Интеграция в WebUI (#386)**: в блок диагностики добавлен инструмент «Анализ кэша» (`runAnalyzeSession`), отправляющий последние события истории запросов в `/analyze-session` и отображающий метрики эффективности кэширования (`weightedCacheHitPercent`, `savedTokens`).
 - **Качество тестов (#387)**: устранены 25 ошибок линтера в `test/`, скрипт `npm test` расширен на валидацию обоих каталогов (`eslint lib/ test/`).
+
+## Wire Protocol, Schema Sanitization, Quota Resolution & Region Resilience (v0.6.26)
+- **Идентификация квотных окон (#389, GH #7)**:
+  - Функция `usageWindows` игнорирует чисто числовые ключи (`/^\d+$/`) и разрешает имена окон по семантическим полям объектов (`modelId`, `model`, `window`, `name`, `id`, `scope`).
+  - Для бакетов моделей (Antigravity/Cloud Code Assist): при 0% использования бакеты моделей не засоряют шапку и бейджи (возврат `null`), при наличии использования выводятся только 1-2 наиболее нагруженных бакета.
+  - Сохранена обратная совместимость и маппинг стандартных окон вендоров (`five_hour`, `seven_day`, `primary_window`, `secondary_window` -> `5h`/`7d`).
+- **Стриминг вызовов инструментов и целостность токенов (#390, GH #8)**:
+  - В `googleStream` для каждого `functionCall` гарантировано выделение отдельного индекса блока и строкового идентификатора `id` (`gemini_call_<n>` или апстрим id), предотвращая падение валидатора DSH `TypeError: tool-call-delta id must be a string`.
+  - В `anthropicStream` сохраняется привязка `id` блока `tool_use` к последующим чанкам `input_json_delta`.
+  - Счетчики токенов в чанках `usage` коэрсируются через `?? 0`, исключая падение сериализации снимков `Assistant stream chunk must be losslessly JSON-serializable`.
+- **Устойчивость к транзиентным региональным ошибкам Google (#391, GH #9)**:
+  - Добавлена функция `isRegionError(err)` (HTTP 400 со статусом `FAILED_PRECONDITION` или сообщением `User location is not supported for the API use.`).
+  - Региональные ошибки классифицированы как переключаемые в `isSwitchableError`.
+  - В `streamWithRotation` реализован in-place retry того же аккаунта до 2 раз с бэкоффом (400 мс) до выдачи первого чанка пользователю, с последующей ротацией пула при неустранимой ошибке.
+- **Санитизация перечислений в JSON-схемах инструментов (#392, GH #10)**:
+  - В `toGeminiSchema` выполняется очистка элементов `schema.enum`: удаление пустых и состоящих из пробелов строк (`.trim()`), фильтрация и дедупликация.
+  - Если после фильтрации перечисление оказывается пустым, поле `enum` полностью опускается, предотвращая фатальный отказ Gemini API `400 INVALID_ARGUMENT "...properties[...].enum[...]: cannot be empty"`.

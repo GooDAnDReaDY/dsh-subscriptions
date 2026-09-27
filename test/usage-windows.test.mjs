@@ -47,3 +47,47 @@ test("blob round-trips persisted usage windows", () => {
   const plain = parseBlob(serializeBlob({ accessToken: "a", refreshToken: "b" }))
   assert.equal(plain.usage, undefined)
 })
+
+test("usageWindows ignores pure-numeric keys and resolves semantic modelId (#389 / GH #7)", () => {
+  const payloadAllZero = {
+    buckets: [
+      { tokenType: "WTUS", modelId: "chat_20706", remainingFraction: 1 },
+      { tokenType: "WTUS", modelId: "chat_23310", remainingFraction: 1 },
+      { tokenType: "WTUS", modelId: "gemini-3.8-flash-tiered", remainingFraction: 1 },
+    ],
+  }
+  // All zero usage -> should return null rather than 0% clutter
+  assert.equal(usageWindows(payloadAllZero), null)
+
+  const payloadWithUsage = {
+    buckets: [
+      { tokenType: "WTUS", modelId: "chat_20706", remainingFraction: 0.62 },
+      { tokenType: "WTUS", modelId: "chat_23310", remainingFraction: 0.85 },
+      { tokenType: "WTUS", modelId: "gemini-3.8-flash-tiered", remainingFraction: 1 },
+    ],
+  }
+  const wins = usageWindows(payloadWithUsage)
+  assert.ok(Array.isArray(wins))
+  assert.equal(wins.length, 2)
+  assert.equal(wins[0].id, "chat_20706")
+  assert.equal(Math.round(wins[0].usedPercent), 38)
+  assert.equal(wins[1].id, "chat_23310")
+  assert.equal(Math.round(wins[1].usedPercent), 15)
+})
+
+test("usageWindows keeps standard named windows like primary_window / secondary_window (#389 / GH #7)", () => {
+  const codexPayload = {
+    rate_limits: {
+      primary_window: { remainingFraction: 0.61 },
+      secondary_window: { remainingFraction: 0.88 },
+    },
+  }
+  const wins = usageWindows(codexPayload)
+  assert.equal(wins.length, 2)
+  assert.equal(wins[0].id, "primary_window")
+  assert.equal(wins[0].en, "5h")
+  assert.equal(wins[0].zh, "5小时")
+  assert.equal(wins[1].id, "secondary_window")
+  assert.equal(wins[1].en, "7d")
+  assert.equal(wins[1].zh, "7天")
+})
