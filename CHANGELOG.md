@@ -2,6 +2,16 @@
 
 Notable changes to `@goodandready/dsh-subscriptions`.
 
+## 0.6.27
+
+### Features & WebUI
+- **Live Quota Reset Countdown Timers (#394)**: added live relative countdown timers in account cards and header status chip (`formatRelativeReset`), parsing ISO timestamps and epoch formats from upstream quota windows to show exact time remaining until quota replenishment.
+- **TTFT & Token Generation Speed Telemetry (#395)**: tracked time-to-first-token (TTFT) and generation speed (tokens/sec) during streaming requests in adapter; aggregated metrics per slot in `HistoryStore` and surfaced live speed badges (`⚡ TTFT: 340ms · 45.2 t/s`) on account cards.
+- **Encrypted Profile Backup with PBKDF2 (#396)**: added export and import backup functionality using PBKDF2 (100k iterations, SHA-256) and AES-256-GCM (`DSHE2:`), maintaining backward compatibility with `DSHE1:` (scrypt); added user-friendly Export and Import modals in settings with direct file download (`.enc`) and clipboard copy.
+
+### Providers & OAuth
+- **GitHub Copilot Device Code Flow (#398)**: integrated official GitHub Copilot subscription provider via headless Device Code OAuth (`https://github.com/login/device`), automatic token capture and polling, model catalog (`claude-3.7-sonnet`, `gpt-4o`, `o1`, `o3-mini`), and local CLI session importer.
+
 ## 0.6.26
 
 ### Bug Fixes & Wire Protocol
