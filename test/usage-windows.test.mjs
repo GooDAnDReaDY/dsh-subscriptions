@@ -91,3 +91,29 @@ test("usageWindows keeps standard named windows like primary_window / secondary_
   assert.equal(wins[1].en, "7d")
   assert.equal(wins[1].zh, "7天")
 })
+
+test("usageWindows captures and normalizes reset timestamps (ISO, epoch s, epoch ms) (#394)", () => {
+  const jsonWithResets = {
+    five_hour: {
+      utilization: 45,
+      resets_at: "2026-09-27T20:30:00.000Z",
+    },
+    rate_limits: {
+      primary_window: {
+        remainingFraction: 0.5,
+        reset_at: 1790450947, // epoch seconds
+      },
+    },
+  }
+  const wins = usageWindows(jsonWithResets)
+  assert.ok(Array.isArray(wins))
+  assert.equal(wins.length, 2)
+
+  const fiveHour = wins.find((w) => w.id === "five_hour")
+  assert.equal(fiveHour.usedPercent, 45)
+  assert.equal(fiveHour.resetAt, Date.parse("2026-09-27T20:30:00.000Z"))
+
+  const primary = wins.find((w) => w.id === "primary_window")
+  assert.equal(primary.usedPercent, 50)
+  assert.equal(primary.resetAt, 1790450947000)
+})
