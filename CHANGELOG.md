@@ -2,6 +2,14 @@
 
 Notable changes to `@goodandready/dsh-subscriptions`.
 
+## 0.6.26
+
+### Bug Fixes & Wire Protocol
+- **Tool-Call ID & Index Guarantees (#390, GH #8)**: ensured `googleStream()` assigns a dedicated block index and non-empty string `id` (`gemini_call_<n>` or upstream id) to every `tool-call-delta` chunk, resolving `TypeError: tool-call-delta id must be a string` in DSH stream validator. In `anthropicStream()`, mapped and preserved `tool_use` block `id` across all `input_json_delta` chunks. Coerced token counters with `?? 0` across stream usage chunks to ensure lossless JSON serialization.
+- **Gemini Tool Schema Enum Sanitization (#392, GH #10)**: trimmed, filtered empty/whitespace-only strings, and deduplicated `schema.enum` in `toGeminiSchema()`; omitted the `enum` property entirely if empty to prevent Google `400 INVALID_ARGUMENT` crashes.
+- **Antigravity Quota Windows Resolution (#389, GH #7)**: prevented pure-numeric array indices (`/^\d+$/`) from becoming window names in `usageWindows()`; resolved semantic identifiers (`modelId`, `model`, `window`, `name`, `id`, `scope`). For model buckets, only 1-2 active models with `usedPercent > 0` are surfaced, returning `null` when all are at 0% to prevent cluttering the UI. Standard named windows (`5h`/`7d`) preserved.
+- **Transient Google Region Error Recovery (#391, GH #9)**: added `isRegionError()` classifying HTTP 400 `FAILED_PRECONDITION` / `"User location is not supported"` as switchable in `isSwitchableError()`. Added in-place retry (up to 2 attempts with 400ms backoff) in `streamWithRotation()` before rotating account slots.
+
 ## 0.6.25
 
 ### Security & Hardening
