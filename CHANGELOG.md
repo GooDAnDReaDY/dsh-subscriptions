@@ -2,6 +2,14 @@
 
 Notable changes to `@goodandready/dsh-subscriptions`.
 
+## 0.6.29
+
+### Fixes & Hardening
+- **Theme Variables in CSS (#406)**: replaced hardcoded hex fallback `#3b82f6` in `.dsub-speed-tag` styles with pure theme variable `var(--dsw-alias-brand-default)`.
+- **Runtime Quota Alerts & Session Expiration Wiring (#407)**: wired `checkQuotaThresholds` into adapter quota capture and `notifySessionExpired` into `streamWithRotation` on 401/`TOKEN_REVOKED` errors; dynamically resolved User-Agent from `package.json` in external webhook dispatcher.
+- **Snapshot Status in Settings PluginCard (#408)**: added handling of host configuration status in `PluginCard` (`props.status === loading` and `props.status === unavailable`) to comply with DSH slot contracts.
+- **Canonical Plugin Updater Aliases & Fail-Closed Validation (#409)**: registered canonical route aliases `/api/@goodandready/dsh-subscriptions/update` and `/api/dsh-subscriptions/update`; enforced strict fail-closed origin validation using `isTrustedSettingsRequest`.
+
 ## 0.6.28
 
 ### Features & Optimization
