@@ -2,6 +2,11 @@
 
 Notable changes to `@goodandready/dsh-subscriptions`.
 
+## 0.6.32
+
+### Fixes
+- **Cordis History Directory Invariant (#419)**: removed un-injected `ctx.historyDir` access in plugin entry point `lib/index.js` which triggered Cordis Context proxy trap on host startup; added regression guard testing `apply()` against strict Cordis context proxy.
+
 ## 0.6.31
 
 ### DevOps & Resilience
