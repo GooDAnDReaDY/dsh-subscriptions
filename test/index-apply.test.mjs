@@ -19,6 +19,7 @@ function fakeCtx() {
   }
   const ctx = {
     log: { warn() {}, error() {}, info() {} },
+    logger: () => ({ warn() {}, error() {}, info() {} }),
     emit(name, payload) { state.emitted.push({ name, payload }) },
     provide(name, value) {
       state.provided[name] = value
@@ -115,4 +116,25 @@ test('config defaults are applied when apply is called with an empty object', as
   } finally {
     for (const c of state.cleanups) c()
   }
+})
+
+test("apply does not access undeclared properties on strict Cordis context proxy (#419)", async () => {
+  const mod = await loadPlugin()
+  const { ctx, state } = fakeCtx()
+  const allowed = new Set([
+    "llm", "credentials", "webServer", "settings",
+    "log", "logger", "emit", "provide", "effect", "inject", "on", "slots", "tools",
+    "Config", "apply", "name", "inject"
+  ])
+  const strictCtx = new Proxy(ctx, {
+    get(target, prop, receiver) {
+      if (typeof prop === "string" && !allowed.has(prop) && !(prop in target)) {
+        throw new Error(`cannot get property "${prop}" without inject`)
+      }
+      return Reflect.get(target, prop, receiver)
+    }
+  })
+  mod.apply(strictCtx, mod.Config({}))
+  assert.ok(state.provided.subscriptions)
+  for (const c of state.cleanups) c()
 })
