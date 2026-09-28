@@ -117,3 +117,21 @@ test('loadLocalCliBlob rejects unsupported providers explicitly', async () => {
     }
   })
 })
+
+test('#413: discoverLocalCliSessions returns only supported subscription providers without unsupported coding-agent configs', async () => {
+  await withHome({
+    '.aider.conf.yml': 'OPENAI_API_KEY=sk-test',
+    '.roo-code/settings.json': JSON.stringify({ apiKey: 'sk-test' }),
+    '.codex/auth.json': JSON.stringify({ access_token: 'valid-token', email: 'test@example.com' }),
+  }, async (home) => {
+    const discovered = await discoverLocalCliSessions({ home })
+    assert.equal(discovered.aider, undefined, 'Aider config must not be discovered as a subscription')
+    assert.equal(discovered.roocode, undefined, 'Roo-Code config must not be discovered as a subscription')
+    assert.ok(discovered.codex, 'Codex subscription should be discovered')
+
+    for (const provider of Object.keys(discovered)) {
+      const blob = await loadLocalCliBlob(provider, { home })
+      assert.ok(blob, `loadLocalCliBlob must succeed for discovered provider ${provider}`)
+    }
+  })
+})
