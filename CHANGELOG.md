@@ -2,6 +2,14 @@
 
 Notable changes to `@goodandready/dsh-subscriptions`.
 
+## 0.6.30
+
+### Fixes & Security
+- **Test History Isolation Guard (#411)**: isolated test history storage directory (`resolveHistoryDir`) via `DSH_HISTORY_DIR`/`DSH_STORAGE_DIR`/`DSH_HOME` and added test setup guard ensuring production `~/.dsh` is never touched by unit test runs.
+- **Hermes Mentions Removal (#412)**: removed legacy references to Hermes agent from UI instructions, client placeholder hints, and CLI credential importer.
+- **Local Discovery Coding-Agent Configs Cleanup (#413)**: removed unsupported coding-agent configurations from local credential discovery to avoid importing incomplete or unroutable profiles.
+- **Vault Passphrase & Key Derivation Hardening (#414)**: enforced a minimum 12-character passphrase on vault token export with scrypt `N=131072` (DSHE3) and PBKDF2 600,000 iterations (DSHE2) while preserving backwards-compatible decryption for existing backups.
+
 ## 0.6.29
 
 ### Fixes & Hardening
