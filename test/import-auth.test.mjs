@@ -39,14 +39,14 @@ test('detects a Codex CLI session from auth.json', async () => {
   })
 })
 
-test('detects a Grok session and falls back to the Hermes path', async () => {
+test('detects a Grok session from .grok/auth.json and ignores legacy paths', async () => {
   await withHome({ '.grok/auth.json': { token: 'gt' } }, async (home) => {
     const found = await discoverLocalCliSessions({ home })
     assert.ok(found.grok, 'grok session detected via .grok')
   })
   await withHome({ '.hermes/auth.json': { access_token: 'ht' } }, async (home) => {
     const found = await discoverLocalCliSessions({ home })
-    assert.ok(found.grok, 'grok session detected via .hermes fallback')
+    assert.equal(found.grok, undefined, 'legacy agent paths must not be detected')
   })
 })
 
@@ -114,6 +114,24 @@ test('loadLocalCliBlob rejects unsupported providers explicitly', async () => {
     const detected = await discoverLocalCliSessions({ home })
     if (detected.codex) {
       await assert.rejects(() => loadLocalCliBlob('codex-unknown', { home }), /(no local CLI session found|unsupported)/)
+    }
+  })
+})
+
+test('#413: discoverLocalCliSessions returns only supported subscription providers without unsupported coding-agent configs', async () => {
+  await withHome({
+    '.aider.conf.yml': 'OPENAI_API_KEY=sk-test',
+    '.roo-code/settings.json': JSON.stringify({ apiKey: 'sk-test' }),
+    '.codex/auth.json': JSON.stringify({ access_token: 'valid-token', email: 'test@example.com' }),
+  }, async (home) => {
+    const discovered = await discoverLocalCliSessions({ home })
+    assert.equal(discovered.aider, undefined, 'Aider config must not be discovered as a subscription')
+    assert.equal(discovered.roocode, undefined, 'Roo-Code config must not be discovered as a subscription')
+    assert.ok(discovered.codex, 'Codex subscription should be discovered')
+
+    for (const provider of Object.keys(discovered)) {
+      const blob = await loadLocalCliBlob(provider, { home })
+      assert.ok(blob, `loadLocalCliBlob must succeed for discovered provider ${provider}`)
     }
   })
 })
