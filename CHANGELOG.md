@@ -2,6 +2,14 @@
 
 Notable changes to `@goodandready/dsh-subscriptions`.
 
+## 0.6.33
+
+### Fixes & Hardening
+- **Cordis Logger Guard (#421)**: eliminated un-injected `ctx.log` reference in plugin entry point `lib/index.js` to strictly adhere to Cordis proxy invariants.
+- **Preflight Error Handling (#422)**: documented rationale for empty catch blocks in updater routines (`lib/updater.js`).
+- **Vendor Encapsulation (#423)**: encapsulated internal provider constants across `lib/vendors/*.js` to protect module boundaries.
+- **Design Contract Fix (#424)**: resolved duplicate word typo in `docs/design/DESIGN.md`.
+
 ## 0.6.32
 
 ### Fixes
