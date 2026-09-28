@@ -39,14 +39,14 @@ test('detects a Codex CLI session from auth.json', async () => {
   })
 })
 
-test('detects a Grok session and falls back to the Hermes path', async () => {
+test('detects a Grok session from .grok/auth.json and ignores legacy paths', async () => {
   await withHome({ '.grok/auth.json': { token: 'gt' } }, async (home) => {
     const found = await discoverLocalCliSessions({ home })
     assert.ok(found.grok, 'grok session detected via .grok')
   })
   await withHome({ '.hermes/auth.json': { access_token: 'ht' } }, async (home) => {
     const found = await discoverLocalCliSessions({ home })
-    assert.ok(found.grok, 'grok session detected via .hermes fallback')
+    assert.equal(found.grok, undefined, 'legacy agent paths must not be detected')
   })
 })
 
