@@ -157,7 +157,7 @@ dsh plugin --profile web add @goodandready/dsh-subscriptions
 
 ## 🚀 一键插件自更新与稳定性强化 (v0.6.9 新增)
 
-- **宿主端一键更新**: 挂载于 `/dsh-subscriptions/update` 的就地更新机制，自动对比 npm registry 最新版本并通过宿主 DSH CLI 执行单飞安装 (`dsh plugin add --config.minimumReleaseAge=0`)。
+- **宿主端一键更新**: 挂载于 `/dsh-subscriptions/update` 的就地更新机制，自动对比 npm registry 最新版本并通过宿主 DSH CLI 执行单飞安装 (`dsh plugin add`)。
 - **安全与来源防护**: 更新接口严格校验环回地址（支持 IPv4 `127.0.0.1`、IPv6 `::1`、`localhost`）、`x-dsh-plugin-update` 请求头及同源策略，阻断未授权跨站调用。
 - **状态栏徽章与更新按钮**: 设置面板顶部状态栏显示当前插件版本，有新版本时提示告警徽章并提供一键更新按钮与重启提示。
 - **网络超时熔断**: 配额检测与冒烟测试增加 15 秒超时信号保护 (`AbortSignal.timeout(15_000)`)，防止外部服务商接口故障导致请求挂起。
