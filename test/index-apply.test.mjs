@@ -79,13 +79,14 @@ test('plugin metadata declares the cordis contract', async () => {
 test('apply wires the plugin without throwing and provides its services', async () => {
   const mod = await loadPlugin()
   const { ctx, state } = fakeCtx()
-  mod.apply(ctx, mod.Config({}))
+  mod.apply(ctx, mod.plainConfig(mod.Config({})))
   try {
     assert.ok(state.provided.subscriptions, 'subscriptions service provided')
     assert.equal(typeof state.provided.subscriptions.request, 'function')
     assert.ok(state.provided.subscriptionImages, 'subscriptionImages service provided')
     assert.ok(state.routes.length > 0, 'routes registered')
-    // adapter registration is driven by syncAdapter on config changes, not apply itself
+    // The settings service is injected (describe/update/replace); only the removed
+    // settings.register used to be called, and that is what must be gone.
     assert.ok(state.injections.some((n) => n.includes('settings')), 'settings injected')
     assert.ok(state.effects.length > 0, 'effects registered')
     for (const r of state.routes) assert.ok(r.path && r.handler, 'route shape')

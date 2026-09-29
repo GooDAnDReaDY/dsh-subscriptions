@@ -1,60 +1,43 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { apply, Config } from '../lib/index.js'
+import { apply } from '../lib/index.js'
 import { createAccountStore, normalizeSlots } from '../lib/accounts.js'
 import { publicConfig } from '../lib/config-schema.js'
 
-function makeMockCtx({ baseConfig = {}, initialScopeConfig = null }) {
+// The host hands apply() the live profile entry object. Its volatile fields hold
+// Volatile boxes, and the Loader mutates them in place and re-announces the change with
+// loader/volatile-update. No settings service is registered or injected: that API was
+// removed before DSH 0.1.7-rc.2.
+function makeMockCtx({ baseConfig = {} }) {
   const events = new Map()
   const cleanups = []
-  let scopeGetCalls = 0
+  const provided = {}
 
-  let currentSettings = initialScopeConfig || baseConfig
-
-  const scope = {
-    get: () => {
-      scopeGetCalls++
-      return currentSettings
-    },
-    replace: async (next) => {
-      currentSettings = next
-    },
-    watch: () => () => {},
-  }
-
-  const sctx = {
-    settings: {
-      register: () => scope,
-    },
+  const ctx = {
+    rawConfig: baseConfig,
+    logger: () => ({ warn() {}, error() {}, info() {} }),
+    inject: () => () => {},
     on: (event, handler) => {
       if (!events.has(event)) events.set(event, [])
       events.get(event).push(handler)
-      return () => {
-        const list = events.get(event) || []
-        const idx = list.indexOf(handler)
-        if (idx >= 0) list.splice(idx, 1)
-      }
+      return () => ctx.off(event, handler)
+    },
+    off: (event, handler) => {
+      const list = events.get(event) || []
+      const idx = list.indexOf(handler)
+      if (idx >= 0) list.splice(idx, 1)
     },
     effect: (fn) => {
-      const c = fn()
+      const c = typeof fn === 'function' ? fn() : undefined
       if (typeof c === 'function') cleanups.push(c)
+      return c
     },
-  }
-
-  const ctx = {
-    logger: () => ({ warn() {}, error() {}, info() {} }),
-    inject: (deps, fn) => {
-      if (deps.includes('settings')) {
-        fn(sctx)
-      }
-      return () => {}
-    },
-    on: (event, handler) => sctx.on(event, handler),
-    effect: (fn) => sctx.effect(fn),
     emit: (event, ...args) => {
-      for (const h of events.get(event) || []) {
-        h(...args)
-      }
+      for (const h of events.get(event) || []) h(...args)
+    },
+    provide: (name, value) => {
+      provided[name] = value
+      return () => { delete provided[name] }
     },
     webServer: {
       register: () => () => {},
@@ -67,21 +50,17 @@ function makeMockCtx({ baseConfig = {}, initialScopeConfig = null }) {
       describe: async () => ({ configured: false }),
     },
     tools: { register: () => () => {} },
-    provide: () => {},
   }
 
   return {
     ctx,
-    sctx,
-    scope,
-    getScopeGetCalls: () => scopeGetCalls,
-    emitEvent: (event, ...args) => ctx.emit(event, ...args),
-    setSettings: (next) => { currentSettings = next },
+    provided,
     cleanups,
+    emitEvent: (event, ...args) => ctx.emit(event, ...args),
   }
 }
 
-test('#367: series of operations without settings changes results in exactly 1 scope.get() call', async () => {
+test('#367: the resolved config is cached and only refreshed on volatile-update', () => {
   const cfg = {
     slots: [
       { provider: 'codex', index: 1, label: 'Account 1' },
@@ -90,40 +69,34 @@ test('#367: series of operations without settings changes results in exactly 1 s
     cooldownMs: 60000,
   }
 
-  const mock = makeMockCtx({ baseConfig: cfg, initialScopeConfig: cfg })
-  apply(mock.ctx, Config(cfg))
+  const mock = makeMockCtx({ baseConfig: cfg })
+  apply(mock.ctx, cfg)
 
-  // Initial registration performs 1 scope.get()
-  assert.equal(mock.getScopeGetCalls(), 1, 'scope.get() should only be called once on init')
+  const svc = mock.provided.subscriptions
+  assert.ok(svc, 'the subscriptions service must be provided')
 
-  // Run 100 consecutive operations (multiple calls in accounts, adapters, etc.)
-  // None of these should call scope.get()!
+  // Repeated reads must reuse one resolved snapshot instead of re-resolving the whole
+  // schema per operation. That per-operation re-resolution is the regression #367 fixed.
+  const first = svc.live()
+  assert.equal(first.cooldownMs, 60000)
   for (let i = 0; i < 100; i++) {
-    // Calling store / helper operations
     normalizeSlots(cfg.slots)
+    assert.strictEqual(svc.live(), first, 'reads must reuse the resolved snapshot (#367)')
   }
 
-  assert.equal(mock.getScopeGetCalls(), 1, 'consecutive operations must NOT call scope.get()')
+  // The Loader mutates the entry boxes in place and re-announces them. Until that
+  // announcement arrives, the cached snapshot must not change.
+  mock.ctx.rawConfig.cooldownMs = 5000
+  assert.strictEqual(svc.live(), first, 'a mutation alone must not re-resolve the config')
 
-  // Now simulate external settings/document-updated event from core
-  mock.setSettings({
-    slots: [
-      { provider: 'codex', index: 1, label: 'Account 1' },
-      { provider: 'claude', index: 1, label: 'Account 2' },
-      { provider: 'grok', index: 1, label: 'Account 3' },
-    ],
-  })
+  mock.emitEvent('loader/volatile-update')
+  const second = svc.live()
+  assert.notStrictEqual(second, first, 'volatile-update must resolve a fresh snapshot')
+  assert.equal(second.cooldownMs, 5000, 'the fresh snapshot carries the new value')
 
-  mock.emitEvent('settings/document-updated', 'dsh-subscriptions', 2)
-
-  // Exactly one additional scope.get() call to refresh the snapshot
-  assert.equal(mock.getScopeGetCalls(), 2, 'settings/document-updated should trigger exactly one scope.get()')
-
-  // Another batch of operations should still not trigger scope.get()
   for (let i = 0; i < 50; i++) {
-    normalizeSlots(cfg.slots)
+    assert.strictEqual(svc.live(), second, 'reads stay cached until the next volatile-update')
   }
-  assert.equal(mock.getScopeGetCalls(), 2, 'subsequent operations must remain cached')
 
   for (const c of mock.cleanups) c()
 })

@@ -93,19 +93,24 @@ function makeCtx({ config, globalProviders = [], vault = {}, onReplace = null })
       register() { return () => {} },
       tapIndex(h) { return h },
     },
-    settings: {
-      register(ns, cfg, opts) {
-        let current = (opts && opts.base) || config || {}
-        return {
-          get: () => current,
-          async replace(next) {
-            current = next
-            state.settingsReplaced.push(next)
-          },
-          watch: () => () => {},
-        }
-      },
-    },
+    settings: (function () {
+      let current = config || {}
+      return {
+        // The host settings service in DSH 0.1.7-rc.2 and 0.2.0: describe/update/replace.
+        // settings.register was removed before 0.1.7-rc.2.
+        describe() {
+          return [{ ns: 'dsh-subscriptions', value: current, revision: 0, status: 'ready' }]
+        },
+        async update(ns, patch) {
+          current = { ...current, ...patch }
+          state.settingsReplaced.push(current)
+        },
+        async replace(ns, section) {
+          current = section
+          state.settingsReplaced.push(current)
+        },
+      }
+    })(),
     tools: { register() { return () => {} } },
   }
 
@@ -172,7 +177,7 @@ test('syncAdapter: handle.replace preserves owned providers and does not drop th
     { provider: 'codex', index: 1, label: 'slot1' },
     { provider: 'claude', index: 1, label: 'slot2' },
   ]
-  await ctx.settings.register().replace(mod.Config({ slots: newSlots }))
+  await ctx.settings.replace('dsh-subscriptions', mod.plainConfig(mod.Config({ slots: newSlots })))
 
   for (const c of state.cleanups) c()
 })
