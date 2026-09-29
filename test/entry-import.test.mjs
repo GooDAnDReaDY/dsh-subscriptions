@@ -7,6 +7,6 @@ test('lib/index.js loads cleanly and exports valid plugin metadata', async () =>
   assert.equal(typeof mod.Config, 'function', 'Config should be a schema function')
   assert.equal(mod.name, '@goodandready/dsh-subscriptions')
   // Verify Config schema instantiates without throwing TypeError
-  const defaultCfg = mod.Config({})
+  const defaultCfg = mod.plainConfig(mod.Config({}))
   assert.equal(defaultCfg.composerQuota, 'off')
 })
