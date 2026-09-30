@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.6.36
+
+### Fixes & Hardening
+- **Settings Dynamic Sync (#430)**: ensured `onSettingsChanged` and `ctx.inject(['settings'])` properly trigger `syncSnapshot()` on host configuration changes, keeping custom vendors, adapter registries, and Ollama fallback synchronized in runtime.
+- **Volatile Schema Resilience & Dev Dependency (#431)**: introduced defensive runtime fallback for `.volatile()` in `lib/config-schema.js` and added `@deepseek-ai/schemastery: "^3.18.4"` to `devDependencies` to restore test runner stability across all environments.
+- **Retired Slot Cleanup (#427)**: removed legacy `settings.plugin.item` registration from `lib/client.js` in favor of primary DSH 0.2 slots `plugins.item` and `plugins.row.config`.
+- **Vendor & Core Encapsulation (#432, #433)**: encapsulated `DEVICE_AUTH_URL` in `lib/vendors/codex.js` and internal helpers (`scrubReport`, `decodeJwtPayload`, `reconcileResponsesInput`, `applyClaudeThinking`, `enrichAntigravityAccount`).
+- **Design Contract Alignment (#434)**: updated active version to `0.6.36` and documented current UI slot surfaces in `docs/design/DESIGN.md`.
+
+## 0.6.34
+
+### Fixed
+- **Peer gate on DSH 0.2.0-rc.1** (#58): DSH skips a profile bundle whose `peerDependencies` exclude the running version, so this plugin was absent from the profile with no error in the UI. Every `@deepseek-ai/dsh-*` peer now names both the 0.1.7-rc.2 and 0.2.0-rc.1 lines, because semver does not admit a prerelease of the next minor into a range that does not name it.
+
 Notable changes to `@goodandready/dsh-subscriptions`.
 
 ## 0.6.33
