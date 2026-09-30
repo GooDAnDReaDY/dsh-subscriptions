@@ -20,9 +20,10 @@ test('client factory uses CommonJS shim and scoped id', () => {
   assert.match(src, /\/dsh-subscriptions\/oauth/)
 })
 
-test('registers plugin.item card with NS key and no rogue settings.section', () => {
-  assert.match(src, /settings\.plugin\.item/)
-  assert.match(src, /key: NS/)
+test('registers plugins.item card with ROW_ID and no rogue settings.plugin.item / settings.section', () => {
+  assert.match(src, /plugins\.item/)
+  assert.match(src, /plugins\.row\.config/)
+  assert.doesNotMatch(src, /settings\.plugin\.item/)
   // #282: plugin must not register top-level settings.section
   assert.doesNotMatch(src, /settings\.section/)
 })
