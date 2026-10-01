@@ -140,3 +140,15 @@ test("normalizeJsonSchema preserves anyOf, oneOf, object additionalProperties, a
   assert.deepEqual(out.properties.choice.oneOf[0], { type: "string" })
   assert.deepEqual(out.properties.status.enum, [1, 2, 3])
 })
+
+test("normalizeJsonSchema preserves $defs, $ref, and const semantics (#403)", () => {
+  const input = {
+    type: "object",
+    $defs: { mode: { const: "safe" } },
+    properties: { mode: { $ref: "#/$defs/mode" } },
+    required: ["mode"]
+  }
+  const output = normalizeJsonSchema(input)
+  assert.equal(output.$defs?.mode?.const, "safe")
+  assert.equal(output.properties?.mode?.$ref, "#/$defs/mode")
+})
