@@ -380,3 +380,58 @@ test("#445: sanitizeRequestHeaders strips sensitive Authorization/Cookie headers
   const allowed = sanitizeRequestHeaders("https://api.openai.com/v1/chat", { headers }, { allowedOrigins: ["https://api.openai.com"] })
   assert.equal(allowed.Authorization, "Bearer secret-token")
 })
+
+test("#374: remote unauthenticated GET /config and /status rejected with 403; public health allows GET without metadata", async () => {
+  const routes = statusHarness()
+  const configRoute = routes.find((r) => r.path === '/dsh-subscriptions/config')
+  const statusRoute = routes.find((r) => r.path === '/dsh-subscriptions/status')
+  const healthRoute = routes.find((r) => r.path === '/dsh-subscriptions/health')
+
+  assert.ok(configRoute, 'config route should be registered')
+  assert.ok(statusRoute, 'status route should be registered')
+  assert.ok(healthRoute, 'health route should be registered')
+
+  // Remote unauthenticated request with matching Origin and Host
+  const r1 = res()
+  await configRoute.handler({
+    method: 'GET',
+    url: '/dsh-subscriptions/config',
+    headers: { host: 'victim.example', origin: 'http://victim.example' },
+    socket: { remoteAddress: '192.0.2.12' },
+  }, r1)
+  assert.equal(r1.code, 403, 'remote unauthenticated /config must be rejected with 403')
+
+  const r2 = res()
+  await statusRoute.handler({
+    method: 'GET',
+    url: '/dsh-subscriptions/status',
+    headers: { host: 'victim.example', origin: 'http://victim.example' },
+    socket: { remoteAddress: '192.0.2.12' },
+  }, r2)
+  assert.equal(r2.code, 403, 'remote unauthenticated /status must be rejected with 403')
+
+  // Remote request with credentials allowed
+  const r3 = res()
+  await configRoute.handler({
+    method: 'GET',
+    url: '/dsh-subscriptions/config',
+    headers: { host: 'victim.example', origin: 'https://victim.example', cookie: 'token=secret' },
+    socket: { remoteAddress: '192.0.2.12' },
+  }, r3)
+  assert.equal(r3.code, 200, 'authenticated remote /config must be allowed')
+
+  // Public health endpoint allowed without credentials and contains no metadata
+  const r4 = res()
+  await healthRoute.handler({
+    method: 'GET',
+    url: '/dsh-subscriptions/health',
+    headers: { host: 'victim.example' },
+    socket: { remoteAddress: '192.0.2.12' },
+  }, r4)
+  assert.equal(r4.code, 200, 'public /health must return 200')
+  const body4 = JSON.parse(r4.body)
+  assert.equal(body4.ok, true)
+  assert.equal(body4.status, 'healthy')
+  assert.equal(body4.config, undefined)
+  assert.equal(body4.accounts, undefined)
+})
