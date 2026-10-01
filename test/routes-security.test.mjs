@@ -5,7 +5,7 @@ import { registerProxyRoutes } from '../lib/routes/proxy.js'
 import { registerStatusRoutes } from '../lib/routes/status.js'
 import { registerAccountsRoutes } from '../lib/routes/accounts.js'
 import { publicConfig } from '../lib/config-schema.js'
-import { isTrustedSettingsRequest } from '../lib/http.js'
+import { isTrustedSettingsRequest, isSameOrigin, sanitizeRequestHeaders } from '../lib/http.js'
 
 // #302: the /proxy route is the only prefix route with a caller-controlled
 // path. These tests pin its traversal containment and the provider
@@ -365,4 +365,18 @@ test('#385: POST /analyze-session rejects cross-site and unauthenticated request
   await route.handler(req4, r4)
   assert.equal(r4.code, 200)
   assert.equal(JSON.parse(r4.body).ok, true)
+})
+
+test("#445: sanitizeRequestHeaders strips sensitive Authorization/Cookie headers on unauthorized external origins", () => {
+  assert.equal(isSameOrigin("https://api.openai.com/v1", "https://api.openai.com/v2"), true)
+  assert.equal(isSameOrigin("https://api.openai.com", "https://evil.com"), false)
+
+  const headers = { Authorization: "Bearer secret-token", Cookie: "session=123", "Content-Type": "application/json" }
+  const clean = sanitizeRequestHeaders("https://evil.com/api", { headers }, { allowedOrigins: ["https://api.openai.com"] })
+  assert.equal(clean.Authorization, undefined)
+  assert.equal(clean.Cookie, undefined)
+  assert.equal(clean["Content-Type"], "application/json")
+
+  const allowed = sanitizeRequestHeaders("https://api.openai.com/v1/chat", { headers }, { allowedOrigins: ["https://api.openai.com"] })
+  assert.equal(allowed.Authorization, "Bearer secret-token")
 })
