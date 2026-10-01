@@ -78,3 +78,24 @@ test("streamOnce posts to baseUrl/responses", async () => {
   try { await gen.next() } catch {}
   assert.match(hit, /\/responses$/)
 })
+
+test("listModels returns actual profile id as provider instead of 'custom' (#451)", async () => {
+  const v = createVendorFromProfile(validateProfile(PROFILE))
+  // 1. Fallback / static catalog
+  const models = await v.listModels({ accessToken: "at" }, PROFILE, async () => { throw new Error("net err") })
+  assert.ok(Array.isArray(models))
+  assert.equal(models.length, 1)
+  assert.equal(models[0].id, "my-model")
+  assert.equal(models[0].provider, "myservice")
+
+  // 2. Live catalog fetched from modelsPath
+  const fakeFetch = async () => ({
+    ok: true,
+    text: async () => JSON.stringify({ data: [{ id: "live-model-1", display_name: "Live Model 1" }] }),
+  })
+  const liveModels = await v.listModels({ accessToken: "at" }, PROFILE, fakeFetch)
+  assert.ok(Array.isArray(liveModels))
+  assert.equal(liveModels.length, 1)
+  assert.equal(liveModels[0].id, "live-model-1")
+  assert.equal(liveModels[0].provider, "myservice")
+})
