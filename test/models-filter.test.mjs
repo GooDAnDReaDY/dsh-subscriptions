@@ -27,3 +27,28 @@ test('#94: filter off keeps the full catalog', async () => {
   const models = await makeAdapter(false).listModels('claude')
   assert.equal(models.length, 5)
 })
+
+import { createAdapterManager } from '../lib/adapter-manager.js'
+
+test('#458: createAdapterManager wires hideDeprecatedModels dependency to native adapter', async () => {
+  let captured = null
+  const manager = createAdapterManager({
+    ctx: {
+      llm: {
+        listProviders: () => [],
+        registerAdapter: (_p, a) => {
+          captured = a
+          return { dispose() {} }
+        },
+      },
+    },
+    live: () => ({ slots: [], hideDeprecatedModels: true }),
+    store: { loggedInProviders: async () => ['claude'] },
+    logger: {},
+    fetch: globalThis.fetch,
+  })
+  await manager.syncAdapter()
+  assert.ok(captured, 'adapter must be registered')
+  assert.equal(typeof captured.deps.hideDeprecatedModels, 'function')
+  assert.equal(captured.deps.hideDeprecatedModels(), true)
+})
