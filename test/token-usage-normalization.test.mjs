@@ -187,3 +187,12 @@ test('dsh-token-meter compatibility: prevents NaN in uncachedInputTokens and out
   assert.ok(Number.isInteger(newTotals.uncachedInputTokens) && newTotals.uncachedInputTokens >= 0)
   assert.ok(Number.isInteger(newTotals.outputTokens) && newTotals.outputTokens >= 0)
 })
+
+test("toTokenUsage maps Gemini thoughtsTokenCount to reasoningTokens (#449)", () => {
+  const usage = toTokenUsage({
+    promptTokenCount: 100,
+    candidatesTokenCount: 2,
+    thoughtsTokenCount: 3,
+  })
+  assert.equal(usage.reasoningTokens, 3)
+})
