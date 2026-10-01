@@ -187,3 +187,27 @@ test('describeRef reports no scope for a whole-account cooldown', async () => {
   assert.equal(info.quarantineReason, null)
   assert.equal(info.quarantineUntil, 0)
 })
+
+test('probeWarmup transitions probing state and extends quarantine on failure', async () => {
+  const store = makeStore(fakeCredentials())
+  const ref = 'CLAUDE_OAUTH_1'
+  const now = Date.now()
+  store.rememberQuarantine(ref, 'RATE_LIMIT', now - 100)
+  let probeCalled = false
+  const resSuccess = await store.probeWarmup(ref, async () => {
+    probeCalled = true
+  })
+  assert.ok(probeCalled)
+  assert.equal(resSuccess.success, true)
+  assert.equal(store.getQuarantine(ref), null)
+
+  store.rememberQuarantine(ref, 'RATE_LIMIT', now - 100, 1)
+  const resFail = await store.probeWarmup(ref, async () => {
+    throw new Error('Warmup failed')
+  })
+  assert.equal(resFail.success, false)
+  const q = store.getQuarantine(ref, now + 10)
+  assert.ok(q)
+  assert.equal(q.attempts, 2)
+  assert.ok(q.until > now + 3600000)
+})
