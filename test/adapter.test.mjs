@@ -103,3 +103,27 @@ test("SubscriptionAdapter.listModels uses account proxy via fetchForRef", async 
   assert.equal(passedRef, "PROXY_ACCOUNT_1")
   assert.ok(models.some((m) => m.id === "custom-live-model"))
 })
+
+test("#349: createAdapterManager wires ollama and cascading fallback to native adapter deps", async () => {
+  const { createAdapterManager } = await import("../lib/adapter-manager.js")
+  let captured = null
+  const manager = createAdapterManager({
+    ctx: {
+      llm: {
+        listProviders: () => [],
+        registerAdapter: (_p, a) => {
+          captured = a
+          return { dispose() {} }
+        },
+      },
+    },
+    live: () => ({ slots: [], ollamaFallback: true, cascadingFallback: true }),
+    store: { loggedInProviders: async () => ["codex"] },
+    logger: {},
+    fetch: globalThis.fetch,
+  })
+  await manager.syncAdapter()
+  assert.ok(captured)
+  assert.equal(typeof captured.deps.ollamaFallback, "function")
+  assert.equal(typeof captured.deps.cascadingFallback, "function")
+})
