@@ -162,6 +162,7 @@ test('#367: publicConfig redacts secrets without structuredClone', () => {
 })
 
 test('#439: settings.update failure leaves live snapshot unchanged', async () => {
+  const cleanups = []
   const settingsSvc = {
     describe() {
       return [{ ns: 'dsh-subscriptions', value: { cooldownMs: 60000 }, revision: 'r1' }]
@@ -183,6 +184,7 @@ test('#439: settings.update failure leaves live snapshot unchanged', async () =>
     off: () => {},
     effect: (fn) => {
       const c = typeof fn === 'function' ? fn() : undefined
+      if (typeof c === 'function') cleanups.push(c)
       return c
     },
     provide: (name, val) => {
@@ -210,7 +212,7 @@ test('#439: settings.update failure leaves live snapshot unchanged', async () =>
     headers: { host: 'host.example', origin: 'https://host.example' },
     socket: { remoteAddress: '127.0.0.1' },
     [Symbol.asyncIterator]: async function* () {
-      yield Buffer.from(JSON.stringify({ cooldownMs: 123, slots: [], ollamaFallback: false }))
+      yield Buffer.from(JSON.stringify({ revision: 'r1', cooldownMs: 123, slots: [], ollamaFallback: false }))
     },
   }
   let resStatus = 0
@@ -222,4 +224,5 @@ test('#439: settings.update failure leaves live snapshot unchanged', async () =>
   await handler(req, res)
   assert.equal(resStatus, 400)
   assert.equal(subsSvc.live().cooldownMs, 60000, 'live config must remain unchanged on update failure')
+  for (const c of cleanups) c()
 })
