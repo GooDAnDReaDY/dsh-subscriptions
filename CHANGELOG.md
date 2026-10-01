@@ -1,3 +1,13 @@
+## [0.6.41] - 2026-10-01
+
+### Fixed & Enhanced (Block 5 - UI, Settings Card, Runaway Guard, Telemetry & Quota)
+- Publish custom vendor catalog with actual profile id instead of 'custom' (Refs: #451)
+- Remove synthetic fake quota percentages from 8 vendor modules (Refs: #454)
+- Deduplicate concurrent usage refreshes with single-flight locking (Refs: #455)
+- Ensure stream finalization and history recording run under runaway guard via exactly-once finally lifecycle (Refs: #456)
+- Surface cache efficiency and token savings in UI telemetry and analyze-session event mapping (Refs: #386)
+- Restore settings card accessibility and fix All Settings navigation on DSH 0.2 (Refs: #459)
+
 ## [0.6.40] - 2026-10-01
 
 ### Fixed & Hardened (Block 4 - Stream, SSE, Responses & Wire Hardening)
