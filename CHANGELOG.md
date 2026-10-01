@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.6.38] - 2026-10-01
+### Storage, Vault Resilience & Dynamic Model Discovery
+- Dynamic listModels caching and live catalog endpoints for Copilot, Claude, Grok, and Codex (Refs: #458)
+- Preserve masked secrets on GET-config partial updates (Refs: #242)
+- Preserve proxyUrl, expiresAt, and custom parameters during slot normalization (Refs: #343)
+- Enforce strict CAS revision validation on config updates (Refs: #379)
+- Enforce settings update failure rollback and safe ref cleanup (Refs: #439)
+- Preserve custom blob properties in serializeBlob and parseBlob (Refs: #440)
+- Isolate static API key imports from OAuth token refresh routines (Refs: #441)
+- Enhance credential save and delete error handling and ref validation (Refs: #442)
+
 ## [0.6.37] - 2026-10-01
 ### Security & Hardening
 - Enforce same-origin auth check on sensitive GET routes (Refs: #374)
