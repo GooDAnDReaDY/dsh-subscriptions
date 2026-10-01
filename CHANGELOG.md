@@ -1,3 +1,11 @@
+## [0.6.42] - 2026-10-01
+
+### Fixed & Enhanced (Block 6 - Developer Tooling, Timeout Tuning, CLI Import & Typechecking)
+- Support environment-only Cursor and Kiro imports and canonical Claude alias (Refs: #452)
+- Apply network timeouts to all external calls with body protection and error classification (Refs: #322)
+- Declare local ESLint and update dev core dependencies for clean reproducibility (Refs: #457)
+- Add JSDoc typing for core modules and ensure typecheck passes cleanly with zero errors (Refs: #304)
+
 ## [0.6.41] - 2026-10-01
 
 ### Fixed & Enhanced (Block 5 - UI, Settings Card, Runaway Guard, Telemetry & Quota)
