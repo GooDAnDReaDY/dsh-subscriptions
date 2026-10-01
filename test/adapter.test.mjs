@@ -1,6 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { streamWithRotation } from '../lib/stream-rotate.js'
+import { SubscriptionAdapter } from '../lib/adapter.js'
 
 test('retries the next account after 429', async () => {
   const accounts = [
@@ -126,4 +127,39 @@ test("#349: createAdapterManager wires ollama and cascading fallback to native a
   assert.ok(captured)
   assert.equal(typeof captured.deps.ollamaFallback, "function")
   assert.equal(typeof captured.deps.cascadingFallback, "function")
+})
+
+test("SubscriptionAdapter treats stream finish error as error outcome and does not call recordSuccess (#456)", async () => {
+  const { registerCustomProviderIds } = await import('../lib/refs.js')
+  const { registerCustomVendor, clearCustomVendors } = await import('../lib/vendors/index.js')
+  registerCustomProviderIds(['auditerror'])
+  registerCustomVendor({
+    id: 'auditerror',
+    defaults: () => ({}),
+    streamOnce: async function* () {
+      yield { type: 'text-delta', index: 0, text: 'partial' }
+      yield { type: 'finish', reason: { kind: 'error', failure: { code: 'INCOMPLETE', message: 'broken' } } }
+    },
+  })
+  const rows = []
+  let successes = 0
+  try {
+    const adapter = new SubscriptionAdapter({
+      listAccounts: async () => [{ ref: 'AUDITERROR_OAUTH_1', hasToken: true }],
+      loadBlob: async () => ({ accessToken: 'FAKE' }),
+      ensureFresh: async (_p, b) => b,
+      vendorConfig: () => ({}),
+      cooldownMs: () => 1,
+      recordSuccess: () => successes++,
+      recordHistory: (r) => rows.push(r),
+    })
+    for await (const c of adapter.stream({ provider: 'auditerror', model: 'fake' })) {
+      void c
+    }
+    assert.equal(successes, 0)
+    assert.equal(rows[0]?.outcome, 'error')
+    assert.equal(rows[0]?.status, 500)
+  } finally {
+    clearCustomVendors()
+  }
 })

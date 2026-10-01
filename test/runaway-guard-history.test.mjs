@@ -8,7 +8,7 @@ test('runaway guard: default stream and guard-disabled stream both yield exactly
   const historyDisabled = []
 
   const sseResponse = (text) => new Response(
-    `data: ${JSON.stringify({ type: 'response.output_text.delta', delta: text })}\n\ndata: [DONE]\n\n`,
+    `data: ${JSON.stringify({ type: 'response.output_text.delta', delta: text })}\n\ndata: {"type":"response.completed"}\n\n`,
     { status: 200, headers: { 'Content-Type': 'text/event-stream' } }
   )
 
@@ -106,7 +106,7 @@ test('runaway guard: consumer break/return records cancel outcome (#456)', async
   const sseMulti = () => new Response(
     `data: ${JSON.stringify({ type: 'response.output_text.delta', delta: 'chunk1' })}\n\n` +
     `data: ${JSON.stringify({ type: 'response.output_text.delta', delta: 'chunk2' })}\n\n` +
-    `data: [DONE]\n\n`,
+    `data: {"type":"response.completed"}\n\n`,
     { status: 200, headers: { 'Content-Type': 'text/event-stream' } }
   )
 
