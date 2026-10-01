@@ -39,7 +39,7 @@ test("default threshold 0.01 works when opts not provided", () => {
     { ref: "B", hasToken: true, quota: { remaining: 50, limit: 100, resetAt: now + 60000 }, cooldownUntil: 0 },
   ]
   const pick = pickAccount(accounts, now, {})
-  assert.equal(pick.ref, "A")
+  assert.equal(pick.ref, "B")
 })
 
 test("reset just passed makes account eligible again", () => {

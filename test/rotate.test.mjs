@@ -53,3 +53,46 @@ test("returns null when all accounts are blocked", () => {
   const picked = pickAccount(accounts, now)
   assert.equal(picked, null)
 })
+
+test('#352: streamWithRotation passes autoPacing to pickAccount and store returns pacePerHour', async () => {
+  const { streamWithRotation } = await import('../lib/stream-rotate.js')
+  const { createAccountStore } = await import('../lib/accounts.js')
+
+  const creds = new Map([['CODEX_OAUTH_1', JSON.stringify({ accessToken: 'tok' })]])
+  const store = createAccountStore({
+    credentials: {
+      resolve: async (r) => ({ value: creds.get(r) }),
+      set: async (r, v) => creds.set(r, v),
+      describe: async () => ({ configured: true }),
+    },
+    getConfig: () => ({ slots: [{ provider: 'codex', index: 1 }] }),
+  })
+  store.rememberQuota('CODEX_OAUTH_1', { remainingPercent: 50, pacePerHour: 12 })
+  const accounts = await store.listAccounts('codex')
+  assert.equal(accounts[0].pacePerHour, 12, 'store listAccounts must return pacePerHour')
+
+  const gen = streamWithRotation({
+    accounts: [{ ref: 'A', hasToken: true, cooldownUntil: 0 }],
+    nowMs: () => Date.now(),
+    streamOnce: async function* () { yield { type: 'chunk', text: 'ok' } },
+    options: {
+      provider: 'codex',
+      model: 'gpt-5',
+      autoPacing: true,
+    },
+  })
+  const first = await gen.next()
+  assert.equal(first.value.text, 'ok')
+})
+
+test("#444: pickAccount returns null when sole account has zero remaining quota", () => {
+  const now = 1000000
+  const acc = {
+    ref: "q",
+    hasToken: true,
+    quota: { remaining: 0, limit: 100, remainingPercent: 0, resetAt: now + 3600000 },
+    usagePercent: null,
+  }
+  const selected = pickAccount([acc], now, {})
+  assert.equal(selected, null)
+})

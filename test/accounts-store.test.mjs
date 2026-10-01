@@ -263,3 +263,27 @@ test('#442: refreshUsage does not overwrite newer token saved concurrently', asy
   const loaded = await s.loadBlob('CURSOR_OAUTH_1')
   assert.equal(loaded.accessToken, 'NEW_TOKEN', 'newly saved token must be retained')
 })
+
+test('#350: quarantine survives store recreation without credential writes', async () => {
+  const creds = new Map()
+  const deps = {
+    credentials: {
+      set: async (r, v) => creds.set(r, v),
+      resolve: async (r) => ({ value: creds.get(r) }),
+    },
+    getConfig: () => ({ slots: [{ provider: 'codex', index: 1 }] }),
+  }
+  const s = createAccountStore(deps)
+  const until = Date.now() + 3600000
+  s.rememberQuarantine('CODEX_OAUTH_1', 'RATE_LIMIT', until)
+  assert.equal(creds.size, 0, 'quarantine must not write to credentials service')
+
+  const next = createAccountStore(deps)
+  const q = next.getQuarantine('CODEX_OAUTH_1')
+  assert.ok(q, 'quarantine must survive store recreation')
+  assert.equal(q.reason, 'RATE_LIMIT')
+  assert.equal(q.until, until)
+
+  next.releaseQuarantine('CODEX_OAUTH_1')
+  assert.equal(next.getQuarantine('CODEX_OAUTH_1'), null)
+})
