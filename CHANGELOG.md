@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.6.37] - 2026-10-01
+### Security & Hardening
+- Enforce same-origin auth check on sensitive GET routes (Refs: #374)
+- Resolve redirectFor signature compatibility across OAuth routes (Refs: #437)
+- Enforce strict state validation on OAuth complete endpoint (Refs: #438)
+- Sanitize bearer headers and cookies on external/cross-origin requests (Refs: #445)
+- Restrict credential ref targets in legacy import handlers (Refs: #360)
+- Enforce KDF and minimum passphrase length in legacy export routines (Refs: #414)
+- Sanitize Copilot CLI token import duration and initial expiration (Refs: #453)
+
 ## 0.6.36
 
 ### Fixes & Hardening
