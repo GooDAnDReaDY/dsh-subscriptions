@@ -160,3 +160,66 @@ test('#367: publicConfig redacts secrets without structuredClone', () => {
   // Original is not mutated
   assert.equal(cfg.codexClientSecret, 'super-secret')
 })
+
+test('#439: settings.update failure leaves live snapshot unchanged', async () => {
+  const settingsSvc = {
+    describe() {
+      return [{ ns: 'dsh-subscriptions', value: { cooldownMs: 60000 }, revision: 'r1' }]
+    },
+    async update() {
+      throw new Error('disk failure')
+    },
+  }
+  let subsSvc = null
+  const routes = new Map()
+  const ctx = {
+    rawConfig: { cooldownMs: 60000 },
+    logger: () => ({ warn() {}, error() {}, info() {} }),
+    inject: (names, fn) => {
+      if (names.includes('settings')) fn({ settings: settingsSvc })
+      return () => {}
+    },
+    on: () => () => {},
+    off: () => {},
+    effect: (fn) => {
+      const c = typeof fn === 'function' ? fn() : undefined
+      return c
+    },
+    provide: (name, val) => {
+      if (name === 'subscriptions') subsSvc = val
+      return () => {}
+    },
+    webServer: {
+      url: 'https://host.example',
+      register: (spec) => {
+        routes.set(spec.path, spec.handler)
+        return () => routes.delete(spec.path)
+      },
+    },
+    llm: { listProviders: () => [], registerAdapter: () => ({ dispose() {} }) },
+    credentials: { describe: async () => ({ configured: false }), resolve: async () => null, set: async () => {}, unset: async () => {} },
+  }
+  apply(ctx, { cooldownMs: 60000 })
+  assert.equal(subsSvc.live().cooldownMs, 60000)
+
+  const handler = routes.get('/dsh-subscriptions/config')
+  assert.ok(handler, 'config route registered')
+
+  const req = {
+    method: 'PUT',
+    headers: { host: 'host.example', origin: 'https://host.example' },
+    socket: { remoteAddress: '127.0.0.1' },
+    [Symbol.asyncIterator]: async function* () {
+      yield Buffer.from(JSON.stringify({ cooldownMs: 123, slots: [], ollamaFallback: false }))
+    },
+  }
+  let resStatus = 0
+  let _resBody = ''
+  const res = {
+    writeHead(status) { resStatus = status },
+    end(body) { _resBody = body },
+  }
+  await handler(req, res)
+  assert.equal(resStatus, 400)
+  assert.equal(subsSvc.live().cooldownMs, 60000, 'live config must remain unchanged on update failure')
+})
