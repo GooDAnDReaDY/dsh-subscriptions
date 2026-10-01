@@ -21,3 +21,12 @@ test("proxy route: full URL path extraction", () => {
   assert.equal(parts[0], "codex")
   assert.equal("/" + parts.slice(1).join("/"), "/responses")
 })
+
+test("proxy route: preserves query parameters (#446)", () => {
+  const reqUrl = "/dsh-subscriptions/proxy/codex/models?client_version=0.157.1&limit=50"
+  const url = new URL(reqUrl, "http://localhost")
+  const parts = url.pathname.replace(/^\/dsh-subscriptions\/proxy\//, "").split("/").filter(Boolean)
+  const restPath = "/" + parts.slice(1).join("/") + (url.search || "")
+  assert.equal(restPath, "/models?client_version=0.157.1&limit=50")
+  assert.equal(isAllowed("codex", restPath), true)
+})

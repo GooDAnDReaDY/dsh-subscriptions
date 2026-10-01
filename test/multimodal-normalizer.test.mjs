@@ -215,3 +215,15 @@ test("extractImages extracts multiple image items from message content", () => {
   assert.equal(images[0].url, "https://example.com/1.png");
   assert.equal(images[1].mimeType, "image/jpeg");
 });
+
+test("toAnthropicImage and toGeminiImage preserve remote HTTP image URLs (#404)", () => {
+  const norm = { mimeType: "image/png", base64: null, url: "http://example.com/cat.png" }
+  const anthropic = toAnthropicImage(norm)
+  assert.equal(anthropic.type, "image")
+  assert.equal(anthropic.source.type, "url")
+  assert.equal(anthropic.source.url, "http://example.com/cat.png")
+
+  const gemini = toGeminiImage(norm)
+  assert.equal(gemini.fileData.mimeType, "image/png")
+  assert.equal(gemini.fileData.fileUri, "http://example.com/cat.png")
+})

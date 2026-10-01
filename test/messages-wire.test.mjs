@@ -164,7 +164,7 @@ test('openaiChatStream yields text, reasoning, tool deltas, usage and finish', a
   assert.equal(textChunk, 'hi')
   assert.equal(reasoning, 'why')
   assert.equal(usage.prompt_tokens, 5)
-  assert.equal(finish, 'tool')
+  assert.equal(finish, 'tool-calls')
   assert.ok(kinds.includes('block-start'))
   assert.ok(kinds.includes('tool-call-delta'))
 })
@@ -175,7 +175,7 @@ test('openaiChatStream maps a length finish reason', async () => {
   ]), { status: 200 }).body
   let finish = null
   for await (const c of openaiChatStream(body)) if (c.type === 'finish') finish = c.reason.kind
-  assert.equal(finish, 'length')
+  assert.equal(finish, 'max-tokens')
 })
 
 test('formTokenRequest posts url-encoded params', async () => {
