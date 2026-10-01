@@ -1,3 +1,14 @@
+## [0.6.39] - 2026-10-01
+
+### Fixed & Added (Block 3 - Account Pool, Health & Rotation Resilience)
+- Fix healthScore=0 fallback evaluation during account sorting (Refs: #342)
+- Expand cross-vendor fallback chains and guard signal abortion (Refs: #349)
+- Persist quarantine state and add warmup helpers (Refs: #350)
+- Integrate autoPacing load balancing strategy (Refs: #352)
+- Prevent race condition during adapter disposal (Refs: #363)
+- Expose account counters and health callbacks (Refs: #443)
+- Provide pickAccount locked pool fallback (Refs: #444)
+
 # Changelog
 
 ## [0.6.38] - 2026-10-01
