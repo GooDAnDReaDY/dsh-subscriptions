@@ -1,3 +1,8 @@
+## [0.6.43] - 2026-10-01
+
+### Fixed
+- Eliminate empty catch block in redirect headers sanitizer (Refs: #322)
+
 ## [0.6.42] - 2026-10-01
 
 ### Fixed & Enhanced (Block 6 - Developer Tooling, Timeout Tuning, CLI Import & Typechecking)
