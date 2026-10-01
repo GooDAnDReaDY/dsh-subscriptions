@@ -31,3 +31,14 @@ test("healthScore prioritizes healthier accounts when usage is equal", () => {
   ]
   assert.equal(pickAccount(accounts, now).ref, "ACC_HEALTHY")
 })
+
+test("autoPacing prefers account with lower pacing risk", () => {
+  const now = 1_000_000
+  const resetAt = now + 3600 * 1000 // 1 hour reset
+  const accounts = [
+    { ref: "HIGH_RISK", hasToken: true, quota: { remainingPercent: 5, resetAt }, pacePerHour: 50, cooldownUntil: 0 }, // Will exhaust in 20 min (deficit)
+    { ref: "LOW_RISK", hasToken: true, quota: { remainingPercent: 50, resetAt }, pacePerHour: 10, cooldownUntil: 0 },  // Will last 5 hrs (safe)
+  ]
+  const picked = pickAccount(accounts, now, { autoPacing: true })
+  assert.equal(picked.ref, "LOW_RISK")
+})
