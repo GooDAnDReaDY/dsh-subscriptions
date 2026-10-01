@@ -65,4 +65,6 @@ test('#459: registers plugins.bundle.config and native openBundle navigation for
   assert.match(updatedSrc, /key:\s*PKG/)
   assert.match(updatedSrc, /nav\.openBundle\(PKG\)/)
   assert.match(updatedSrc, /ROW_ID \+ '#' \+ ROW_ID/)
+  assert.match(updatedSrc, /props\.status === 'error'/)
+  assert.match(updatedSrc, /layout\.selectPanel\('plugins'\)/)
 })
