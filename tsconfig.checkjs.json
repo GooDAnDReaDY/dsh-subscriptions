@@ -8,7 +8,9 @@
     "moduleResolution": "bundler",
     "strict": false,
     "skipLibCheck": true,
-    "types": ["node"]
+    "types": [
+      "node"
+    ]
   },
   "include": [
     "lib/http.js",
@@ -16,6 +18,11 @@
     "lib/session-pin.js",
     "lib/refs.js",
     "lib/health.js",
-    "lib/relative-time.js"
+    "lib/relative-time.js",
+    "lib/rotate.js",
+    "lib/stream-rotate.js",
+    "lib/wire.js",
+    "lib/accounts.js",
+    "lib/vendors/**/*.js"
   ]
 }

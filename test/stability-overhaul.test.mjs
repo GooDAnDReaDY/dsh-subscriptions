@@ -248,3 +248,103 @@ test('streamWithRotation retries in-place on transient region 400 before switchi
   assert.equal(chunks[0].text, 'recovered after region retry')
   assert.deepEqual(triedAccounts, ['ACC_1', 'ACC_1'], 'Should have retried the same account without rotating')
 })
+
+import { isTimeoutError } from '../lib/http.js'
+import { jsonTokenRequest, formTokenRequest } from '../lib/wire.js'
+
+test('#322: isTimeoutError correctly identifies timeout errors', () => {
+  assert.equal(isTimeoutError(new DOMException('The operation was aborted due to timeout', 'TimeoutError')), true)
+  assert.equal(isTimeoutError({ code: 'ETIMEDOUT', message: 'connection timed out' }), true)
+  assert.equal(isTimeoutError({ name: 'AbortError', message: 'operation aborted due to timeout' }), true)
+  assert.equal(isTimeoutError(new Error('Network error: ECONNREFUSED')), false)
+  assert.equal(isTimeoutError(null), false)
+})
+
+test('#322: fetchWithTimeout aborts body reading if server hangs after sending headers', async () => {
+  const hangingBodyFetch = async () => {
+    return {
+      ok: true,
+      status: 200,
+      headers: new Headers(),
+      json: () => new Promise((_resolve, _reject) => {
+        // hangs forever unless aborted
+      }),
+      text: () => new Promise((_resolve, _reject) => {
+        // hangs forever unless aborted
+      }),
+    }
+  }
+
+  await assert.rejects(async () => {
+    const res = await fetchWithTimeout(hangingBodyFetch, 'https://example.com/api', {}, { timeoutMs: 50 })
+    await res.json()
+  }, (err) => {
+    return isTimeoutError(err)
+  })
+})
+
+test('#322: fetchWithTimeout with stream: true does not abort stream consumption on connect timeout', async () => {
+  const immediateHeadersFetch = async () => {
+    return {
+      ok: true,
+      status: 200,
+      headers: new Headers(),
+      body: 'stream-content',
+    }
+  }
+
+  const res = await fetchWithTimeout(immediateHeadersFetch, 'https://example.com/stream', {}, { timeoutMs: 50, stream: true })
+  assert.equal(res.ok, true)
+  // Wait longer than timeoutMs
+  await new Promise((r) => setTimeout(r, 70))
+  // Response body is untouched and not aborted
+  assert.equal(res.body, 'stream-content')
+})
+
+test('#322: jsonTokenRequest and formTokenRequest abort if hanging', async () => {
+  const hangingFetch = (url, init) => new Promise((resolve, reject) => {
+    if (init && init.signal) {
+      init.signal.addEventListener('abort', () => reject(init.signal.reason || new Error('aborted')))
+    }
+  })
+
+  await assert.rejects(async () => {
+    await jsonTokenRequest('https://example.com/token', { grant_type: 'code' }, hangingFetch, {}, { timeoutMs: 50 })
+  }, (err) => isTimeoutError(err))
+
+  await assert.rejects(async () => {
+    await formTokenRequest('https://example.com/token', { grant_type: 'code' }, hangingFetch, {}, { timeoutMs: 50 })
+  }, (err) => isTimeoutError(err))
+})
+
+test('#322: accountsStore.refreshUsage marks isTimeout on hanging usage fetch', async () => {
+  const hangingFetch = (url, init) => new Promise((resolve, reject) => {
+    if (init && init.signal) {
+      init.signal.addEventListener('abort', () => reject(new DOMException('The operation was aborted due to timeout', 'TimeoutError')))
+    }
+  })
+
+  const mockCreds = {
+    resolve: async () => ({ value: JSON.stringify({ accessToken: 'valid-tok' }) }),
+    describe: async () => ({ configured: true }),
+    set: async () => {},
+    unset: async () => {},
+  }
+
+  const store = createAccountStore({
+    credentials: mockCreds,
+    getConfig: () => ({
+      slots: [{ provider: 'codex', index: 1, label: 'Test Slot' }],
+      usageTimeoutMs: 50,
+    }),
+    fetchImpl: hangingFetch,
+  })
+
+  // refreshUsage should complete without crashing and record the timeout
+  await store.refreshUsage('codex')
+  const accounts = await store.listAccounts('codex')
+  assert.equal(accounts.length, 1)
+  const desc = await store.describeRef('CODEX_OAUTH_1')
+  assert.equal(desc.isTimeout, true)
+  assert.match(desc.refreshError, /timeout/i)
+})

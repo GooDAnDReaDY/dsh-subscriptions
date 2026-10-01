@@ -135,3 +135,75 @@ test('#413: discoverLocalCliSessions returns only supported subscription provide
     }
   })
 })
+
+test('#452: detects Claude session and loads via canonical claude and claude-cli alias', async () => {
+  const claudeFixture = {
+    claudeAiOauth: {
+      accessToken: 'claude-test-at',
+      refreshToken: 'claude-test-rt',
+      expiresAt: Date.now() + 3600000,
+    },
+    email: 'claude-user@example.com',
+  }
+  await withHome({ '.claude/credentials.json': claudeFixture }, async (home) => {
+    const discovered = await discoverLocalCliSessions({ home })
+    assert.ok(discovered.claude, 'claude must be discovered under canonical key')
+    assert.equal(discovered.claude.provider, 'claude')
+    assert.equal(discovered.claude.source, 'file')
+    assert.equal(discovered.claude.email, 'claude-user@example.com')
+    assert.equal(discovered.claude.hasRefreshToken, true)
+
+    // Load via canonical 'claude'
+    const blob1 = await loadLocalCliBlob('claude', { home })
+    assert.equal(blob1.accessToken, 'claude-test-at')
+    assert.equal(blob1.refreshToken, 'claude-test-rt')
+    assert.equal(blob1.email, 'claude-user@example.com')
+
+    // Load via alias 'claude-cli'
+    const blob2 = await loadLocalCliBlob('claude-cli', { home })
+    assert.equal(blob2.accessToken, 'claude-test-at')
+    assert.equal(blob2.refreshToken, 'claude-test-rt')
+  })
+})
+
+test('#452: loadLocalCliBlob reads Cursor from environment variable without files', async () => {
+  const prev = process.env.CURSOR_ACCESS_TOKEN
+  process.env.CURSOR_ACCESS_TOKEN = 'cur_env_token_452'
+  try {
+    await withHome({}, async (home) => {
+      const discovered = await discoverLocalCliSessions({ home })
+      assert.ok(discovered.cursor, 'cursor session detected via env')
+      assert.equal(discovered.cursor.source, 'env')
+      assert.equal(discovered.cursor.provider, 'cursor')
+
+      const blob = await loadLocalCliBlob('cursor', { home })
+      assert.equal(blob.accessToken, 'cur_env_token_452')
+      assert.equal(blob.email, 'Cursor IDE User')
+      assert.ok(blob.expiresAt > Date.now())
+    })
+  } finally {
+    if (prev === undefined) delete process.env.CURSOR_ACCESS_TOKEN
+    else process.env.CURSOR_ACCESS_TOKEN = prev
+  }
+})
+
+test('#452: loadLocalCliBlob reads Kiro from environment variable without files', async () => {
+  const prev = process.env.KIRO_API_KEY
+  process.env.KIRO_API_KEY = 'kiro_env_key_452'
+  try {
+    await withHome({}, async (home) => {
+      const discovered = await discoverLocalCliSessions({ home })
+      assert.ok(discovered.kiro, 'kiro session detected via env')
+      assert.equal(discovered.kiro.source, 'env')
+      assert.equal(discovered.kiro.provider, 'kiro')
+
+      const blob = await loadLocalCliBlob('kiro', { home })
+      assert.equal(blob.accessToken, 'kiro_env_key_452')
+      assert.equal(blob.email, 'AWS Kiro API Key')
+      assert.ok(blob.expiresAt > Date.now())
+    })
+  } finally {
+    if (prev === undefined) delete process.env.KIRO_API_KEY
+    else process.env.KIRO_API_KEY = prev
+  }
+})
