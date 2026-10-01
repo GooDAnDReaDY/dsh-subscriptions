@@ -119,3 +119,24 @@ test('geminiFunctionDeclarations integrates with normalizeTools', () => {
   assert.equal(decls[0].name, 'calc_sum')
   assert.equal(decls[0].parameters.type, 'object')
 })
+
+test("normalizeJsonSchema preserves anyOf, oneOf, object additionalProperties, and primitive enums (#403)", () => {
+  const schema = {
+    type: "object",
+    properties: {
+      choice: {
+        oneOf: [{ type: "string" }, { type: "number" }]
+      },
+      status: {
+        type: "integer",
+        enum: [1, 2, 3]
+      }
+    },
+    additionalProperties: { type: "string" }
+  }
+  const out = normalizeJsonSchema(schema)
+  assert.equal(out.type, "object")
+  assert.equal(out.additionalProperties.type, "string")
+  assert.deepEqual(out.properties.choice.oneOf[0], { type: "string" })
+  assert.deepEqual(out.properties.status.enum, [1, 2, 3])
+})
