@@ -58,3 +58,11 @@ test('#408: PluginCard handles host snapshot status loading and unavailable', ()
   assert.match(updatedSrc, /"unavailable": "Settings are unavailable"/)
   assert.match(updatedSrc, /"unavailable": "设置不可用"/)
 })
+
+test('#459: registers plugins.bundle.config and native openBundle navigation for DSH 0.2', () => {
+  const updatedSrc = readFileSync(new URL('../lib/client.js', import.meta.url), 'utf8')
+  assert.match(updatedSrc, /plugins\.bundle\.config/)
+  assert.match(updatedSrc, /key:\s*PKG/)
+  assert.match(updatedSrc, /nav\.openBundle\(PKG\)/)
+  assert.match(updatedSrc, /ROW_ID \+ '#' \+ ROW_ID/)
+})
