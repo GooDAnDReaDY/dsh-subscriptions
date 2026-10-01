@@ -320,6 +320,23 @@ test("#379: PUT /config revision CAS conflict detection", async () => {
   const d3 = JSON.parse(r3.body)
   assert.equal(d3.ok, false)
   assert.equal(d3.error.code, "conflict")
+
+  // 4. PUT without revision returns 428 Precondition Required (#379)
+  const r4 = res()
+  const req4 = {
+    method: "PUT",
+    url: "/dsh-subscriptions/config",
+    headers: { host: "localhost:5140", "sec-fetch-site": "same-origin" },
+    on(event, handler) {
+      if (event === "data") handler(Buffer.from(JSON.stringify({ config: {} })))
+      if (event === "end") handler()
+    }
+  }
+  await route.handler(req4, r4)
+  assert.equal(r4.code, 428)
+  const d4 = JSON.parse(r4.body)
+  assert.equal(d4.ok, false)
+  assert.equal(d4.error.code, "precondition_required")
 })
 
 test('#385: POST /analyze-session rejects cross-site and unauthenticated requests with 403', async () => {

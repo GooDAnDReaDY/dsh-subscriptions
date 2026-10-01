@@ -211,3 +211,55 @@ test('probeWarmup transitions probing state and extends quarantine on failure', 
   assert.equal(q.attempts, 2)
   assert.ok(q.until > now + 3600000)
 })
+
+test('#442: clearRef prevents late saveBlob from reviving token', async () => {
+  let release
+  const gate = new Promise((r) => { release = r })
+  const creds = new Map()
+  const s = createAccountStore({
+    credentials: {
+      set: async (r, v) => {
+        await gate
+        creds.set(r, v)
+      },
+      unset: async (r) => { creds.delete(r) },
+    },
+    getConfig: () => ({}),
+  })
+
+  const pending = s.saveBlob('CODEX_OAUTH_1', { accessToken: 'FAKE' })
+  await Promise.resolve()
+  await s.clearRef('CODEX_OAUTH_1')
+  release()
+  await pending
+  assert.equal(creds.has('CODEX_OAUTH_1'), false, 'token must not be present after logout')
+})
+
+test('#442: refreshUsage does not overwrite newer token saved concurrently', async () => {
+  let release, started
+  const gate = new Promise((r) => { release = r })
+  const signal = new Promise((r) => { started = r })
+  const creds = new Map([['CURSOR_OAUTH_1', JSON.stringify({ accessToken: 'OLD_TOKEN' })]])
+  const s = createAccountStore({
+    credentials: {
+      resolve: async (r) => ({ value: creds.get(r) }),
+      set: async (r, v) => { creds.set(r, v) },
+    },
+    getConfig: () => ({
+      slots: [{ provider: 'cursor', index: 1 }],
+    }),
+    fetchImpl: async () => {
+      started()
+      await gate
+      return new Response(JSON.stringify({ windows: [{ id: 'req', usedPercent: 10 }] }))
+    },
+  })
+
+  const refresh = s.refreshUsage('cursor')
+  await signal
+  await s.saveBlob('CURSOR_OAUTH_1', { accessToken: 'NEW_TOKEN' })
+  release()
+  await refresh
+  const loaded = await s.loadBlob('CURSOR_OAUTH_1')
+  assert.equal(loaded.accessToken, 'NEW_TOKEN', 'newly saved token must be retained')
+})
