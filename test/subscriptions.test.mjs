@@ -162,3 +162,20 @@ test("#445: subscriptions request rejects external arbitrary URLs before dispatc
   )
   assert.equal(seen, null, "Bearer token must not be sent to untrusted external origin")
 })
+
+test("subscriptions.request supplies AbortSignal when caller omits signal (#322)", async () => {
+  let captured
+  const svc = createSubscriptionsService({
+    listAccounts: async () => [{ ref: "CODEX_OAUTH_1", hasToken: true }],
+    loadBlob: async () => ({ accessToken: "FAKE" }),
+    ensureFresh: async (_p, b) => b,
+    vendorConfig: () => ({}),
+    fetchImpl: async (_u, init) => {
+      captured = init
+      return Response.json({})
+    },
+  })
+  await svc.request({ provider: "codex", path: "/models" })
+  assert.equal(typeof captured.signal, "object")
+  assert.equal(Boolean(captured.signal), true)
+})
