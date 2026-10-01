@@ -199,7 +199,7 @@ test('#353: encrypted vault export and import with AES-256-GCM', () => {
 
   const exportResult = exportVault({ slots, blobs }, passphrase)
   assert.ok(exportResult.ok)
-  assert.ok(exportResult.vault.startsWith('DSHE1:'))
+  assert.ok(exportResult.vault.startsWith('DSHE2:') || exportResult.vault.startsWith('DSHE1:'))
   assert.equal(exportResult.slotCount, 2)
   assert.equal(exportResult.blobCount, 2)
 

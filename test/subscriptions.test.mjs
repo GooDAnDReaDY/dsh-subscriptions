@@ -139,3 +139,26 @@ test("subscriptionsImages still works via generateOnce", async () => {
   const imgs = parseImages({ data: [{ b64_json: "abc" }] })
   assert.equal(imgs[0].b64_json, "abc")
 })
+test("#445: subscriptions request rejects external arbitrary URLs before dispatching Bearer tokens", async () => {
+  let seen = null
+  const svc = createSubscriptionsService({
+    listAccounts: async () => [{ hasToken: true, ref: "CODEX_OAUTH_1", quota: null, cooldownUntil: 0 }],
+    loadBlob: async () => ({ accessToken: "SECRET_TOKEN", refreshToken: "rt", expiresAt: Date.now() + 100000 }),
+    ensureFresh: async (_p, b) => b,
+    vendorConfig: () => ({ baseUrl: "https://chatgpt.com/backend-api/codex" }),
+    cooldownMs: () => 30 * 60 * 1000,
+    switchAtRemaining: () => 0,
+    rememberCooldown: () => {},
+    rememberQuota: () => {},
+    fetchImpl: async (url, opts) => {
+      seen = { url, auth: opts.headers?.Authorization }
+      return { ok: true, status: 200, headers: { get: () => null, forEach: () => {} }, text: async () => "{}", clone: () => ({ text: async () => "{}" }) }
+    },
+  })
+
+  await assert.rejects(
+    () => svc.request({ provider: "codex", path: "https://untrusted.example/responses" }),
+    (err) => err.code === "FORBIDDEN" && err.message.includes("external origin rejected")
+  )
+  assert.equal(seen, null, "Bearer token must not be sent to untrusted external origin")
+})
