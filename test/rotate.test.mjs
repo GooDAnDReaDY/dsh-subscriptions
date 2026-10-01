@@ -84,3 +84,15 @@ test('#352: streamWithRotation passes autoPacing to pickAccount and store return
   const first = await gen.next()
   assert.equal(first.value.text, 'ok')
 })
+
+test("#444: pickAccount returns null when sole account has zero remaining quota", () => {
+  const now = 1000000
+  const acc = {
+    ref: "q",
+    hasToken: true,
+    quota: { remaining: 0, limit: 100, remainingPercent: 0, resetAt: now + 3600000 },
+    usagePercent: null,
+  }
+  const selected = pickAccount([acc], now, {})
+  assert.equal(selected, null)
+})
