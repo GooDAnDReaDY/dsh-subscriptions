@@ -19,18 +19,25 @@ test("#396 & #414: exportVault supports pbkdf2 algorithm producing DSHE2 prefix 
   assert.equal(imported.blobs.ANTIGRAVITY_OAUTH_1.projectId, "p-123")
 })
 
-test("#396 & #414: exportVault defaults to scrypt producing DSHE1 and supports hardened scrypt DSHE3", () => {
+test("#396 & #414: exportVault defaults to hardened PBKDF2 producing DSHE2 and supports scrypt DSHE1 / DSHE3", () => {
   const passphrase = "TestPassphrase123"
   const slots = [{ provider: "codex", index: 1 }]
   const blobs = { CODEX_OAUTH_1: { accessToken: "tok_codex" } }
 
   const res = exportVault({ slots, blobs }, passphrase)
   assert.equal(res.ok, true)
-  assert.match(res.vault, /^DSHE1:/)
+  assert.match(res.vault, /^DSHE2:/)
 
   const imported = importVault(res.vault, passphrase)
   assert.equal(imported.ok, true)
   assert.equal(imported.blobs.CODEX_OAUTH_1.accessToken, "tok_codex")
+
+  const res1 = exportVault({ slots, blobs, algorithm: "scrypt" }, passphrase)
+  assert.equal(res1.ok, true)
+  assert.match(res1.vault, /^DSHE1:/)
+  const imported1 = importVault(res1.vault, passphrase)
+  assert.equal(imported1.ok, true)
+  assert.equal(imported1.blobs.CODEX_OAUTH_1.accessToken, "tok_codex")
 
   const res3 = exportVault({ slots, blobs, algorithm: "scrypt-v2" }, passphrase)
   assert.equal(res3.ok, true)
