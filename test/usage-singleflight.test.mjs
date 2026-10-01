@@ -20,7 +20,7 @@ test('refreshUsage: concurrent calls are deduplicated via single-flight lock (#4
   creds.store.set('COPILOT_OAUTH_1', JSON.stringify({ accessToken: 'ghu_fake_copilot_token' }))
 
   let fetchCount = 0
-  const customFetch = async (url, opts) => {
+  const customFetch = async (_url, _opts) => {
     fetchCount++
     await new Promise((r) => setTimeout(r, 50))
     return {
