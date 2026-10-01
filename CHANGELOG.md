@@ -1,3 +1,14 @@
+## [0.6.40] - 2026-10-01
+
+### Fixed & Hardened (Block 4 - Stream, SSE, Responses & Wire Hardening)
+- Preserve valid JSON Schema combinators (anyOf, oneOf, allOf) and keywords in tool normalizer (Refs: #403)
+- Preserve remote HTTP image URLs in Anthropic and Gemini payloads (Refs: #404)
+- Preserve query parameters in HTTP proxy routes (Refs: #446)
+- Fix loggedInProviders array indexing in subscriptionImages service (Refs: #447)
+- Align stream finish reasons with canonical DSH LLM contract (Refs: #448)
+- Preserve input and cache token usage across stream adapters (Refs: #449)
+- Handle DONE signal cleanly and prevent abrupt EOF false success (Refs: #450)
+
 ## [0.6.39] - 2026-10-01
 
 ### Fixed & Added (Block 3 - Account Pool, Health & Rotation Resilience)
