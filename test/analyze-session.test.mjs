@@ -23,3 +23,22 @@ test('analyzeSessionEvents calculates prompt cache hit percent', () => {
   assert.equal(res.calls[0].classification, 'cold_start')
   assert.equal(res.calls[1].classification, 'cache_hit')
 })
+
+test('analyzeSessionEvents calculates prompt cache hit from history records (#386)', () => {
+  const historyEvents = [
+    { usage: { inputTokens: 2000, cacheReadTokens: 0, outputTokens: 100 } },
+    { usage: { inputTokens: 2500, cacheReadTokens: 2000, outputTokens: 150 } },
+    { usage: { inputTokens: 3000, cacheReadTokens: 2500, outputTokens: 200 } },
+  ]
+  const res = analyzeSessionEvents(historyEvents)
+  assert.equal(res.totalCalls, 3)
+  assert.equal(res.promptTokens, 7500)
+  assert.equal(res.cachedTokens, 4500)
+  assert.equal(res.completionTokens, 450)
+  // 4500 / 7500 = 60.0%
+  assert.equal(res.weightedCacheHitPercent, 60)
+  assert.equal(res.savedTokens, 4500)
+  assert.equal(res.calls[0].classification, 'cold_start')
+  assert.equal(res.calls[1].classification, 'cache_hit')
+  assert.equal(res.calls[2].classification, 'cache_hit')
+})
