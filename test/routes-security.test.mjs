@@ -40,6 +40,7 @@ function statusHarness() {
     webServer: { register(spec) { routes.push(spec); return () => {} } },
     effect(fn) { fn(); return () => {} },
     log: { warn() {}, error() {}, info() {} },
+    connection: { requestRejection: (req) => { if (req?.headers?.cookie === "token=secret") return undefined; if (req?.headers?.["sec-fetch-site"] === "same-origin") return undefined; return 401; } },
   }
   const state = {
     NS: 'dsh-subscriptions',
