@@ -8,13 +8,16 @@
   с превентивным переключением квот.
 - Аудитория: пользователи DSH с личными подписками вендоров.
 - Статус: опубликован в npm (`@goodandready/dsh-subscriptions`),
-  активная версия 0.6.43.
+  активная версия 0.6.50.
 
 ## User Surfaces
-- Web/UI: карточка настроек монтируется в основные слоты DSH 0.1.7-rc.2 / 0.2.0:
-  `plugins.item` (id `dsh-subscriptions`, вкладка «Плагины») и `plugins.row.config`
-  (ключ `dsh-subscriptions#dsh-subscriptions`, строка плагина). Устаревшие
-  слоты `settings.section` (#282) и `settings.plugin.item` (#427) выведены из эксплуатации.
+- Web/UI: карточка настроек монтируется в официальные слоты DSH 0.1.7-rc.2 / 0.2.0:
+  - `plugins.bundle.config` (ключ `@goodandready/dsh-subscriptions`): seat для PackageDetail экрана в DSH 0.2.
+  - `plugins.row.config` (ключи `@goodandready/dsh-subscriptions#dsh-subscriptions`, `dsh-subscriptions#dsh-subscriptions`, `dsh-subscriptions`): row-конфигурация строки плагина.
+  - `plugins.item` (id `dsh-subscriptions`): вкладка настроек в DSH 0.1 / 0.2.
+  - `conversation.session.header.actions`: виджет SubsPill (статус квот, быстрый выбор аккаунта, переход «All Settings» в настройки через `openPluginSettings`).
+  - `conversation.input.right`: виджет остатка квоты `ComposerQuota`.
+  - Навигация «All Settings»: переходит в панель Plugins и открывает детальную карточку бандла `@goodandready/dsh-subscriptions` через native capability и устойчивый DOM-драйвер по атрибуту `data-plugin-package` без хардкода переводов.
 - Карточка: свёрнута по умолчанию; заголовок-кнопка с `aria-expanded`,
   ядровый шеврон `IconChevronDownOutline14` с SVG-fallback.
   Внутри карточки — дизайн-система в едином стиле с `dsh-clinebot`:
@@ -251,3 +254,22 @@
 - **Runaway Guard Stream Finalization (#456)**: moved stream bookkeeping (`recordSuccess`, `recordHistory`, TTFT/TPS computation) into an exactly-once terminal `finally` block in `streamOnce`. Distinguishes `success`, `error`, `cancel`, and `runaway` outcomes, ensuring full audit records even under consumer cancellation or runaway loop cutoff.
 - **Cache Efficiency Telemetry (#386)**: `runAnalyzeSession` correctly maps recorded session token metrics (`inputTokens`, `cacheReadTokens`, `outputTokens`) to `analyzeSessionEvents`, exposing prompt-cache hit rates and token savings in both the UI stats grid and detailed diagnostic breakdown.
 - **DSH 0.2 Settings Card & Navigation (#459)**: registered `plugins.bundle.config` and multiple `plugins.row.config` keys, restoring full `SubsSection` visibility on DeepSeek Harness 0.2 PackageDetail views. Wired «All Settings →» to native `ctx.pluginNavigation.openBundle` capability.
+
+## Hardened Security, CAS, Quarantine Warmup, Auto-Pacing & Navigation (v0.6.50)
+- **Sensitive Route Security & Strict Cordis Access (#374)**:
+  - `isTrustedSettingsRequest` устраняет обход авторизации по удалённому Host: запросы без credentials отклоняются (401/403).
+  - Сравнение cookie токенов переведено на точный парсинг пар `key=value`, исключая ложные совпадения по подстрокам и префиксам/суффиксам.
+  - Обращение к `targetCtx?.connection` обёрнуто в безопасный перехват, исключая 500-ошибки при строгом проксировании Cordis Context без зарегистрированного сервиса.
+- **Credential CAS & Logout Integrity (#442)**:
+  - В `saveBlob` устранено состояние гонки при параллельном logout: если во время асинхронного `credentials.set` был вызван `clearRef`, токен принудительно удаляется через `credentials.unset`, исключая воскрешение учетных данных.
+- **Quarantine Warmup Probing & Backoff Lifecycle (#350)**:
+  - Истёкший карантин (`quarantineUntil <= now`) переводит аккаунт в состояние `probing` и требует микро-пробы `vendor.check` перед возвратом в активную ротацию пользовательского трафика.
+  - Неуспешная проба экспоненциально увеличивает карантин (`attempts * 2`, вплоть до 48 ч) и блокирует вызов `streamOnce`, предотвращая падение живых запросов.
+- **Auto-Pacing Burn Rate Analytics (#352)**:
+  - Реальный поток квот сохраняет временные замеры процента остатка (`quotaSamples`), рассчитывая скорость сгорания `pacePerHour` через `calculateBurnRatePerHour`.
+  - Рассчитанный `pacePerHour` и метрики расхода передаются в `describeRef` и `listAccounts`, гарантируя корректную оценку `pacingRisk` и приоритезацию аккаунтов в `pickAccount`.
+- **DSH 0.2 All Settings Navigation Robustness (#459)**:
+  - Кнопка «All Settings →» в SubsPill использует чистый двухфазный переход: вызов нативных capabilities и надёжный DOM-драйвер с поиском по атрибутам `aria-label="Plugins"` / `data-plugin-package="@goodandready/dsh-subscriptions"` без хардкода переводов.
+- **Codex Client Version & ID Preservation (#473, #474)**:
+  - Дефолтная версия клиента Codex обновлена до `0.160.0` с поддержкой модели `gpt-6.1-sol` в динамическом и статическом каталогах.
+  - Длинные идентификаторы вызовов функций (`call_...`) нормализуются с сохранением 64-символьной границы и идентичности между входными вызовами и выходными результатами.
