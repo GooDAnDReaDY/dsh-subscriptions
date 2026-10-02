@@ -152,3 +152,8 @@ test("normalizeJsonSchema preserves $defs, $ref, and const semantics (#403)", ()
   assert.equal(output.$defs?.mode?.const, "safe")
   assert.equal(output.properties?.mode?.$ref, "#/$defs/mode")
 })
+
+test("normalizeJsonSchema preserves boolean false schema (#403)", () => {
+  assert.equal(normalizeJsonSchema(false), false)
+  assert.equal(normalizeJsonSchema(true), true)
+})

@@ -161,7 +161,7 @@
 | 19 | `codexClientId` | string | YAML/config-only | Переопределение OAuth Client ID для Codex. Требуется только при собственной регистрации приложения. |
 | 20 | `codexRedirectUri` | string | YAML/config-only | Переопределение redirect_uri для Codex OAuth. |
 | 21 | `codexBaseUrl` | string | YAML/config-only | Переопределение endpoint API Codex (для enterprise/mock proxy). |
-| 22 | `codexClientVersion` | string | YAML/config-only | Версия клиента Codex CLI для фильтрации каталога /models (дефолт: 0.157.1). |
+| 22 | `codexClientVersion` | string | YAML/config-only | Версия клиента Codex CLI для фильтрации каталога /models (дефолт: 0.160.0). |
 | 23 | `claudeClientId` | string | YAML/config-only | Переопределение OAuth Client ID для Claude. |
 | 24 | `claudeRedirectUri` | string | YAML/config-only | Переопределение redirect_uri для Claude OAuth. |
 | 25 | `grokClientId` | string | YAML/config-only | Переопределение OAuth Client ID для Grok. |
