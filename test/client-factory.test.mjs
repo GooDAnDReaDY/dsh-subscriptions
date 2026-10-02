@@ -69,10 +69,13 @@ test('#459: registers plugins.bundle.config and native openBundle navigation for
   assert.match(updatedSrc, /layout\.selectPanel\('plugins'\)/)
 })
 
-test('#459: openPluginSettings supports multilingual labels including Russian and robust card click', () => {
+test('#318 / #459: openPluginSettings supports language-independent navigation with 0 Cyrillic in lib', () => {
   const updatedSrc = readFileSync(new URL('../lib/client.js', import.meta.url), 'utf8')
-  assert.match(updatedSrc, /'плагины'/)
+  assert.equal(/'плагины'/.test(updatedSrc), false, 'lib/client.js must not hardcode Russian literals')
+  assert.match(updatedSrc, /resolvePluginLabels/)
   assert.match(updatedSrc, /matchesPluginLabel/)
   assert.match(updatedSrc, /findAndClickCard/)
   assert.match(updatedSrc, /data-plugin-package/)
+  assert.match(updatedSrc, /path\[d\*="M10\.3232"\]/)
+  assert.equal(/[А-Яа-яЁё]/.test(updatedSrc), false, 'lib/client.js must contain 0 Cyrillic characters')
 })
