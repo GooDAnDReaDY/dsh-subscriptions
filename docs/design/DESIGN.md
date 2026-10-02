@@ -8,7 +8,7 @@
   с превентивным переключением квот.
 - Аудитория: пользователи DSH с личными подписками вендоров.
 - Статус: опубликован в npm (`@goodandready/dsh-subscriptions`),
-  активная версия 0.6.50.
+  активная версия 0.6.52.
 
 ## User Surfaces
 - Web/UI: карточка настроек монтируется в официальные слоты DSH 0.1.7-rc.2 / 0.2.0:
@@ -285,3 +285,16 @@
   - В `refresh()` Antigravity реализован приоритет: `cfg?.clientId?.trim() || blob?.clientId?.trim() || ''`.
   - При отсутствии `clientId` до сетевого вызова выбрасывается понятная ошибка, предотвращая отправку некорректного пустого запроса в Google OAuth (HTTP 400 invalid_request).
   - `clientId` и `clientSecret` сохраняются в результирующем блобе после refresh, предотвращая потерю метаданных в последующих циклах обновления.
+
+## Quarantine Warmup Contract, Pacing Window Isolation & Multilingual Navigation (v0.6.52)
+- **Quarantine Warmup Contract, Proxy Fetch & Restart Persistence (#350)**:
+  - Вызов `vendor.check(blob, cfg, fetchImpl)` приведен к канонической трех-аргументной сигнатуре, устраняя вложение `{ config: cfg }`, из-за которого терялся `baseUrl`/`clientVersion`.
+  - В качестве `fetchImpl` проброшен `deps.fetchForRef(account.ref) || deps.fetchFor(account.ref) || deps.fetchImpl`, обеспечивая проверку через настроенный per-ref прокси вместо обхода в `globalThis.fetch`.
+  - При ошибке пробы сохраняется экспоненциальный backoff (`attempts * 2`, вплоть до 48 ч), а ротация и `onCooldown` больше не сбрасывают `attempts` в 1 и не уменьшают время карантина.
+  - Сохранение и загрузка `quarantines.json` (`loadQuarantinesFromFile` / `saveQuarantinesToFile`) сохраняют истёкшие записи карантина (`STATUS_QUARANTINE`), предотвращая допуск аккаунтов к обычному пользовательскому трафику в обход обязательного warmup probe после перезапуска процесса.
+- **Auto-Pacing Reset Window Isolation (#352)**:
+  - В `rememberQuota` при сбросе окна квоты (рост `remainingPercent > last.pct + 0.5` либо изменение `resetAt`) массив сэмплов `quotaSamples` очищается, синхронизируя семантику с `observeForecast`.
+  - В `calculateBurnRatePerHour` реализована изоляция текущего окна квот: при обнаружении границы сброса/пополнения внутри выборки сэмплы до сброса отсекаются, исключая занижение расчетной скорости расхода `pacePerHour` и риска исчерпания `pacingRisk`.
+- **DSH 0.2 All Settings Multilingual Navigation (#459)**:
+  - В `openPluginSettings` расширен список поддерживаемых меток вкладок плагинов (`Plugins`, `Плагины`, `插件`, `Plugin`), устраняя остановку перехода на общем диалоге настроек в русскоязычном интерфейсе.
+  - Реализован надёжный двухфазный поллинг: поиск и клик по вкладке «Плагины» в generic Settings dialog с последующим ожиданием и переходом к карточке `@goodandready/dsh-subscriptions` (`data-plugin-package`).

@@ -68,3 +68,11 @@ test('#459: registers plugins.bundle.config and native openBundle navigation for
   assert.match(updatedSrc, /props\.status === 'error'/)
   assert.match(updatedSrc, /layout\.selectPanel\('plugins'\)/)
 })
+
+test('#459: openPluginSettings supports multilingual labels including Russian and robust card click', () => {
+  const updatedSrc = readFileSync(new URL('../lib/client.js', import.meta.url), 'utf8')
+  assert.match(updatedSrc, /'плагины'/)
+  assert.match(updatedSrc, /matchesPluginLabel/)
+  assert.match(updatedSrc, /findAndClickCard/)
+  assert.match(updatedSrc, /data-plugin-package/)
+})

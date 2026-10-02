@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { observeForecast, estimateForecast } from '../lib/forecast.js'
+import { observeForecast, estimateForecast, calculateBurnRatePerHour } from '../lib/forecast.js'
 
 const H = 3600000
 
@@ -47,4 +47,16 @@ test('#84: idle when nothing is consumed', () => {
   }
   // duplicate pct is not re-sampled (delta < 0.1), so only 1 sample exists
   assert.equal(estimateForecast(st, 'k', 80, null, now + 40 * 60000).status, 'calibrating')
+})
+
+test('#352: calculateBurnRatePerHour discards pre-reset window when reset boundary is present', () => {
+  const now = Date.now()
+  const samples = [
+    { at: now - 3600000, pct: 90, resetAt: now },
+    { at: now - 1800000, pct: 10, resetAt: now },
+    { at: now, pct: 100, resetAt: now + 6 * 3600000 },
+    { at: now + 3600000, pct: 80, resetAt: now + 6 * 3600000 },
+  ]
+  const pace = calculateBurnRatePerHour(samples, now + 3600000)
+  assert.equal(Math.round(pace), 20)
 })

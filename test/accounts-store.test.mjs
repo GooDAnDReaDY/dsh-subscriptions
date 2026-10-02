@@ -287,3 +287,25 @@ test('#350: quarantine survives store recreation without credential writes', asy
   next.releaseQuarantine('CODEX_OAUTH_1')
   assert.equal(next.getQuarantine('CODEX_OAUTH_1'), null)
 })
+
+test('#350: expired quarantine survives store recreation for mandatory warmup probe', () => {
+  const deps = {
+    credentials: {
+      describe: async () => ({ configured: true }),
+      resolve: async () => null,
+      set: async () => {},
+      unset: async () => {},
+    },
+    getConfig: () => ({ slots: [{ provider: 'codex', index: 96 }] }),
+  }
+  const s = createAccountStore(deps)
+  const until = Date.now() - 5000
+  s.rememberQuarantine('CODEX_OAUTH_96', 'RATE_LIMIT', until, 2)
+
+  const next = createAccountStore(deps)
+  const q = next.getQuarantine('CODEX_OAUTH_96', until - 1000)
+  assert.ok(q, 'quarantine record must be persisted')
+  assert.equal(q.attempts, 2)
+
+  next.releaseQuarantine('CODEX_OAUTH_96')
+})
