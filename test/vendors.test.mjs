@@ -444,3 +444,104 @@ test('import-local creates slot and persists config when slot does not exist', a
   assert.equal(nextSlots.length, 2)
   assert.equal(nextSlots[1].provider, 'cursor')
 })
+
+test('GH #13: antigravity refresh rejects with clear error when client ID is missing in both config and blob', async () => {
+  let fetchCalled = false
+  const fetchImpl = async () => {
+    fetchCalled = true
+    return Response.json({})
+  }
+  await assert.rejects(
+    () => getVendor('antigravity').refresh({}, { refreshToken: 'rt-alone' }, fetchImpl),
+    /Google OAuth refresh requires a Client ID/,
+  )
+  assert.equal(fetchCalled, false, 'network request must not be attempted when client ID is missing')
+})
+
+test('GH #13: antigravity refresh uses blob.clientId when config is empty and sends form data', async () => {
+  let requestUrl = ''
+  let requestParams = null
+  const fetchImpl = async (url, init) => {
+    requestUrl = String(url)
+    requestParams = new URLSearchParams(init.body)
+    return Response.json({
+      access_token: 'new-google-at',
+      refresh_token: 'new-google-rt',
+      expires_in: 3600,
+    })
+  }
+
+  const dummyGoogleCid = '764086051850-6qr4p6gpi6hn506pt8ejuq83di341hur.apps.googleusercontent.com'
+  const blob = {
+    accessToken: 'old-at',
+    refreshToken: 'old-rt',
+    clientId: dummyGoogleCid,
+    projectId: 'proj-xyz',
+    email: 'user@example.com',
+  }
+
+  const nextBlob = await getVendor('antigravity').refresh({ clientId: '' }, blob, fetchImpl)
+
+  assert.match(requestUrl, /oauth2\.googleapis\.com\/token/)
+  assert.equal(requestParams.get('client_id'), dummyGoogleCid)
+  assert.equal(requestParams.get('grant_type'), 'refresh_token')
+  assert.equal(requestParams.get('refresh_token'), 'old-rt')
+  assert.equal(nextBlob.accessToken, 'new-google-at')
+  assert.equal(nextBlob.refreshToken, 'new-google-rt')
+  assert.equal(nextBlob.clientId, dummyGoogleCid)
+  assert.equal(nextBlob.projectId, 'proj-xyz')
+  assert.equal(nextBlob.email, 'user@example.com')
+})
+
+test('GH #13: antigravity refresh config.clientId takes precedence over blob.clientId and sends secret if present', async () => {
+  let requestParams = null
+  const fetchImpl = async (url, init) => {
+    requestParams = new URLSearchParams(init.body)
+    return Response.json({
+      access_token: 'at-updated',
+      refresh_token: 'rt-updated',
+      expires_in: 1800,
+    })
+  }
+
+  const cfgCid = '9999999999-override.apps.googleusercontent.com'
+  const cfgSecret = 'custom-secret-abc'
+  const blobCid = '1111111111-original.apps.googleusercontent.com'
+
+  const nextBlob = await getVendor('antigravity').refresh(
+    { clientId: cfgCid, clientSecret: cfgSecret },
+    { refreshToken: 'rt-curr', clientId: blobCid },
+    fetchImpl,
+  )
+
+  assert.equal(requestParams.get('client_id'), cfgCid)
+  assert.equal(requestParams.get('client_secret'), cfgSecret)
+  assert.equal(nextBlob.clientId, cfgCid)
+  assert.equal(nextBlob.clientSecret, cfgSecret)
+})
+
+test('GH #13: antigravity exchangeCode preserves clientId and clientSecret in blob', async () => {
+  const fetchImpl = async (url) => {
+    if (String(url).includes('oauth2.googleapis.com/token')) {
+      return Response.json({ access_token: 'at-code', refresh_token: 'rt-code', expires_in: 3600 })
+    }
+    if (String(url).includes('loadCodeAssist')) {
+      return Response.json({
+        currentTier: { id: 'free-tier' },
+        cloudaicompanionProject: 'proj-code',
+      })
+    }
+    throw new Error(`unexpected ${url}`)
+  }
+
+  const blob = await getVendor('antigravity').exchangeCode(
+    { clientId: 'google-client-id-code', clientSecret: 'google-secret-code', redirectUri: 'http://localhost/cb' },
+    { verifier: 'v', state: 's' },
+    'auth_code',
+    fetchImpl,
+  )
+
+  assert.equal(blob.clientId, 'google-client-id-code')
+  assert.equal(blob.clientSecret, 'google-secret-code')
+  assert.equal(blob.projectId, 'proj-code')
+})

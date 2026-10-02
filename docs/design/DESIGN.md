@@ -273,3 +273,15 @@
 - **Codex Client Version & ID Preservation (#473, #474)**:
   - Дефолтная версия клиента Codex обновлена до `0.160.0` с поддержкой модели `gpt-6.1-sol` в динамическом и статическом каталогах.
   - Длинные идентификаторы вызовов функций (`call_...`) нормализуются с сохранением 64-символьной границы и идентичности между входными вызовами и выходными результатами.
+
+## Antigravity CLI Import Expiry Normalization & Refresh Client ID (v0.6.51)
+- **Expiry Normalization (GH #13, #478)**:
+  - `normalizeExpiresAt(raw)` в `lib/blob.js` корректно приводит строковые даты ISO 8601 (включая наносекунды и часовые пояса), миллисекунды и секунды к числовым миллисекундам Unix epoch.
+  - Устранена проблема сериализации `Number(ISODateString) === NaN -> 0`, из-за которой свежеимпортированные из Antigravity CLI аккаунты немедленно запускали refresh при первом же запросе.
+  - При отсутствии или повреждении таймстемпа исключена фабрикация фиктивных будущих дат (возвращается `0`).
+- **Google OAuth Client ID Preservation & Refresh Guard (GH #13, #478)**:
+  - `extractGoogleClientIdFromJwt(idToken)` в `lib/jwt.js` безопасно извлекает Google Client ID из `aud`/`azp` ID токена только при согласии аудиторий и валидном формате (`.apps.googleusercontent.com`).
+  - При импорте из CLI (`loadLocalCliBlob('antigravity')`) сохраняются `clientId`, `clientSecret` и `idToken` в блобе учётных данных.
+  - В `refresh()` Antigravity реализован приоритет: `cfg?.clientId?.trim() || blob?.clientId?.trim() || ''`.
+  - При отсутствии `clientId` до сетевого вызова выбрасывается понятная ошибка, предотвращая отправку некорректного пустого запроса в Google OAuth (HTTP 400 invalid_request).
+  - `clientId` и `clientSecret` сохраняются в результирующем блобе после refresh, предотвращая потерю метаданных в последующих циклах обновления.
