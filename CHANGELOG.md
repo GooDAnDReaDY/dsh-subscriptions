@@ -1,4 +1,84 @@
+## [0.6.49] - 2026-10-02
+
+### Fixed & Enhanced
+- Codex: normalize tool `call_id` to <= 64 chars to prevent OpenAI HTTP 400 errors (Refs: GH #12, #474)
+- Codex: add `gpt-6.1-sol` model and bump default `clientVersion` to `0.160.0` (Refs: GH #11, #473)
+- Tools: preserve boolean schema contracts (`normalizeJsonSchema(false) === false`) (Refs: #403)
+- Accounts: prevent credential mutation races and false unsetting on concurrent refresh/write (Refs: #442)
+- Adapter: record and persist quarantine on native HTTP 429 and clear on success (Refs: #350)
+- Adapter Manager: propagate `autoPacing` configuration into `streamWithRotation` (Refs: #352)
+- HTTP / Routes: fail-closed authentication on sensitive routes, reject forged headers/cookies on non-loopback (Refs: #374)
+- Status / Settings: enforce host revision CAS and return HTTP 409 on version conflict (Refs: #379)
+- Wire / Adapter: capture `reasoningTokens` in streaming chunks and forward to history (Refs: #449)
+- UI / Client: fix "All Settings" navigation on DSH 0.2 via Plugins panel (Refs: #459)
+
+## [0.6.43] - 2026-10-01
+
+### Fixed
+- Eliminate empty catch block in redirect headers sanitizer (Refs: #322)
+
+## [0.6.42] - 2026-10-01
+
+### Fixed & Enhanced (Block 6 - Developer Tooling, Timeout Tuning, CLI Import & Typechecking)
+- Support environment-only Cursor and Kiro imports and canonical Claude alias (Refs: #452)
+- Apply network timeouts to all external calls with body protection and error classification (Refs: #322)
+- Declare local ESLint and update dev core dependencies for clean reproducibility (Refs: #457)
+- Add JSDoc typing for core modules and ensure typecheck passes cleanly with zero errors (Refs: #304)
+
+## [0.6.41] - 2026-10-01
+
+### Fixed & Enhanced (Block 5 - UI, Settings Card, Runaway Guard, Telemetry & Quota)
+- Publish custom vendor catalog with actual profile id instead of 'custom' (Refs: #451)
+- Remove synthetic fake quota percentages from 8 vendor modules (Refs: #454)
+- Deduplicate concurrent usage refreshes with single-flight locking (Refs: #455)
+- Ensure stream finalization and history recording run under runaway guard via exactly-once finally lifecycle (Refs: #456)
+- Surface cache efficiency and token savings in UI telemetry and analyze-session event mapping (Refs: #386)
+- Restore settings card accessibility and fix All Settings navigation on DSH 0.2 (Refs: #459)
+
+## [0.6.40] - 2026-10-01
+
+### Fixed & Hardened (Block 4 - Stream, SSE, Responses & Wire Hardening)
+- Preserve valid JSON Schema combinators (anyOf, oneOf, allOf) and keywords in tool normalizer (Refs: #403)
+- Preserve remote HTTP image URLs in Anthropic and Gemini payloads (Refs: #404)
+- Preserve query parameters in HTTP proxy routes (Refs: #446)
+- Fix loggedInProviders array indexing in subscriptionImages service (Refs: #447)
+- Align stream finish reasons with canonical DSH LLM contract (Refs: #448)
+- Preserve input and cache token usage across stream adapters (Refs: #449)
+- Handle DONE signal cleanly and prevent abrupt EOF false success (Refs: #450)
+
+## [0.6.39] - 2026-10-01
+
+### Fixed & Added (Block 3 - Account Pool, Health & Rotation Resilience)
+- Fix healthScore=0 fallback evaluation during account sorting (Refs: #342)
+- Expand cross-vendor fallback chains and guard signal abortion (Refs: #349)
+- Persist quarantine state and add warmup helpers (Refs: #350)
+- Integrate autoPacing load balancing strategy (Refs: #352)
+- Prevent race condition during adapter disposal (Refs: #363)
+- Expose account counters and health callbacks (Refs: #443)
+- Provide pickAccount locked pool fallback (Refs: #444)
+
 # Changelog
+
+## [0.6.38] - 2026-10-01
+### Storage, Vault Resilience & Dynamic Model Discovery
+- Dynamic listModels caching and live catalog endpoints for Copilot, Claude, Grok, and Codex (Refs: #458)
+- Preserve masked secrets on GET-config partial updates (Refs: #242)
+- Preserve proxyUrl, expiresAt, and custom parameters during slot normalization (Refs: #343)
+- Enforce strict CAS revision validation on config updates (Refs: #379)
+- Enforce settings update failure rollback and safe ref cleanup (Refs: #439)
+- Preserve custom blob properties in serializeBlob and parseBlob (Refs: #440)
+- Isolate static API key imports from OAuth token refresh routines (Refs: #441)
+- Enhance credential save and delete error handling and ref validation (Refs: #442)
+
+## [0.6.37] - 2026-10-01
+### Security & Hardening
+- Enforce same-origin auth check on sensitive GET routes (Refs: #374)
+- Resolve redirectFor signature compatibility across OAuth routes (Refs: #437)
+- Enforce strict state validation on OAuth complete endpoint (Refs: #438)
+- Sanitize bearer headers and cookies on external/cross-origin requests (Refs: #445)
+- Restrict credential ref targets in legacy import handlers (Refs: #360)
+- Enforce KDF and minimum passphrase length in legacy export routines (Refs: #414)
+- Sanitize Copilot CLI token import duration and initial expiration (Refs: #453)
 
 ## 0.6.36
 
