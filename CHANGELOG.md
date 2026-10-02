@@ -1,3 +1,17 @@
+## [0.6.49] - 2026-10-02
+
+### Fixed & Enhanced
+- Codex: normalize tool `call_id` to <= 64 chars to prevent OpenAI HTTP 400 errors (Refs: GH #12, #474)
+- Codex: add `gpt-6.1-sol` model and bump default `clientVersion` to `0.160.0` (Refs: GH #11, #473)
+- Tools: preserve boolean schema contracts (`normalizeJsonSchema(false) === false`) (Refs: #403)
+- Accounts: prevent credential mutation races and false unsetting on concurrent refresh/write (Refs: #442)
+- Adapter: record and persist quarantine on native HTTP 429 and clear on success (Refs: #350)
+- Adapter Manager: propagate `autoPacing` configuration into `streamWithRotation` (Refs: #352)
+- HTTP / Routes: fail-closed authentication on sensitive routes, reject forged headers/cookies on non-loopback (Refs: #374)
+- Status / Settings: enforce host revision CAS and return HTTP 409 on version conflict (Refs: #379)
+- Wire / Adapter: capture `reasoningTokens` in streaming chunks and forward to history (Refs: #449)
+- UI / Client: fix "All Settings" navigation on DSH 0.2 via Plugins panel (Refs: #459)
+
 ## [0.6.43] - 2026-10-01
 
 ### Fixed
