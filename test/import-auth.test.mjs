@@ -207,3 +207,89 @@ test('#452: loadLocalCliBlob reads Kiro from environment variable without files'
     else process.env.KIRO_API_KEY = prev
   }
 })
+
+test('GH #13: detects Antigravity session from ~/.gemini/oauth_creds.json', async () => {
+  await withHome({
+    '.gemini/oauth_creds.json': {
+      access_token: 'test-google-at',
+      refresh_token: 'test-google-rt',
+      expiry_date: 1787252123978,
+    },
+  }, async (home) => {
+    const found = await discoverLocalCliSessions({ home })
+    assert.ok(found.antigravity, 'antigravity session detected via oauth_creds.json')
+    assert.equal(found.antigravity.provider, 'antigravity')
+    assert.equal(found.antigravity.hasRefreshToken, true)
+  })
+})
+
+test('GH #13: loadLocalCliBlob normalizes Antigravity ISO expiry and extracts client ID from id_token', async () => {
+  const dummyGoogleCid = '764086051850-6qr4p6gpi6hn506pt8ejuq83di341hur.apps.googleusercontent.com'
+  const header = Buffer.from(JSON.stringify({ alg: 'RS256' })).toString('base64url')
+  const payload = Buffer.from(JSON.stringify({
+    iss: 'https://accounts.google.com',
+    aud: dummyGoogleCid,
+    azp: dummyGoogleCid,
+    email: 'gemini-tester@example.com',
+  })).toString('base64url')
+  const dummyIdToken = `${header}.${payload}.signature`
+
+  const isoExpiry = '2026-05-29T17:29:26.476509737+03:00'
+  const expectedMs = Date.parse(isoExpiry)
+
+  await withHome({
+    '.gemini/antigravity-cli/antigravity-oauth-token': {
+      token: {
+        access_token: 'agt-12345',
+        refresh_token: 'rt-67890',
+        token_type: 'Bearer',
+        expiry: isoExpiry,
+      },
+      id_token: dummyIdToken,
+      auth_method: 'consumer',
+    },
+  }, async (home) => {
+    const blob = await loadLocalCliBlob('antigravity', { home })
+    assert.equal(blob.accessToken, 'agt-12345')
+    assert.equal(blob.refreshToken, 'rt-67890')
+    assert.equal(typeof blob.expiresAt, 'number')
+    assert.equal(blob.expiresAt, expectedMs)
+    assert.notEqual(blob.expiresAt, 0, 'expiresAt must not be 0')
+    assert.equal(blob.clientId, dummyGoogleCid)
+    assert.equal(blob.email, 'gemini-tester@example.com')
+  })
+})
+
+test('GH #13: loadLocalCliBlob supports explicit clientId in Antigravity CLI credentials', async () => {
+  const explicitCid = '112233445566-customclient.apps.googleusercontent.com'
+  await withHome({
+    '.gemini/antigravity-cli/antigravity-oauth-token': {
+      token: {
+        access_token: 'agt-at',
+        refresh_token: 'agt-rt',
+        expiry: 1787252123, // epoch seconds
+        client_id: explicitCid,
+        client_secret: 'sec-val',
+      },
+    },
+  }, async (home) => {
+    const blob = await loadLocalCliBlob('antigravity', { home })
+    assert.equal(blob.clientId, explicitCid)
+    assert.equal(blob.clientSecret, 'sec-val')
+    assert.equal(blob.expiresAt, 1787252123000)
+  })
+})
+
+test('GH #13: loadLocalCliBlob does not fabricate future expiry when timestamps are absent', async () => {
+  await withHome({
+    '.gemini/antigravity-cli/antigravity-oauth-token': {
+      token: {
+        access_token: 'agt-at',
+        refresh_token: 'agt-rt',
+      },
+    },
+  }, async (home) => {
+    const blob = await loadLocalCliBlob('antigravity', { home })
+    assert.equal(blob.expiresAt, 0, 'expiresAt must be 0 when absent')
+  })
+})
