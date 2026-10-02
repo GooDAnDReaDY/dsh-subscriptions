@@ -1,3 +1,14 @@
+## [0.6.50] - 2026-10-02
+
+### Fixed & Hardened (Round 3 Audit Resolution)
+- **HTTP / Routes (#374)**: Strict fail-closed authentication on sensitive routes (`/config`, `/status`), reject unauthenticated remote requests with matching host, exact cookie token lookup, and safe Cordis context connection access.
+- **Accounts / Credentials (#442)**: Prevent credential resurrection after logout when in-flight `saveBlob` resolves, unconditionally executing `credentials.unset`.
+- **Rotation / Quarantine (#350)**: Expired quarantine accounts require active warmup micro-probe (`vendor.check`) before returning to the active rotation pool, with exponential backoff on probe failure.
+- **Quota / Forecast (#352)**: Record sliding-window `quotaSamples` from actual quota snapshots, calculate `pacePerHour` via `calculateBurnRatePerHour`, and populate backend pacing inputs for `computePacingRisk`.
+- **UI / Client (#459)**: Resilient "All Settings" navigation in SubsPill to DSH 0.2 Plugins package card via native capability and standard `PLUGIN_LABELS` / `data-plugin-package` title button triggers.
+- **Documentation (#434)**: Synchronize `docs/design/DESIGN.md` active version to 0.6.50, update slot architecture (`plugins.bundle.config`, `plugins.row.config`, `conversation.session.header.actions`).
+- **Distribution (#326)**: Release v0.6.50 to npm public registry and migrate production runtime from file tgz dependency.
+
 ## [0.6.49] - 2026-10-02
 
 ### Fixed & Enhanced
