@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { openaiMessages, openaiTools, modelCatalog, codexResponsesBody } from '../lib/messages.js'
+import { openaiMessages, openaiTools, modelCatalog, codexResponsesBody, normalizeCodexCallId } from '../lib/messages.js'
 import { httpError, tokenBlobFromOAuth, readJson, openaiChatStream, formTokenRequest, jsonTokenRequest } from '../lib/wire.js'
 
 // #288 follow-up: request-body builders and the SSE/wire helpers.
@@ -285,4 +285,45 @@ test('codexResponsesBody drops orphaned function_call_output without preceding c
   // Orphan output dropped to avoid OpenAI "No function call found with call_id"
   assert.equal(body.input.length, 1)
   assert.equal(body.input[0].role, 'user')
+})
+
+test('normalizeCodexCallId shortens ids > 64 chars deterministically (#474 / GH #12)', () => {
+  const shortId = 'call_abc123'
+  assert.equal(normalizeCodexCallId(shortId), shortId)
+  
+  const longId = 'call_' + 'x'.repeat(80)
+  const norm1 = normalizeCodexCallId(longId)
+  const norm2 = normalizeCodexCallId(longId)
+  assert.ok(norm1.length <= 64, 'length must be <= 64')
+  assert.equal(norm1, norm2, 'must be deterministic')
+})
+
+test('codexResponsesBody normalizes long call_id <= 64 chars matching tool output (#474 / GH #12)', () => {
+  const longCallId = 'call_long_tool_call_id_exceeding_sixty_four_characters_from_dsh_platform_runner_12345'
+  const body = codexResponsesBody({
+    model: 'gpt-5.6-luna',
+    messages: [
+      {
+        role: 'assistant',
+        tool_calls: [
+          {
+            id: longCallId,
+            type: 'function',
+            function: { name: 'test_fn', arguments: '{}' },
+          },
+        ],
+      },
+      {
+        role: 'tool',
+        toolCallId: longCallId,
+        content: 'result_ok',
+      },
+    ],
+  }, 'instr', {})
+
+  assert.equal(body.input.length, 2)
+  assert.equal(body.input[0].type, 'function_call')
+  assert.ok(body.input[0].call_id.length <= 64)
+  assert.equal(body.input[1].type, 'function_call_output')
+  assert.equal(body.input[1].call_id, body.input[0].call_id)
 })
