@@ -49,10 +49,7 @@ test('no orphan exports: every lib export is referenced outside its own declarat
 })
 
 const CYR_ALLOWED = new Set([
-  // Documented locale-contract exceptions (DESIGN.md, decision 2026-09-09):
-  'lib/client.js',          // INSTRUCTIONS.stepsRu + isRu-conditional strings
-  // lib/usage.js: ru removed (pure EN/ZH)
-  // lib/relative-time.js: ru removed (pure EN/ZH)
+  // Strict 0-Cyrillic policy: all Russian strings live externally in dsh-russian-lang
 ])
 
 const CYR = new RegExp('[' + String.fromCharCode(0x410) + '-' + String.fromCharCode(0x44F) + String.fromCharCode(0x401) + String.fromCharCode(0x451) + ']')
@@ -64,4 +61,14 @@ test('cyrillic in lib stays within the documented locale exceptions', () => {
     if (CYR.test(readFileSync(ROOT + f, 'utf8'))) offenders.push(f)
   }
   assert.deepEqual(offenders, [], 'cyrillic found outside exceptions: ' + offenders.join(', ') + ' - translate it or update DESIGN.md and this allowlist')
+})
+
+test('#318: 0 Cyrillic characters across all lib/ files', () => {
+  const offenders = []
+  for (const f of libFiles) {
+    const fileContent = readFileSync(ROOT + f, 'utf8')
+    const matches = fileContent.match(CYR)
+    if (matches) offenders.push(`${f}: ${matches.length} Cyrillic characters`)
+  }
+  assert.deepEqual(offenders, [], 'Cyrillic characters found in lib/: ' + offenders.join(', '))
 })
