@@ -8,7 +8,7 @@
   с превентивным переключением квот.
 - Аудитория: пользователи DSH с личными подписками вендоров.
 - Статус: опубликован в npm (`@goodandready/dsh-subscriptions`),
-  активная версия 0.6.53.
+  активная версия 0.6.54.
 
 ## User Surfaces
 - Web/UI: карточка настроек монтируется в официальные слоты DSH 0.1.7-rc.2 / 0.2.0:
@@ -286,6 +286,20 @@
   - В `refresh()` Antigravity реализован приоритет: `cfg?.clientId?.trim() || blob?.clientId?.trim() || ''`.
   - При отсутствии `clientId` до сетевого вызова выбрасывается понятная ошибка, предотвращая отправку некорректного пустого запроса в Google OAuth (HTTP 400 invalid_request).
   - `clientId` и `clientSecret` сохраняются в результирующем блобе после refresh, предотвращая потерю метаданных в последующих циклах обновления.
+
+## Smart Quota Drainer: drain-before-reset Balancing Strategy (v0.6.54)
+- **Burn Urgency Optimization (#485)**:
+  - Добавлена стратегия балансировки `drainBeforeReset` для максимизации утилизации подписок с близким окном сброса квот (Claude Pro 5h windows, Cursor monthly/daily limits, Gemini daily quota).
+  - Формула срочности сжигания:
+    $$\text{Urgency} = \frac{\text{QuotaRemainingPercent}}{\max(T_{\text{reset\_hours}}, 0.05)}$$
+    где $T_{\text{reset\_hours}} = (resetAt - now) / 3600000$. Знаменатель ограничен минимумом 0.05 ч (3 мин) для предотвращения деления на ноль.
+  - **Safety Floor (`drainSafetyPercent`, по умолчанию 5%)**:
+    Аккаунты с остатком квоты ниже или равным защитному порогу получают нулевую срочность, уступая место аккаунтам с достаточным запасом квоты во избежание внезапных ошибок 429 / Quota Exceeded.
+  - **Порядок сортировки в пуле**:
+    При включенном `drainBeforeReset` аккаунты с более высокой срочностью сжигания (`burnUrgency`) выбираются в первую очередь. При равной срочности или отсутствии активных окон сброса алгоритм плавно переключается на стандартную ротацию: Auto-Pacing risk $\to$ Least remaining window $\to$ Weighted Round Robin $\to$ Health Score.
+  - **Конфигурация**:
+    - `drainBeforeReset: z.boolean().default(false)` — опциональный режим (по умолчанию выключен, 100% обратная совместимость).
+    - `drainSafetyPercent: z.number().default(5)` — настраиваемый защитный порог в процентах.
 
 ## Cyrillic Hardcode Elimination & Locale Contract Adherence (v0.6.53)
 - **Elimination of Cyrillic String Literals (#318)**:
