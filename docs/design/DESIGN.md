@@ -8,7 +8,7 @@
   с превентивным переключением квот.
 - Аудитория: пользователи DSH с личными подписками вендоров.
 - Статус: опубликован в npm (`@goodandready/dsh-subscriptions`),
-  активная версия 0.6.54.
+  активная версия 0.6.55.
 
 ## User Surfaces
 - Web/UI: карточка настроек монтируется в официальные слоты DSH 0.1.7-rc.2 / 0.2.0:
@@ -286,6 +286,24 @@
   - В `refresh()` Antigravity реализован приоритет: `cfg?.clientId?.trim() || blob?.clientId?.trim() || ''`.
   - При отсутствии `clientId` до сетевого вызова выбрасывается понятная ошибка, предотвращая отправку некорректного пустого запроса в Google OAuth (HTTP 400 invalid_request).
   - `clientId` и `clientSecret` сохраняются в результирующем блобе после refresh, предотвращая потерю метаданных в последующих циклах обновления.
+
+## Security Hardening: URL Traversal Normalization, Trusted Settings Guard & Constant-Time Auth (v0.6.55)
+- **Path Traversal & Origin Escape Elimination (#487)**:
+  - `isAllowed(provider, path)` в `lib/subscriptions.js` теперь нормализует путь через WHATWG URL (`new URL(p, 'http://localhost').pathname`) до проверки префиксов разрешённых маршрутов, блокируя обход через `..`, `%2e%2e` и бэкслеши.
+  - В `subscriptions.request()` формируется и валидируется строгий целевой объект WHATWG URL:
+    - Проверка протокольно-относительных URL (`//`).
+    - Проверка совпадения origin с базовым URL провайдера (`targetUrl.origin === baseOrigin`).
+    - Проверка невыхода за границы базового пути провайдера (`targetUrl.pathname.startsWith(basePath + '/')`).
+    - Повторная валидация `isAllowed` по итоговой нормализованной строке `targetUrl.pathname`.
+    - Диспетчеризация запроса строго через валидированный `targetUrl.toString()`, а не конкатенацию сырых строк.
+- **Trusted Settings Verification on OAuth Start (#488)**:
+  - Мутирующий маршрут `GET /dsh-subscriptions/oauth/start` в `lib/routes/oauth.js` защищён проверкой `isTrustedSettingsRequest(req, ctx)` (same-origin / verified token), закрывая возможность межсайтового создания строк PKCE и связывания локального порта loopback.
+- **Constant-Time Token Comparison (#492)**:
+  - В `lib/http.js` реализован хелпер `timingSafeCompare(a, b)` с использованием `crypto.timingSafeEqual` по байтовым буферам одинаковой длины для проверки `process.env.DSH_AUTH_TOKEN` в заголовке `Authorization: Bearer` и cookies (`token`, `dsh_token`).
+- **Timer and Status Hygiene (#490, #491)**:
+  - Удалены лишние псевдонимы таймеров в фоновом цикле `lib/index.js`.
+  - Установлен нижний порог `Math.max(1, ...)` для параметра `limit` в маршрутах `/history` и `/alerts` в `lib/routes/status.js`.
+  - В `fetchWithTimeout` добавлен unref таймера при передаче ответа с восстановлением ref при чтении тела через `res.json()` / `res.text()`.
 
 ## Smart Quota Drainer: drain-before-reset Balancing Strategy (v0.6.54)
 - **Burn Urgency Optimization (#485)**:
