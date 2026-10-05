@@ -8,7 +8,7 @@
   с превентивным переключением квот.
 - Аудитория: пользователи DSH с личными подписками вендоров.
 - Статус: опубликован в npm (`@goodandready/dsh-subscriptions`),
-  активная версия 0.6.56.
+  активная версия 0.6.57.
 
 ## User Surfaces
 - Web/UI: карточка настроек монтируется в официальные слоты DSH 0.1.7-rc.2 / 0.2.0:
@@ -286,6 +286,18 @@
   - В `refresh()` Antigravity реализован приоритет: `cfg?.clientId?.trim() || blob?.clientId?.trim() || ''`.
   - При отсутствии `clientId` до сетевого вызова выбрасывается понятная ошибка, предотвращая отправку некорректного пустого запроса в Google OAuth (HTTP 400 invalid_request).
   - `clientId` и `clientSecret` сохраняются в результирующем блобе после refresh, предотвращая потерю метаданных в последующих циклах обновления.
+
+## Claude Subscription Hardening: Billing Header Attribution, Bearer Models & Extra-Usage Isolation (v0.6.57)
+- **Anthropic /v1/models OAuth Bearer Authorization (GH #14, #498)**:
+  - В `listModels()` (`lib/vendors/claude.js`) токены OAuth подписок (`sk-ant-oat*` и `sk-ant-ort*`) теперь явно отправляются в заголовке `Authorization: Bearer <token>`, предотвращая ошибочную отправку `x-api-key` и ответ HTTP 401 (`invalid_x_api_key`) от эндпоинта каталога моделей Anthropic.
+- **Claude Code Billing Header Attribution in Messages System Prompt (GH #15, #499)**:
+  - В `streamOnce()` (`lib/vendors/claude.js`) добавлена функция `applyClaudeBillingHeader()`, внедряющая блок `x-anthropic-billing-header: cc_version=...; cc_entrypoint=sdk-cli; cch=...; cc_turn_origin=sdk; cc_prompt_index=0; cc_turn_index=...;` первым элементом в массив `payload.system`.
+  - Предотвращает получение HTTP 429 от Anthropic при исчерпании дополнительных кредитов (extra usage credits), так как бэкенд Anthropic распознает официального клиента Claude Code и корректно списывает запросы с квоты подписки (Pro / Team).
+  - Поддержана опция отключения `CLAUDE_CODE_ATTRIBUTION_HEADER=0` для совместимости со сторонними прокси.
+  - В схему `Config` (`lib/config-schema.js`) добавлен ключ `claudeCcVersion` (по умолчанию `2.1.289.7e2`).
+- **Extra-Usage Quota Poisoning Prevention (GH #15, #499)**:
+  - В `windowPercent()` и `deepestUsedPercent()` (`lib/usage.js`) исключён узел `extra_usage` (и узлы с `monthly_limit` / `used_credits`) из расчёта максимальной утилизации квоты подписки, устраняя ложный 100% расход и ошибочный карантин `RATE_LIMIT` аккаунтов.
+  - В `WINDOW_LABELS` добавлена метка `extra_usage: { zh: "额外用量", en: "extra" }`.
 
 ## Vendor Config Schema & Custom Vendor Hardening (v0.6.56)
 - **Vendor Configuration Declarations (#489)**:
