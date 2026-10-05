@@ -36,6 +36,15 @@ test("validateProfile rejects bad id format", () => {
   assert.throws(() => validateProfile({ ...PROFILE, id: "has space" }))
 })
 
+test("#493: validateProfile rejects invalid or non-http(s) URLs in authUrl, tokenUrl, baseUrl", () => {
+  for (const key of ["authUrl", "tokenUrl", "baseUrl"]) {
+    assert.throws(() => validateProfile({ ...PROFILE, [key]: "not-a-valid-url" }), /must be a valid http\(s\) URL/)
+    assert.throws(() => validateProfile({ ...PROFILE, [key]: "ftp://ftp.myservice.com/resource" }), /must be a valid http\(s\) URL/)
+    assert.throws(() => validateProfile({ ...PROFILE, [key]: "javascript:alert(1)" }), /must be a valid http\(s\) URL/)
+    assert.throws(() => validateProfile({ ...PROFILE, [key]: "file:///etc/passwd" }), /must be a valid http\(s\) URL/)
+  }
+})
+
 test("factory builds vendor with correct identity", () => {
   const v = createVendorFromProfile(validateProfile(PROFILE))
   assert.equal(v.id, "myservice")

@@ -8,7 +8,7 @@
   с превентивным переключением квот.
 - Аудитория: пользователи DSH с личными подписками вендоров.
 - Статус: опубликован в npm (`@goodandready/dsh-subscriptions`),
-  активная версия 0.6.55.
+  активная версия 0.6.56.
 
 ## User Surfaces
 - Web/UI: карточка настроек монтируется в официальные слоты DSH 0.1.7-rc.2 / 0.2.0:
@@ -286,6 +286,19 @@
   - В `refresh()` Antigravity реализован приоритет: `cfg?.clientId?.trim() || blob?.clientId?.trim() || ''`.
   - При отсутствии `clientId` до сетевого вызова выбрасывается понятная ошибка, предотвращая отправку некорректного пустого запроса в Google OAuth (HTTP 400 invalid_request).
   - `clientId` и `clientSecret` сохраняются в результирующем блобе после refresh, предотвращая потерю метаданных в последующих циклах обновления.
+
+## Vendor Config Schema & Custom Vendor Hardening (v0.6.56)
+- **Vendor Configuration Declarations (#489)**:
+  - В Zod-схему `Config` (`lib/config-schema.js`) добавлены ключи вендоров:
+    - Секреты клиентов: `antigravityClientSecret`, `codexClientSecret`, `claudeClientSecret`, `grokClientSecret`.
+    - Идентификаторы и префиксы: `codexOriginator`, `codexSystemPrefix`, `claudeSystemPrefix`.
+    - Каталоги моделей: `codexModels`, `claudeModels`, `grokModels`, `antigravityModels`.
+  - Устранена потеря параметров при валидации схемы (`plainConfig(Config(...))`).
+  - Обеспечено корректное маскирование секретов (`••••••`) в `publicConfig()` и их восстановление в `restoreMaskedSecrets()`.
+- **Custom Vendor Profile Protocol Hardening (#493)**:
+  - В `validateProfile()` (`lib/vendor-factory.js`) добавлена валидация форматов URL и ограничение допустимых протоколов (`http:` и `https:`) для полей `authUrl`, `tokenUrl`, `baseUrl`.
+- **Host LLM Adapter API Guard (#494)**:
+  - Вызовы `ctx.llm.registerAdapter()` в `lib/adapter-manager.js` и `lib/index.js` снабжены защитной проверкой `if (ctx.llm && typeof ctx.llm.registerAdapter === 'function')`, исключающей сбои в headless- и mock-окружениях.
 
 ## Security Hardening: URL Traversal Normalization, Trusted Settings Guard & Constant-Time Auth (v0.6.55)
 - **Path Traversal & Origin Escape Elimination (#487)**:
