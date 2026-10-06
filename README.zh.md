@@ -120,6 +120,12 @@ graph LR
 * **匿名诊断报告**：设置卡片内一键生成（插件/运行时版本、系统、各供应商健康状态、HTTP 状态聚合、最近错误与耗时、非敏感配置）并自动复制到剪贴板；令牌、邮箱、凭据名与代理地址严格排除。
 * 同区块提供问题追踪器链接，便于提交 issue。
 
+### 隔离管理、动态额度重置倒计时与应用内弹窗提醒 (v0.6.59)
+* **手动隔离管理（暂停与预热探测）**：支持在设置面板的账户卡片中一键暂停隔离活跃账户（`POST /dsh-subscriptions/quarantine/park`），或立即触发真实上游预热微探测（`probeWarmup`）并在验证成功后即时解除隔离（`POST /dsh-subscriptions/quarantine/probe`）。
+* **动态额度重置倒计时**：在顶部会话栏 `SubsPill` 和账户卡片中秒级动态更新，精准展示滚动配额窗口（`five_hour`、`seven_day`、`primary_window`）的剩余解锁时间。
+* **应用内即时弹窗提醒（Toast）**：当账户进入隔离、健康恢复解除隔离或额度达到预警线时，在聊天界面弹出轻量级浮动提醒。通过 `enableToasts: true` 控制。
+* **自动化 Webhook 告警集成**：通过 `notifyQuarantineEntered` 与 `notifyQuarantineReleased` 自动向外部通知系统派发隔离生命周期事件。
+
 ### HTTP API 路由（`v0.4.9`）
 | 路由 | 方法 | 用途 |
 |---|---|---|
@@ -127,6 +133,9 @@ graph LR
 | `/dsh-subscriptions/proxy-check` | POST | 检测槽位代理到供应商基础地址的延迟 |
 | `/dsh-subscriptions/oauth/device/start` | POST | 发起 Codex 设备码登录（返回用户码与验证地址） |
 | `/dsh-subscriptions/oauth/device/poll` | POST | 轮询设备码授权状态 |
+| `/dsh-subscriptions/quarantine/park` | POST | 将指定账户临时暂停隔离（支持 `durationMs` 与 `reason`） |
+| `/dsh-subscriptions/quarantine/probe` | POST | 立即执行健康预热探测或提前解除账户隔离 |
+| `/dsh-subscriptions/alerts` | GET | 获取近期应用内告警与通知列表 |
 
 ---
 

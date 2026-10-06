@@ -145,6 +145,9 @@ const res = await ctx.subscriptions.request('codex', '/backend-api/codex/images/
 | `/dsh-subscriptions/proxy-check` | POST | Проверка задержки прокси слота через базовый URL вендора |
 | `/dsh-subscriptions/oauth/device/start` | POST | Начать вход Codex по коду устройства (возвращает код и адрес подтверждения) |
 | `/dsh-subscriptions/oauth/device/poll` | POST | Опрос статуса авторизации по коду устройства |
+| `/dsh-subscriptions/quarantine/park` | POST | Временная парковка аккаунта в карантин (`durationMs`, `reason`) |
+| `/dsh-subscriptions/quarantine/probe` | POST | Немедленный запуск прогревочного зонда или досрочный вывод из карантина |
+| `/dsh-subscriptions/alerts` | GET | Список последних внутренних оповещений и уведомлений |
 
 ---
 
@@ -168,6 +171,12 @@ const res = await ctx.subscriptions.request('codex', '/backend-api/codex/images/
 * **Панель телеметрии сессии**: 4 карточки метрик (успешных/всего запросов, средняя задержка, процент успешности, последняя активность).
 * **Каталог моделей подписок**: Компактный список поддерживаемых моделей с размером контекста (128k, 200k, 1M) и тегами возможностей.
 * **Асинхронная история**: Неблокирующий дебаунсинг записи `HistoryStore`, исключающий просадки event loop при интенсивном стриминге.
+
+### 13. 🛡️ Управление карантином, живой обратный отсчет квот и всплывающие оповещения (v0.6.59)
+* **Ручное управление карантином (Park & Probe)**: Возможность временно отправить аккаунт в карантин (`POST /dsh-subscriptions/quarantine/park`) для обслуживания или паузы, либо запустить немедленный прогревочный микро-зонд (`vendor.check`) и моментально вывести аккаунт из карантина (`POST /dsh-subscriptions/quarantine/probe`) прямо из карточки в настройках.
+* **Динамический посекундный таймер сброса окон квот**: Интерактивный таймер в виджете сессии `SubsPill` и в карточках аккаунтов, рассчитывающий точное оставшееся время до разблокировки скользящих лимитов (`five_hour`, `seven_day`, `primary_window`).
+* **Всплывающие уведомления (Toast Alerts)**: Легковесные всплывающие тосты в веб-интерфейсе DSH при событиях карантина (с отображением причины), восстановлении доступа и критическом расходе квоты. Включение управляется параметром `enableToasts` (по умолчанию `true`).
+* **Интеграция с вебхуками**: Автоматическая отправка уведомлений через `notifyQuarantineEntered` и `notifyQuarantineReleased`.
 
 ---
 
@@ -199,6 +208,7 @@ dsh-subscriptions:
   codexVerbosity: ''        # v0.4.17: low | medium | high (text.verbosity)
   codexFastMode: false      # v0.4.17: service_tier priority (скоростной тир 1.5x)
   composerQuota: 'off'      # v0.4.18: индикатор в строке ввода: off | percent | bar | forecast
+  enableToasts: true        # v0.6.59: всплывающие уведомления при событиях карантина и квот
   # Поля слота (v0.4.9): expiresAt (ms), proxyUrl (http/https/socks5://)
   accounts:
     codex:
