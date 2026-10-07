@@ -126,6 +126,12 @@ graph LR
 * **应用内即时弹窗提醒（Toast）**：当账户进入隔离、健康恢复解除隔离或额度达到预警线时，在聊天界面弹出轻量级浮动提醒。通过 `enableToasts: true` 控制。
 * **自动化 Webhook 告警集成**：通过 `notifyQuarantineEntered` 与 `notifyQuarantineReleased` 自动向外部通知系统派发隔离生命周期事件。
 
+### Antigravity 客户端密钥架构与无感 CLI 令牌刷新 (v0.6.60)
+* **配置架构密钥字段 (`antigravityClientSecret`)**：支持用户在设置中自定义配置 Google Cloud OAuth 客户端密钥（Client Secret），公共接口自动脱敏掩码 (`••••••`)，彻底解决机密型 OAuth 客户端刷新令牌被拒的问题。
+* **CLI 令牌零配置平滑刷新**：内置官方 Gemini / Antigravity CLI 客户端的公共应用凭据 (`Google Gemini CLI Client ID` / `Google Gemini CLI Client Secret`)，使通过 `📥 从 CLI 导入` 的会话能够持久无限刷新，不再出现 1 小时后失效问题。
+* **Windows 凭据管理器自动发现**：原生支持在 `win32` 系统下自动检测 Windows 凭据管理器中的 `gemini:antigravity` 目标，直接完成 CLI 会话导入。
+* **清晰明确的错误指引**：在缺少密钥或上游凭据异常时抛出指引性错误，替代原始的 HTTP 400 提示。
+
 ### HTTP API 路由（`v0.4.9`）
 | 路由 | 方法 | 用途 |
 |---|---|---|

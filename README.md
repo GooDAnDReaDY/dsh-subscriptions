@@ -202,6 +202,12 @@ const res = await ctx.subscriptions.request('codex', '/backend-api/codex/images/
 * **In-App Toast Alerts (`enableToasts`)**: Lightweight floating toast alerts in the DSH chat interface notifying you when accounts enter quarantine, recover from cooldowns, or exceed quota safety thresholds.
 * **Automated Webhook Integration**: Instant event notifications dispatched via `notifyQuarantineEntered` and `notifyQuarantineReleased`.
 
+### 18. 🔑 Antigravity Client Secret & Resilient CLI Refresh (v0.6.60)
+* **Client Secret in Schema (`antigravityClientSecret`)**: Configure custom Google Cloud OAuth client secrets with automatic mask redaction (`••••••`), resolving token refresh rejections for confidential OAuth clients.
+* **Zero-Config CLI Token Refresh**: Bundled public application credentials for the standard Gemini / Antigravity CLI client (`Google Gemini CLI Client ID` / `Google Gemini CLI Client Secret`), ensuring imported CLI sessions keep refreshing indefinitely without dying after 1 hour.
+* **Windows Credential Manager CLI Discovery**: Native `win32` discovery for Windows Credential Manager generic target `gemini:antigravity`, enabling seamless `📥 From CLI` import on Windows.
+* **Descriptive Refresh Diagnostics**: Actionable error reporting identifying missing or invalid client credentials instead of generic upstream HTTP 400 errors.
+
 ---
 
 ## 📦 Quick Installation

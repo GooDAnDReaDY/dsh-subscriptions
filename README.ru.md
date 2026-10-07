@@ -178,6 +178,12 @@ const res = await ctx.subscriptions.request('codex', '/backend-api/codex/images/
 * **Всплывающие уведомления (Toast Alerts)**: Легковесные всплывающие тосты в веб-интерфейсе DSH при событиях карантина (с отображением причины), восстановлении доступа и критическом расходе квоты. Включение управляется параметром `enableToasts` (по умолчанию `true`).
 * **Интеграция с вебхуками**: Автоматическая отправка уведомлений через `notifyQuarantineEntered` и `notifyQuarantineReleased`.
 
+### 14. 🔑 Antigravity Client Secret и надежный refresh CLI-токенов (v0.6.60)
+* **Client Secret в схеме настроек (`antigravityClientSecret`)**: Поддержка ввода пользовательского Google Cloud OAuth Client Secret с автоматическим маскированием (`••••••`), устраняющая ошибки обновления токенов для конфиденциальных OAuth-клиентов.
+* **Бесшовный refresh сессий из CLI**: Встроенные официальные публичные учетные данные Gemini / Antigravity CLI (`Google Gemini CLI Client ID` / `Google Gemini CLI Client Secret`), предотвращающие отказ Google OAuth через 1 час после импорта через `From CLI`.
+* **Обнаружение сессий в Windows Credential Manager**: Автоматическое сканирование хранилища учетных данных Windows (цель `gemini:antigravity`), обеспечивающее импорт сессий CLI на Windows без ручного создания файлов.
+* **Понятная диагностика ошибок**: Информативные сообщения об ошибках при отсутствии Client Secret вместо сырых сетевых ответов HTTP 400 от Google.
+
 ---
 
 ## 📦 Быстрая установка

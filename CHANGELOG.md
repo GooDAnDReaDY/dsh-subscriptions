@@ -1,3 +1,16 @@
+## [0.6.60] - 2026-10-07
+
+### Fixed & Enhanced
+- **Antigravity Client Secret Configuration Schema (#515, GH #16)**:
+  - Added `antigravityClientSecret: z.string().role("secret").default("")` to `Config` schema in `lib/config-schema.js`, allowing users to enter custom Google OAuth client secrets without schemastery dropping them.
+  - Fully integrated with `publicConfig` redaction (`••••••`) and `restoreMaskedSecrets` preservation.
+- **Resilient CLI Token Refresh & Default Public Client Credentials (#515, GH #16)**:
+  - Added default public application credentials for the standard Gemini / Antigravity CLI client (`Google Gemini CLI Client ID` / `Google Gemini CLI Client Secret`) in `lib/vendors/antigravity.js` and `lib/import-auth.js`.
+  - Imported CLI sessions now refresh tokens smoothly without expiring after 1 hour or requiring manual secret input.
+  - Hardened error handling in `antigravity.js::refresh()`: replaces raw HTTP 400 errors with actionable guidance to configure `antigravityClientSecret` when client secret is required by a custom OAuth client.
+- **Windows Credential Manager CLI Discovery (#515, GH #16)**:
+  - Added Windows Credential Manager target `gemini:antigravity` inspection on `win32` platform in `lib/import-auth.js`, enabling `📥 From CLI` to discover active CLI sessions directly when `agy` stores credentials in Windows Credential Manager.
+
 ## [0.6.59] - 2026-10-06
 
 ### Added & Enhanced (Sprint 1: Quarantine Control, Quota Countdown & In-App Alerts)
