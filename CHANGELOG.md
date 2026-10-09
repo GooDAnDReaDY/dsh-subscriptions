@@ -1,3 +1,11 @@
+## [0.6.64] - 2026-10-09
+
+### Fixed (Critical Hotfix: Desktop Referer Loopback Guard)
+- **DSH Desktop Electron HTTP Forwarding Compatibility (#524)**:
+  - Fixed `isTrustedSettingsRequest` in `lib/http.js` where requests from DSH Desktop (Electron) carrying `Referer: dsh-app://app/` failed the `referer.host === host` equality check prior to loopback and connection service verification, causing all settings routes (`/config`, `/accounts`, `/oauth`, `/proxy`, `/diagnostic-wizard`) to reject with HTTP 403 Forbidden.
+  - Restricted strict `host` equality check to standard web schemes (`http:`, `https:`), allowing application schemes (`dsh-app://`) to proceed cleanly to loopback and connection service checks.
+  - Preserved fail-closed cross-site / CSRF protection for web-profile requests while restoring full functionality on DSH Desktop.
+
 ## [0.6.63] - 2026-10-09
 
 ### Added & Enhanced (Batch 3: Diagnostic Wizard & Cache-Aware Session Pin)

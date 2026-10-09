@@ -102,6 +102,7 @@ graph LR
 * **Dynamic Model Catalog & Live Quota Visualizer (#507)**: Dynamic model catalog with pool-level health calculation (individual quarantine degrades rather than disables the pool), context window badges, capability tags (`vision`, `tools`, `reasoning`, `coding`, `fast`), and live reset countdowns.
 * **Cache-Aware Session Pinning (#520)**: Retains session affinity for prompt-caching providers (Claude, Codex, Antigravity, Grok) to maximize token cache reuse while strictly releasing pins when an account enters cooldown, quarantine, or quota exhaustion.
 * **Guided Diagnostic Wizard (#519)**: Interactive step-by-step checklist verifying credentials, network/proxy connectivity, token freshness, and model catalog reachability without paid inference and with full secret redaction.
+* **Desktop Electron Compatibility (#524)**: Non-HTTP app schemes (`dsh-app://`) bypass web-only host equality checks while strictly preserving loopback socket verification and fail-closed cross-site protection.
 
 ---
 
