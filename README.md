@@ -98,6 +98,8 @@ graph LR
 * **Automatic 429 Failover**: When an account encounters a rate limit (`HTTP 429`, `RATE_LIMIT`, `QUOTA_EXCEEDED`), traffic instantly fails over to the next healthy account in the pool.
 * **Preemptive Quota Switching (`switchAtRemaining`)**: Automatically rotates to the next account before hitting zero if the rate-limit window reset is imminent.
 * **Dynamic Cooldown Calculation**: Parses upstream headers (`Retry-After`, `x-ratelimit-reset`, ISO dates, epoch timestamps) and auto-restores cooled-down accounts when their window resets.
+* **Synchronous Decision Tracing & Routing Explanation (#517)**: Real-time decision traces capture every account selection, rotation step, failure reason, and cascade fallback without post-hoc reconstruction, exposed in WebUI telemetry and diagnostics.
+* **Dynamic Model Catalog & Live Quota Visualizer (#507)**: Dynamic model catalog with pool-level health calculation (individual quarantine degrades rather than disables the pool), context window badges, capability tags (`vision`, `tools`, `reasoning`, `coding`, `fast`), and live reset countdowns.
 
 ---
 

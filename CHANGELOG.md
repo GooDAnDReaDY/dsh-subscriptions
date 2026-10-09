@@ -1,3 +1,18 @@
+## [0.6.61] - 2026-10-09
+
+### Added & Enhanced (Batch 1: Decision Traces & Dynamic Model Catalog)
+- **Rotation Decision Tracing & Routing Explanation (#517)**:
+  - Added synchronous decision tracing in account selection, rotation, streaming retry, cascade fallback, and session pinning (`pickAccountWithTrace`, `_decisionTrace`, `onDecisionTrace`).
+  - Standardized reason codes: `session_pinned`, `healthy_tier0`, `healthy_tier1`, `tier2_fallback`, `quarantine`, `cooldown`, `zero_quota`, `hard_exhausted`, `soft_exhausted`, `vip_reserved`, `tag_mismatch`, and `no_usable_account`.
+  - Zero post-hoc reconstruction: traces capture exact account state, metrics, and failure reasons at the moment decisions occur without state drift.
+  - Exposed decision history in `HistoryStore`, `GET /dsh-subscriptions/history`, `GET /dsh-subscriptions/diagnostics`, and WebUI telemetry card («🧭 Rotation & Routing Decisions»).
+- **Enriched Dynamic Model Catalog with Pool Health, Quotas & Capabilities (#507)**:
+  - Added `lib/models-catalog.js` with comprehensive capability inference (`vision`, `tools`, `reasoning`, `coding`, `fast`) and context window definitions.
+  - Pool-level health calculation: individual account quarantine degrades rather than disables the pool when healthy alternative accounts exist (`healthy`, `degraded`, `cooldown`, `quarantined`, `exhausted`, `unavailable`).
+  - Real-time pool quota percentage and live reset countdown badges.
+  - Added HTTP endpoint `GET /dsh-subscriptions/models` and enriched `configResponse` model catalog.
+  - Replaced static chip grid in plugin settings with reactive model catalog including capability tags, context window badges, and status indicators.
+
 ## [0.6.60] - 2026-10-07
 
 ### Fixed & Enhanced
