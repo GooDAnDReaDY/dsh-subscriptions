@@ -244,6 +244,10 @@ dsh-subscriptions:
   codexFastMode: false      # v0.4.17: service_tier priority (1.5x speed tier)
   composerQuota: 'off'      # v0.4.18: composer indicator: off | percent | bar | forecast
   enableToasts: true        # v0.6.59: real-time in-app toast alerts on quarantine and quota events
+  enableQueue: true         # v0.6.62: bounded concurrency queue to prevent bursts of 429 errors
+  accountMaxConcurrency: 2  # v0.6.62: max concurrent active streams per account
+  maxQueueSize: 20          # v0.6.62: max queue depth before load shedding / reject
+  queueTimeoutMs: 30000     # v0.6.62: max queue wait duration in ms before timeout
   # Per-slot fields (v0.4.9): expiresAt (ms epoch), proxyUrl (http/https/socks5://)
   accounts:
     codex:

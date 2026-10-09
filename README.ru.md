@@ -217,6 +217,10 @@ dsh-subscriptions:
   codexFastMode: false      # v0.4.17: service_tier priority (скоростной тир 1.5x)
   composerQuota: 'off'      # v0.4.18: индикатор в строке ввода: off | percent | bar | forecast
   enableToasts: true        # v0.6.59: всплывающие уведомления при событиях карантина и квот
+  enableQueue: true         # v0.6.62: ограниченная очередь параллельных запросов к аккаунту
+  accountMaxConcurrency: 2  # v0.6.62: макс. число параллельных стримов на аккаунт
+  maxQueueSize: 20          # v0.6.62: макс. глубина очереди до сброса нагрузки
+  queueTimeoutMs: 30000     # v0.6.62: таймаут ожидания слота в очереди в мс
   # Поля слота (v0.4.9): expiresAt (ms), proxyUrl (http/https/socks5://)
   accounts:
     codex:

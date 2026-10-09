@@ -126,6 +126,10 @@ graph LR
 * **手动隔离管理（暂停与预热探测）**：支持在设置面板的账户卡片中一键暂停隔离活跃账户（`POST /dsh-subscriptions/quarantine/park`），或立即触发真实上游预热微探测（`probeWarmup`）并在验证成功后即时解除隔离（`POST /dsh-subscriptions/quarantine/probe`）。
 * **动态额度重置倒计时**：在顶部会话栏 `SubsPill` 和账户卡片中秒级动态更新，精准展示滚动配额窗口（`five_hour`、`seven_day`、`primary_window`）的剩余解锁时间。
 * **应用内即时弹窗提醒（Toast）**：当账户进入隔离、健康恢复解除隔离或额度达到预警线时，在聊天界面弹出轻量级浮动提醒。通过 `enableToasts: true` 控制。
+  enableQueue: true         # v0.6.62: 账户并发请求排队与限流
+  accountMaxConcurrency: 2  # v0.6.62: 单账户最大并行活跃流
+  maxQueueSize: 20          # v0.6.62: 队列最大等待深度
+  queueTimeoutMs: 30000     # v0.6.62: 队列最大等待超时时间（毫秒）
 * **自动化 Webhook 告警集成**：通过 `notifyQuarantineEntered` 与 `notifyQuarantineReleased` 自动向外部通知系统派发隔离生命周期事件。
 
 ### Antigravity 客户端密钥架构与无感 CLI 令牌刷新 (v0.6.60)

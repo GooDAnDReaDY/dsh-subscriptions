@@ -1,3 +1,21 @@
+## [0.6.62] - 2026-10-09
+
+### Added & Enhanced (Batch 2: Analytics & Concurrency Queue)
+- **Subscription & Cache Analytics (#511)**:
+  - Added pure analytical engine `lib/analytics.js` with comprehensive caching, latency, and throughput metrics (`calculateCacheMetrics`, `calculatePerformanceMetrics`, `calculateHourlyBuckets`, `calculateAccountBreakdown`, `calculateQuotaForecast`, `calculateAnalytics`).
+  - Real-time token efficiency: cache hit rate %, prompt/completion/cached token ratios, TTFT (avg, p95, min, max), and generation speed (tokens/sec).
+  - 24-hour activity distribution histogram: hourly request density, cached tokens, and error distribution.
+  - Quota runway & depletion forecasting: burn rate per account, projected hours until exhaustion, and pre-reset depletion warnings.
+  - HTTP endpoints `GET /dsh-subscriptions/analytics` and enriched diagnostic reports.
+  - Interactive telemetry card in WebUI: cache performance overview, pure CSS 24-hour activity histogram, and quota exhaustion alert banners.
+- **Request Concurrency Queue & Overload Protection (#518)**:
+  - Added bounded concurrency queue engine `lib/concurrency-queue.js` (`ConcurrencyQueue`, `defaultConcurrencyQueue`) with per-key concurrency limits, bounded queue depth, timeout eviction, and zero-leak slot lifecycle.
+  - Integrated with streaming rotation (`streamWithRotation` in `lib/stream-rotate.js`): acquires queue slot before streaming attempt, guarantees release on completion, error, or mid-stream disconnect.
+  - Cooperative cancellation via `AbortSignal`: queued requests evict immediately on client cancel without slot leaks or lingering timeouts.
+  - Automatic load shedding & pool failover: queue overflow (`QUEUE_OVERFLOW`, HTTP 429) and timeout (`QUEUE_TIMEOUT`, HTTP 504) dynamically cascade to next available account in the pool before rejecting.
+  - Configuration settings: `enableQueue` (default true), `accountMaxConcurrency` (default 2), `maxQueueSize` (default 20), `queueTimeoutMs` (default 30000).
+  - Live queue telemetry in WebUI and HTTP endpoint `GET /dsh-subscriptions/queue`.
+
 ## [0.6.61] - 2026-10-09
 
 ### Added & Enhanced (Batch 1: Decision Traces & Dynamic Model Catalog)
