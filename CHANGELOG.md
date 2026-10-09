@@ -1,3 +1,18 @@
+## [0.6.63] - 2026-10-09
+
+### Added & Enhanced (Batch 3: Diagnostic Wizard & Cache-Aware Session Pin)
+- **Guided Diagnostic Wizard (#519)**:
+  - Added pure diagnostic analysis engine `lib/diagnostic-wizard.js` with structured step-by-step verification: credentials and expiry status, proxy and gateway configuration, token freshness and singleflight OAuth refresh, and model catalog reachability without incurring paid inference.
+  - Standardized step states (`pass`, `fail`, `warn`, `skipped`) and error codes (`MISSING_CREDENTIAL`, `EXPIRED_ACCESS_TOKEN`, `TOKEN_EXPIRED_NO_REFRESH`, `VALIDATION_REQUIRED`, `PROXY_UNREACHABLE`, `TOKEN_REVOKED`, `CATALOG_OK`).
+  - Automatic data redaction via `sanitizeDiagnosticData`: masks tokens, bearer headers, passwords, keys, and private emails across the entire report and export payloads.
+  - Added HTTP endpoint `POST /dsh-subscriptions/diagnostic-wizard` and interactive WebUI modal wizard with actionable troubleshooting advice and one-click masked report copying.
+- **Cache-Aware Session Pinning (#520)**:
+  - Upgraded session affinity engine in `lib/session-pin.js` with prompt caching awareness (`isCacheAwareProvider`, `CACHE_AWARE_PROVIDERS` for Claude, Codex, Antigravity, and Grok).
+  - Sliding TTL on active turns (`touchSessionPin`), tracking pinned hits and saved cache read tokens (`recordSessionCacheUsage`).
+  - Strict priority invariant in `lib/rotate.js`: account cooldown, quarantine, zero quota, and model incompatibility automatically release the pin with documented reason codes (`pinned_cooldown`, `pinned_quarantine`, `pinned_zero_quota`, `pinned_exhausted`, `pinned_model_mismatch`) before cascading to healthy accounts.
+  - Decision tracing captures `cache_pinned` versus `session_pinned` and displays dedicated visual affinity badge in WebUI telemetry traces.
+  - Integrated pin telemetry in `lib/diagnostics.js` (`pins: getSessionPinStats()`).
+
 ## [0.6.62] - 2026-10-09
 
 ### Added & Enhanced (Batch 2: Analytics & Concurrency Queue)

@@ -100,6 +100,8 @@ graph LR
 * **Dynamic Cooldown Calculation**: Parses upstream headers (`Retry-After`, `x-ratelimit-reset`, ISO dates, epoch timestamps) and auto-restores cooled-down accounts when their window resets.
 * **Synchronous Decision Tracing & Routing Explanation (#517)**: Real-time decision traces capture every account selection, rotation step, failure reason, and cascade fallback without post-hoc reconstruction, exposed in WebUI telemetry and diagnostics.
 * **Dynamic Model Catalog & Live Quota Visualizer (#507)**: Dynamic model catalog with pool-level health calculation (individual quarantine degrades rather than disables the pool), context window badges, capability tags (`vision`, `tools`, `reasoning`, `coding`, `fast`), and live reset countdowns.
+* **Cache-Aware Session Pinning (#520)**: Retains session affinity for prompt-caching providers (Claude, Codex, Antigravity, Grok) to maximize token cache reuse while strictly releasing pins when an account enters cooldown, quarantine, or quota exhaustion.
+* **Guided Diagnostic Wizard (#519)**: Interactive step-by-step checklist verifying credentials, network/proxy connectivity, token freshness, and model catalog reachability without paid inference and with full secret redaction.
 
 ---
 
