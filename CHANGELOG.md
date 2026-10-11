@@ -1,3 +1,12 @@
+## [0.6.68] - 2026-10-12
+
+### Fixed & Enhanced (xAI Grok RFC 8628 Device Authorization Flow)
+- **RFC 8628 Device Authorization Flow for xAI Grok (GH #17, #532)**:
+  - Implemented `deviceStart` and `devicePoll` in `lib/vendors/grok.js` using xAI's RFC 8628 device endpoints (`https://auth.x.ai/oauth2/device/code` and `https://auth.x.ai/oauth2/token` with `urn:ietf:params:oauth:grant-type:device_code`).
+  - Solves GitHub issue #17: xAI's CLI client ID (`b1a00492-073a-47ea-816f-4c329264a828`) returns a Grok Build user-code verification page without browser loopback redirection.
+  - Enabled "Device Login" button for Grok slots in `lib/client.js` and wired "Connect" to launch the device flow directly, rendering the user code, direct verification link (`https://accounts.x.ai/oauth2/device`), and background polling.
+  - Updated English and Chinese instructions in `lib/client.js`.
+
 ## [0.6.67] - 2026-10-11
 
 ### Fixed & Hardened (Claude Per-Account Billing Attribution Isolation)

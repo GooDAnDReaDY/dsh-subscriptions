@@ -132,6 +132,9 @@ graph LR
   queueTimeoutMs: 30000     # v0.6.62: 队列最大等待超时时间（毫秒）
 * **自动化 Webhook 告警集成**：通过 `notifyQuarantineEntered` 与 `notifyQuarantineReleased` 自动向外部通知系统派发隔离生命周期事件。
 
+### xAI Grok RFC 8628 设备码授权流支持 (v0.6.68)
+* **RFC 8628 设备码授权流 (GH #17, #532)**：为 xAI Grok 新增原生设备码登录授权支持。彻底解决 xAI 针对 CLI 客户端标识返回 Grok Build 验证码页面且不触发回环重定向回调导致的死锁问题。直接在槽位卡片展示用户授权码，并自动在后台轮询兑换会话令牌。
+
 ### Claude 账户级计费归因隔离与动态轮次索引 (v0.6.67)
 * **按账户隔离 `cc_turn_index` 与 `cch` (#530)**：将 Claude Code 计费归因状态（会话哈希 `cch` 与递增轮次 `cc_turn_index`）按 `accountId` 隔离在有界模块级映射表中，彻底消除 `globalThis` 跨订阅账户状态混用问题。
 * **动态计算 `cc_prompt_index` 与禁用开关**：根据多轮对话消息历史自动计算从 0 开始的 `cc_prompt_index`，并支持通过环境变量 `CLAUDE_CODE_ATTRIBUTION_HEADER=0` 或 `disableBillingHeader: true` 禁用归因头注入。
