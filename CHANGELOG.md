@@ -1,3 +1,16 @@
+## [0.6.66] - 2026-10-11
+
+### Added & Enhanced (Copilot CLI SDK Mode)
+- **Native Copilot CLI SDK Mode & Local Tool Calling (#508)**:
+  - Added native driver `lib/vendors/copilot-cli.js` supporting direct local execution via the `copilot` / `github-copilot-cli` binary.
+  - Credential reading from local environments and config files (`~/.config/github-copilot/hosts.json`, `apps.json`, `~/.config/gh/hosts.yml`, `~/.copilot-cli/config.json`, env `GITHUB_COPILOT_TOKEN`, `GH_TOKEN`).
+  - Automatic binary detection (`findCopilotCli`, `isCopilotCliAvailable`) searching configured paths, system `PATH`, and standard npm global/local directories (`~/.npm-global/bin`).
+  - Streaming execution (`streamCopilotCli`) translating CLI process stdout into canonical DSH streaming events (`block-start`, `text-delta`, `tool-call-delta`, `finish`, `usage`).
+  - Configuration options in `lib/config-schema.js`: `copilotMode` (`auto` [default], `cli`, `web`) and `copilotCliPath`.
+  - Seamless fallback invariant in `lib/vendors/copilot.js`: in `auto` mode, prefers local CLI if available and falls back smoothly to direct web/OAuth API on error; in `cli` mode, strictly enforces CLI availability with structured error codes.
+  - WebUI configuration dropdown and path input in `lib/client.js`.
+  - Diagnostics integration in `lib/diagnostics.js` (`copilotCli: copilotCliInfo()`).
+
 ## [0.6.65] - 2026-10-11
 
 ### Added & Enhanced (Batch 4: Reasoning Effort Management & Contract Matrix)

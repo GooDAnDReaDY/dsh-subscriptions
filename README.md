@@ -207,6 +207,12 @@ const res = await ctx.subscriptions.request('codex', '/backend-api/codex/images/
 * **In-App Toast Alerts (`enableToasts`)**: Lightweight floating toast alerts in the DSH chat interface notifying you when accounts enter quarantine, recover from cooldowns, or exceed quota safety thresholds.
 * **Automated Webhook Integration**: Instant event notifications dispatched via `notifyQuarantineEntered` and `notifyQuarantineReleased`.
 
+### 20. 🤖 Native Copilot CLI SDK Mode & Local Tool Calling (v0.6.66)
+* **Direct Copilot CLI Integration (#508)**: Native driver `copilot-cli.js` supporting execution via local `copilot` / `github-copilot-cli` binaries with zero network token emulation risk.
+* **Smart Mode Switching (`copilotMode`)**: Choose between `auto` (prefers local CLI with graceful web API fallback), `cli` (strict CLI SDK execution), and `web` (direct OAuth/API).
+* **Multi-Source Credential Detection**: Automatically discovers tokens from GitHub CLI (`gh hosts.yml`), Copilot config files (`hosts.json`, `apps.json`), and environment variables (`GITHUB_COPILOT_TOKEN`, `GH_TOKEN`).
+* **Full Tool-Calling & Streaming**: Seamless translation of CLI process output into real-time streaming chunks and multi-turn tool-call deltas.
+
 ### 19. 🧠 Session Reasoning Effort Management & Contract Matrix (v0.6.65)
 * **Session-Scoped Reasoning Effort Control (#505)**: Dynamically adjust reasoning effort (`low`, `medium`, `high`, `max`) or disable reasoning (`off`) per conversation session via REST endpoints (`GET`, `POST`, `DELETE /dsh-subscriptions/session-reasoning`).
 * **Model-Switch Invariant & Safety Guard**: Automatic suppression of reasoning parameters when switching from a reasoning model (e.g. `o1`) to a standard model (e.g. `gpt-4o`), avoiding upstream HTTP 400 parameter errors.
