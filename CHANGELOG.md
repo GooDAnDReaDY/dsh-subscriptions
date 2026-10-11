@@ -1,3 +1,18 @@
+## [0.6.65] - 2026-10-11
+
+### Added & Enhanced (Batch 4: Reasoning Effort Management & Contract Matrix)
+- **Session-Scoped Reasoning Effort Management (#505)**:
+  - Added pure reasoning engine `lib/reasoning-effort.js` with comprehensive vendor and model capability detection (`getModelReasoningCapabilities`), extraction (`extractReasoningOptions`), validation (`validateReasoningEffort`), session store with sliding TTL (`setSessionReasoning`, `getSessionReasoning`, `clearSessionReasoning`, `pruneSessionReasoning`, `getSessionReasoningStats`), and model-switch safety (`resolveEffectiveReasoning`).
+  - Model switch safety invariant: when a session has stored reasoning effort (e.g. `high` for `o1`), but the user switches the conversation to a non-reasoning model (e.g. `gpt-4o`), `resolveEffectiveReasoning` automatically suppresses the effort to prevent upstream APIs from rejecting the request with HTTP 400.
+  - Extended vendor coverage: Codex (`o1`, `o3`, `low/medium/high`), Claude (`claude-3-7-sonnet*`, `claude-4.6+`, adaptive thinking and token budget mapping), Antigravity/Gemini (`thinkingConfig` injection), Grok (`grok-3-mini`, `reasoning`), and Kimi (`k1.5`, `max` effort level).
+  - HTTP endpoints `GET /dsh-subscriptions/session-reasoning`, `POST /dsh-subscriptions/session-reasoning`, `DELETE /dsh-subscriptions/session-reasoning` for session-scoped override.
+  - WebUI reasoning controls in `lib/client.js`: session effort picker with model-aware badges and quick resets.
+  - Telemetry integration in `lib/diagnostics.js` (`reasoning: getSessionReasoningStats()`).
+- **Adapter Contract Matrix & Wire Protocol Guards (#521)**:
+  - Added comprehensive provider × capability matrix test suite `test/contract-matrix.test.mjs` verifying 8 providers (`codex`, `claude`, `antigravity`, `grok`, `copilot`, `cursor`, `kimi`, `ollama`) across 7 protocol capabilities (`stream`, `tools`, `reasoning`, `usage`, `caching`, `auth_errors`, `rate_limit`).
+  - Strict contract enforcement: offline deterministic wire verification ensuring protocol changes or vendor API deviations are immediately flagged before reaching production.
+  - Malformed vendor response guards: verifying corrupted SSE chunks and vendor error payloads translate cleanly into structured terminal error events without crashes or unhandled rejections.
+
 ## [0.6.64] - 2026-10-09
 
 ### Fixed (Critical Hotfix: Desktop Referer Loopback Guard)

@@ -207,6 +207,12 @@ const res = await ctx.subscriptions.request('codex', '/backend-api/codex/images/
 * **In-App Toast Alerts (`enableToasts`)**: Lightweight floating toast alerts in the DSH chat interface notifying you when accounts enter quarantine, recover from cooldowns, or exceed quota safety thresholds.
 * **Automated Webhook Integration**: Instant event notifications dispatched via `notifyQuarantineEntered` and `notifyQuarantineReleased`.
 
+### 19. 🧠 Session Reasoning Effort Management & Contract Matrix (v0.6.65)
+* **Session-Scoped Reasoning Effort Control (#505)**: Dynamically adjust reasoning effort (`low`, `medium`, `high`, `max`) or disable reasoning (`off`) per conversation session via REST endpoints (`GET`, `POST`, `DELETE /dsh-subscriptions/session-reasoning`).
+* **Model-Switch Invariant & Safety Guard**: Automatic suppression of reasoning parameters when switching from a reasoning model (e.g. `o1`) to a standard model (e.g. `gpt-4o`), avoiding upstream HTTP 400 parameter errors.
+* **Extended Multi-Vendor Capability**: Native reasoning support across Codex (`o1`, `o3`), Claude (`claude-3-7-sonnet*`, `claude-4.6+` thinking tokens & budgets), Antigravity/Gemini (`thinkingConfig`), Grok (`grok-3-mini`), and Kimi (`k1.5`).
+* **Comprehensive Adapter Contract Matrix (#521)**: Automated offline wire contract verification (`test/contract-matrix.test.mjs`) testing 8 providers across 7 wire protocol capabilities (`stream`, `tools`, `reasoning`, `usage`, `caching`, `auth_errors`, `rate_limit`).
+
 ### 18. 🔑 Antigravity Client Secret & Resilient CLI Refresh (v0.6.60)
 * **Client Secret in Schema (`antigravityClientSecret`)**: Configure custom Google Cloud OAuth client secrets with automatic mask redaction (`••••••`), resolving token refresh rejections for confidential OAuth clients.
 * **Zero-Config CLI Token Refresh**: Bundled public application credentials for the standard Gemini / Antigravity CLI client (`Google Gemini CLI Client ID` / `Google Gemini CLI Client Secret`), ensuring imported CLI sessions keep refreshing indefinitely without dying after 1 hour.

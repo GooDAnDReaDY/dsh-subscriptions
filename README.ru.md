@@ -183,6 +183,12 @@ const res = await ctx.subscriptions.request('codex', '/backend-api/codex/images/
 * **Всплывающие уведомления (Toast Alerts)**: Легковесные всплывающие тосты в веб-интерфейсе DSH при событиях карантина (с отображением причины), восстановлении доступа и критическом расходе квоты. Включение управляется параметром `enableToasts` (по умолчанию `true`).
 * **Интеграция с вебхуками**: Автоматическая отправка уведомлений через `notifyQuarantineEntered` и `notifyQuarantineReleased`.
 
+### 15. 🧠 Управление Reasoning Effort в сессии и матрица контрактов (v0.6.65)
+* **Управление глубиной рассуждений в сессии (#505)**: Динамическая настройка усилия рассуждений (`low`, `medium`, `high`, `max`) или отключение (`off`) в рамках диалога через REST API (`GET`, `POST`, `DELETE /dsh-subscriptions/session-reasoning`).
+* **Безопасность при смене модели**: Автоматическое подавление параметров рассуждений при переключении с reasoning-модели (напр. `o1`) на обычную (напр. `gpt-4o`), предотвращающее ошибки HTTP 400 от upstream API.
+* **Поддержка ведущих вендоров**: Codex (`o1`, `o3`), Claude (`claude-3-7-sonnet*`, `claude-4.6+` thinking budget), Antigravity/Gemini (`thinkingConfig`), Grok (`grok-3-mini`) и Kimi (`k1.5`).
+* **Матрица контрактных проверок адаптеров (#521)**: Тестовый набор (`test/contract-matrix.test.mjs`) для 8 провайдеров по 7 ключевым возможностям протокола (`stream`, `tools`, `reasoning`, `usage`, `caching`, `auth_errors`, `rate_limit`).
+
 ### 14. 🔑 Antigravity Client Secret и надежный refresh CLI-токенов (v0.6.60)
 * **Client Secret в схеме настроек (`antigravityClientSecret`)**: Поддержка ввода пользовательского Google Cloud OAuth Client Secret с автоматическим маскированием (`••••••`), устраняющая ошибки обновления токенов для конфиденциальных OAuth-клиентов.
 * **Бесшовный refresh сессий из CLI**: Встроенные официальные публичные учетные данные Gemini / Antigravity CLI (`Google Gemini CLI Client ID` / `Google Gemini CLI Client Secret`), предотвращающие отказ Google OAuth через 1 час после импорта через `From CLI`.
