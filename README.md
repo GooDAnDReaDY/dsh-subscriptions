@@ -207,6 +207,10 @@ const res = await ctx.subscriptions.request('codex', '/backend-api/codex/images/
 * **In-App Toast Alerts (`enableToasts`)**: Lightweight floating toast alerts in the DSH chat interface notifying you when accounts enter quarantine, recover from cooldowns, or exceed quota safety thresholds.
 * **Automated Webhook Integration**: Instant event notifications dispatched via `notifyQuarantineEntered` and `notifyQuarantineReleased`.
 
+### 21. 🛡️ Per-Account Claude Billing Attribution Isolation (v0.6.67)
+* **Per-Account `cc_turn_index` & `cch` Isolation (#530)**: Isolates Claude Code billing attribution state (`cch` session hash and `cc_turn_index` counter) per subscription account (`accountId`) in a bounded module Map instead of `globalThis`, preventing cross-account telemetry mixing in multi-account pools.
+* **Dynamic `cc_prompt_index` & Kill-Switch**: Automatically derives 0-based `cc_prompt_index` from multi-turn `messages` history and supports suppression via `CLAUDE_CODE_ATTRIBUTION_HEADER=0` or `disableBillingHeader: true`.
+
 ### 20. 🤖 Native Copilot CLI SDK Mode & Local Tool Calling (v0.6.66)
 * **Direct Copilot CLI Integration (#508)**: Native driver `copilot-cli.js` supporting execution via local `copilot` / `github-copilot-cli` binaries with zero network token emulation risk.
 * **Smart Mode Switching (`copilotMode`)**: Choose between `auto` (prefers local CLI with graceful web API fallback), `cli` (strict CLI SDK execution), and `web` (direct OAuth/API).

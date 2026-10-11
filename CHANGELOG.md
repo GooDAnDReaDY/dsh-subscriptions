@@ -1,3 +1,13 @@
+## [0.6.67] - 2026-10-11
+
+### Fixed & Hardened (Claude Per-Account Billing Attribution Isolation)
+- **Per-Account `cc_turn_index` & `cch` Isolation (#530)**:
+  - Replaced process-wide `globalThis.__DSH_CC_TURN__` and `globalThis.__DSH_CC_H__` state in `lib/vendors/claude.js` with a bounded per-account state table (`billingAccountState` Map keyed by `accountId`, capped at 256 entries with FIFO eviction).
+  - Pooled Claude subscriptions no longer share or mix `cch` session hashes or `cc_turn_index` counters across accounts; `lib/adapter.js` passes `accountId: account.id || account.ref` into `vendor.streamOnce()`.
+- **Dynamic `cc_prompt_index` Calculation & Kill-Switch Documentation (#530)**:
+  - `makeClaudeBillingHeader(cfg, context)` now computes `cc_prompt_index` dynamically from multi-turn conversation history (`Math.max(0, userTurns - 1)` in `options.messages`) or explicit `promptIndex` overrides (defaulting to `0` on single-turn prompts).
+  - Documented kill-switch semantics (`CLAUDE_CODE_ATTRIBUTION_HEADER=0` environment variable and `cfg.disableBillingHeader === true`) in `docs/design/DESIGN.md`.
+
 ## [0.6.66] - 2026-10-11
 
 ### Added & Enhanced (Copilot CLI SDK Mode)

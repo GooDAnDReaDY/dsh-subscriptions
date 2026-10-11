@@ -183,6 +183,10 @@ const res = await ctx.subscriptions.request('codex', '/backend-api/codex/images/
 * **Всплывающие уведомления (Toast Alerts)**: Легковесные всплывающие тосты в веб-интерфейсе DSH при событиях карантина (с отображением причины), восстановлении доступа и критическом расходе квоты. Включение управляется параметром `enableToasts` (по умолчанию `true`).
 * **Интеграция с вебхуками**: Автоматическая отправка уведомлений через `notifyQuarantineEntered` и `notifyQuarantineReleased`.
 
+### 17. 🛡️ Поаккаунтная изоляция атрибуции биллинга Claude (v0.6.67)
+* **Изоляция `cc_turn_index` и `cch` по `accountId` (#530)**: Состояние атрибуции Claude Code (`cch` и счётчик `cc_turn_index`) изолировано по каждому аккаунту в ограниченной таблице модуля вместо `globalThis`, что исключает смешивание телеметрии между подписками в пуле.
+* **Динамический `cc_prompt_index` и Kill-Switch**: Индекс `cc_prompt_index` автоматически вычисляется по числу пользовательских ходов в `messages`, а отключение заголовка поддерживается через `CLAUDE_CODE_ATTRIBUTION_HEADER=0` или `disableBillingHeader: true`.
+
 ### 16. 🤖 Нативный режим Copilot CLI SDK и локальный Tool Calling (v0.6.66)
 * **Прямая интеграция с Copilot CLI (#508)**: Драйвер `copilot-cli.js` для работы через локальный бинарник `copilot` / `github-copilot-cli` без риска сетевых блокировок при эмуляции токенов.
 * **Гибкие режимы работы (`copilotMode`)**: Поддержка режимов `auto` (приоритет CLI с автоматическим fallback на web-API), `cli` (строгий режим CLI SDK) и `web` (прямое подключение по OAuth/API).

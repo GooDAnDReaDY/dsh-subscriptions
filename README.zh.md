@@ -132,6 +132,10 @@ graph LR
   queueTimeoutMs: 30000     # v0.6.62: 队列最大等待超时时间（毫秒）
 * **自动化 Webhook 告警集成**：通过 `notifyQuarantineEntered` 与 `notifyQuarantineReleased` 自动向外部通知系统派发隔离生命周期事件。
 
+### Claude 账户级计费归因隔离与动态轮次索引 (v0.6.67)
+* **按账户隔离 `cc_turn_index` 与 `cch` (#530)**：将 Claude Code 计费归因状态（会话哈希 `cch` 与递增轮次 `cc_turn_index`）按 `accountId` 隔离在有界模块级映射表中，彻底消除 `globalThis` 跨订阅账户状态混用问题。
+* **动态计算 `cc_prompt_index` 与禁用开关**：根据多轮对话消息历史自动计算从 0 开始的 `cc_prompt_index`，并支持通过环境变量 `CLAUDE_CODE_ATTRIBUTION_HEADER=0` 或 `disableBillingHeader: true` 禁用归因头注入。
+
 ### Antigravity 客户端密钥架构与无感 CLI 令牌刷新 (v0.6.60)
 * **配置架构密钥字段 (`antigravityClientSecret`)**：支持用户在设置中自定义配置 Google Cloud OAuth 客户端密钥（Client Secret），公共接口自动脱敏掩码 (`••••••`)，彻底解决机密型 OAuth 客户端刷新令牌被拒的问题。
 * **CLI 令牌零配置平滑刷新**：内置官方 Gemini / Antigravity CLI 客户端的公共应用凭据 (`Google Gemini CLI Client ID` / `Google Gemini CLI Client Secret`)，使通过 `📥 从 CLI 导入` 的会话能够持久无限刷新，不再出现 1 小时后失效问题。
