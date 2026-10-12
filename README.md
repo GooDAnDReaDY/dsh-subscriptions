@@ -207,6 +207,13 @@ const res = await ctx.subscriptions.request('codex', '/backend-api/codex/images/
 * **In-App Toast Alerts (`enableToasts`)**: Lightweight floating toast alerts in the DSH chat interface notifying you when accounts enter quarantine, recover from cooldowns, or exceed quota safety thresholds.
 * **Automated Webhook Integration**: Instant event notifications dispatched via `notifyQuarantineEntered` and `notifyQuarantineReleased`.
 
+### 24. 🛡️ Resilience, Diagnostics & Fallback Enhancements (v0.6.70)
+* **Cross-Vendor Cascading Fallback & Provider Priority Ordering (#536)**: Configure fallback ordering across subscription providers with interactive reordering in WebUI.
+* **1-Click Connection Smoke Test & Latency Ping (#536)**: Test individual account connections on the spot with real-time latency badges.
+* **Live Cooldown Countdown & Availability Toasts (#536)**: Exact countdown timer for cooled-down accounts and automated toast alerts upon recovery.
+* **Proactive OAuth Token Heartbeat (#536)**: Pre-emptive background token refresh before expiry to prevent first-query latency spikes.
+* **Recent Errors Ring Buffer Inspector (#536)**: In-memory sanitized log of the last 20 runtime failures in WebUI Diagnostics.
+
 ### 23. 🧠 Antigravity Tiered Models, Tool Sentinel & Stream Resilience (v0.6.69)
 * **Gemini 3 Tool Replay Sentinel (#534)**: Injects `thoughtSignature: 'skip_thought_signature_validator'` on reconstructed tool calls, enabling reliable multi-turn tool calling without Gemini 3 validation failures.
 * **Tiered Flash Models & Thinking Levels (#534)**: Exposes Gemini 3.8 and 3.7 Flash High, Medium, and Low thinking levels with upstream `*-flash-tiered` mapping.

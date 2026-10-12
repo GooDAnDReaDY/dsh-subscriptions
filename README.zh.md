@@ -132,6 +132,13 @@ graph LR
   queueTimeoutMs: 30000     # v0.6.62: 队列最大等待超时时间（毫秒）
 * **自动化 Webhook 告警集成**：通过 `notifyQuarantineEntered` 与 `notifyQuarantineReleased` 自动向外部通知系统派发隔离生命周期事件。
 
+### 🛡️ 弹性容灾、故障诊断与跨服务商回退 (v0.6.70)
+* **跨服务商级联故障转移与优先级排序 (#536)**: 支持自定义跨服务商回退顺序，可在 WebUI 中通过 ▲/▼ 交互调整优先级。
+* **一键链路测试与延迟检测 (#536)**: 在账户列表或状态弹窗中一键发起探活并显示往返延迟。
+* **冷却倒计时与就绪通知 (#536)**: 实时展示受限账户恢复倒计时，解除冷却时自动弹出就绪通知。
+* **主动 OAuth 令牌心跳 (#536)**: 提前预刷即将过期的访问令牌，避免用户请求时产生额外等待。
+* **最近错误环形日志审查 (#536)**: 内存保存最近 20 条已脱敏的运行错误，支持在 Diagnostics 中查看与清空。
+
 ### Antigravity 分档思考模型、工具回放哨兵与流式自愈 (v0.6.69)
 * **Gemini 3 工具回放哨兵 (#534)**：在重建的工具调用中注入 `thoughtSignature: 'skip_thought_signature_validator'`，彻底解决多轮工具调用历史重放时 Gemini 3 的校验失败问题。
 * **分档 Flash 模型与思考档位 (#534)**：将 `gemini-3.8-flash-tiered` 与 `3.7` 自动解析展开为 High/Medium/Low 档位选择，并在调用时自动组装 `thinkingConfig.thinkingLevel`。

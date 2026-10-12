@@ -1,3 +1,22 @@
+## [0.6.70] - 2026-10-12
+
+### Added & Enhanced (Resilience, Diagnostics & Fallback Enhancements)
+- **Cross-Vendor Cascading Fallback & Configurable Provider Priority (#536)**:
+  - Added configurable `cascadingFallbackOrder` in `lib/config-schema.js` and wired it into `resolveFallbackVendor` (`lib/cascade.js`) and `lib/adapter-manager.js`.
+  - Added interactive provider priority reordering UI (▲/▼ buttons) in Settings WebUI.
+- **1-Click Test Connection & Latency Measurement (#536)**:
+  - Enhanced `/dsh-subscriptions/check` across all vendors to measure and return round-trip latency (`latencyMs`).
+  - Added per-account `⚡ Test` button in settings table and modal pill with live status badges (`✓ 240ms` / `✗ Error`).
+- **Live Cooldown Countdown & Availability Toasts (#536)**:
+  - Rendered exact remaining countdown (`m:ss`) for accounts in cooldown.
+  - Added in-app toast notification when an account recovers from cooldown and becomes available.
+- **Proactive OAuth Token Heartbeat (#536)**:
+  - Implemented `runProactiveHeartbeat` in `lib/index.js` to refresh expiring tokens ahead of time, preventing latency spikes on user queries.
+  - Added `POST /dsh-subscriptions/heartbeat/run` manual trigger route and heartbeat telemetry in diagnostics report.
+- **Recent Errors Ring Buffer & Inspector (#536)**:
+  - Added `ErrorRingBuffer` (`lib/error-buffer.js`) holding the 20 most recent runtime stream and API errors with PII masking.
+  - Added interactive Recent Errors Inspector in WebUI Diagnostics section with a Clear button.
+
 ## [0.6.69] - 2026-10-12
 
 ### Added & Enhanced (Antigravity Tiered Thinking Models, Tool Replay Sentinel & Stream Resilience)
