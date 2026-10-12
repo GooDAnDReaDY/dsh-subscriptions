@@ -1,3 +1,21 @@
+## [0.6.69] - 2026-10-12
+
+### Added & Enhanced (Antigravity Tiered Thinking Models, Tool Replay Sentinel & Stream Resilience)
+- **Gemini 3 Tool-Call History Replay Sentinel (#534)**:
+  - Injected `thoughtSignature: 'skip_thought_signature_validator'` on reconstructed `functionCall` blocks in `lib/messages.js`.
+  - Fixes Gemini 3.x validation errors when replaying conversation history containing prior tool results in DSH's provider-neutral format.
+- **Tiered Model Catalog & Dynamic Thinking Level Mapping (#534)**:
+  - Preserved `gemini-3.8-flash-tiered` and `gemini-3.7-flash-tiered` in `fetchAvailableModels` (`lib/code-assist.js`) despite empty upstream display names.
+  - Automatically expanded tiered models into High, Medium, and Low choices (`gemini-3.8-flash-high`, `gemini-3.8-flash-medium`, `gemini-3.8-flash-low`, etc.).
+  - Added `antigravityTieredAlias` mapping in `lib/code-assist.js` and wired `streamOnce` in `lib/vendors/antigravity.js` to dispatch the upstream `*-flash-tiered` model ID while configuring `generationConfig.thinkingConfig: { thinkingLevel }`.
+- **Stalled & Empty Stream Resilience with Auto-Retry (#534)**:
+  - Added 30s idle stream timeout (`RESPONSE_TIMEOUT_MS`) in `lib/vendors/antigravity.js` and threaded `idleTimeoutMs` into `googleStream` in `lib/wire.js`.
+  - Added `hasContent` tracking with `EMPTY_RESPONSE` error code when no content tokens are received.
+  - Implemented automatic single retry on transient stream stalls before emitting chunks.
+  - Added `TIMEOUT` and `EMPTY_RESPONSE` to `isSwitchableError` in `lib/rotate.js` for seamless multi-account pool rotation.
+- **Documentation**:
+  - Added `docs/antigravity-models-and-connectivity.md` network and model diagnostic guide.
+
 ## [0.6.68] - 2026-10-12
 
 ### Fixed & Enhanced (xAI Grok RFC 8628 Device Authorization Flow)

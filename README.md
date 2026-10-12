@@ -207,6 +207,11 @@ const res = await ctx.subscriptions.request('codex', '/backend-api/codex/images/
 * **In-App Toast Alerts (`enableToasts`)**: Lightweight floating toast alerts in the DSH chat interface notifying you when accounts enter quarantine, recover from cooldowns, or exceed quota safety thresholds.
 * **Automated Webhook Integration**: Instant event notifications dispatched via `notifyQuarantineEntered` and `notifyQuarantineReleased`.
 
+### 23. 🧠 Antigravity Tiered Models, Tool Sentinel & Stream Resilience (v0.6.69)
+* **Gemini 3 Tool Replay Sentinel (#534)**: Injects `thoughtSignature: 'skip_thought_signature_validator'` on reconstructed tool calls, enabling reliable multi-turn tool calling without Gemini 3 validation failures.
+* **Tiered Flash Models & Thinking Levels (#534)**: Exposes Gemini 3.8 and 3.7 Flash High, Medium, and Low thinking levels with upstream `*-flash-tiered` mapping.
+* **Stream Resilience & Empty Stream Retry (#534)**: Idle SSE timeout (30s), empty response detection, and transient stream retry with automatic account rotation.
+
 ### 22. ⚡ xAI Grok RFC 8628 Device Authorization Flow (v0.6.68)
 * **RFC 8628 Device Code Authorization (GH #17, #532)**: Native device authorization grant support for xAI Grok. Solves the issue where xAI presents a Grok Build user-code verification page for CLI client IDs without redirecting back to loopback callbacks. Provides direct user code display and automatic token polling.
 

@@ -132,6 +132,11 @@ graph LR
   queueTimeoutMs: 30000     # v0.6.62: 队列最大等待超时时间（毫秒）
 * **自动化 Webhook 告警集成**：通过 `notifyQuarantineEntered` 与 `notifyQuarantineReleased` 自动向外部通知系统派发隔离生命周期事件。
 
+### Antigravity 分档思考模型、工具回放哨兵与流式自愈 (v0.6.69)
+* **Gemini 3 工具回放哨兵 (#534)**：在重建的工具调用中注入 `thoughtSignature: 'skip_thought_signature_validator'`，彻底解决多轮工具调用历史重放时 Gemini 3 的校验失败问题。
+* **分档 Flash 模型与思考档位 (#534)**：将 `gemini-3.8-flash-tiered` 与 `3.7` 自动解析展开为 High/Medium/Low 档位选择，并在调用时自动组装 `thinkingConfig.thinkingLevel`。
+* **流式空响应自愈与账号轮换 (#534)**：引入 30 秒 SSE 空闲超时保护与空响应检测，在未输出前自动重试一次，失败时通过 `EMPTY_RESPONSE` / `TIMEOUT` 自动轮换至下一个可用账号。
+
 ### xAI Grok RFC 8628 设备码授权流支持 (v0.6.68)
 * **RFC 8628 设备码授权流 (GH #17, #532)**：为 xAI Grok 新增原生设备码登录授权支持。彻底解决 xAI 针对 CLI 客户端标识返回 Grok Build 验证码页面且不触发回环重定向回调导致的死锁问题。直接在槽位卡片展示用户授权码，并自动在后台轮询兑换会话令牌。
 
