@@ -207,6 +207,12 @@ const res = await ctx.subscriptions.request('codex', '/backend-api/codex/images/
 * **In-App Toast Alerts (`enableToasts`)**: Lightweight floating toast alerts in the DSH chat interface notifying you when accounts enter quarantine, recover from cooldowns, or exceed quota safety thresholds.
 * **Automated Webhook Integration**: Instant event notifications dispatched via `notifyQuarantineEntered` and `notifyQuarantineReleased`.
 
+### 25. 🩺 Vendor Auth Doctor, Latency RTT Indicator, Dynamic Model Sync & Client Bundle Relief (v0.6.72)
+* **Vendor Auth Doctor (#543)**: Intelligent classification and explanation of provider authentication and connection errors (Cloudflare 403 / Geoblock, expired tokens, revoked sessions, missing model scopes, exhausted quotas). Displays diagnostic verdict with actionable recommendations in the account card.
+* **Latency RTT Indicator & Fast Ping Probe (#542)**: Live round-trip time measurement to vendor APIs with color-coded badges (🟢 <250ms, 🟡 <750ms, 🔴 >750ms). Dedicated ping endpoint (POST /dsh-subscriptions/ping) and latency metrics in connection tests.
+* **Dynamic Model Catalog Discovery & Sync (#541)**: One-click "Sync Models" button on account cards querying live vendor /v1/models endpoints to discover newly released and subscription-specific models dynamically without waiting for plugin updates.
+* **Client Bundle Modularization & Store Limit Relief (#540)**: Reduced lib/client.js bundle size from 217.3 KiB to < 199 KiB (>57 KiB buffer below the 256 KiB DSH Store ceiling) via createElement aliasing, CSS minification, and dynamic instruction loading.
+
 ### 24. 🛡️ Resilience, Diagnostics & Fallback Enhancements (v0.6.71)
 * **Cross-Vendor Cascading Fallback & Provider Priority Ordering (#536)**: Configure fallback ordering across subscription providers with interactive reordering in WebUI.
 * **1-Click Connection Smoke Test & Latency Ping (#536)**: Test individual account connections on the spot with real-time latency badges.

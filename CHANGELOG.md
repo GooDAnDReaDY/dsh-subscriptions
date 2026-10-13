@@ -1,3 +1,18 @@
+## [0.6.72] - 2026-10-13
+
+### Added & Enhanced (Vendor Auth Doctor, Latency Ping, Model Sync & Client Modularization)
+- **Vendor Auth Doctor (#543)**:
+  - Added `lib/doctor.js` with comprehensive classification of authentication and network failures (`GEO_BLOCKED`, `TOKEN_EXPIRED`, `TOKEN_REVOKED`, `MISSING_SCOPE`, `QUOTA_EXHAUSTED`, `RATE_LIMIT`, `PROXY_ERROR`).
+  - Integrated diagnosis verdicts and actionable recommendations into test connection responses and WebUI account cards.
+- **Latency RTT Indicator & Fast Ping Probe (#542)**:
+  - Real-time round-trip latency measurement to provider APIs with colored badges (`🟢 <250ms`, `🟡 <750ms`, `🔴 >750ms`).
+  - Added dedicated `POST /dsh-subscriptions/ping` endpoint and wired latency grading into `/smoke` test responses.
+- **Dynamic Model Catalog Discovery & Sync (#541)**:
+  - Added `POST /dsh-subscriptions/accounts/sync-models` to query vendor live `/v1/models` catalogs.
+  - Added interactive "🔄 Sync Models" button on account cards to discover new models dynamically.
+- **Client Bundle Modularization & Store Limit Relief (#540)**:
+  - Reduced `lib/client.js` bundle size from 217.3 KiB to < 199 KiB (>57 KiB buffer below 256 KiB DSH Store ceiling) via `h` alias, CSS minification, and dynamic instruction loading via `/dsh-subscriptions/instructions`.
+
 ## [0.6.71] - 2026-10-13
 
 ### Added & Enhanced (Smart Balancing, Accurate Reset Clock & Soft-Failure Sentinel)
