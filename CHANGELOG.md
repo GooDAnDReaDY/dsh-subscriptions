@@ -1,3 +1,18 @@
+## [0.6.71] - 2026-10-13
+
+### Added & Enhanced (Smart Balancing, Accurate Reset Clock & Soft-Failure Sentinel)
+- **Least-Loaded Smart Balancing (Idea 3 / #538)**:
+  - Added configurable `rotationStrategy` in `lib/config-schema.js` (`round-robin`, `least-loaded`, `priority`).
+  - In `least-loaded` mode, dynamically sorts accounts by highest remaining quota percentage / lowest utilization (`lib/rotate.js`), avoiding burning out individual accounts while others sit idle.
+- **Accurate Quota Reset Clock Synchronization (Idea 8 / #538)**:
+  - Added `lib/reset-clock.js` to parse exact reset timestamps from HTTP rate-limit headers (`Retry-After`, `x-ratelimit-reset`), error bodies, text messages, and vendor rolling windows (Claude 5h, Codex 3h, Grok 2h).
+  - Wired into `lib/stream-rotate.js` to set cooldown and quarantine directly to exact reset boundary + safety buffer (+10s), preventing premature retries and unnecessary long outages.
+- **Soft-Failure & Refusal Sentinel (Idea 9 / #538)**:
+  - Added `lib/sentinel.js` to inspect initial stream output for capacity apologies and polite refusals under HTTP 200 before tokens reach client.
+  - Intercepted soft-failures mark account in degraded cooldown (5m) and automatically cascade to the next healthy account or vendor.
+- **WebUI Settings & Diagnostics Controls**:
+  - Added Balancing Strategy dropdown and Soft-Failure Sentinel toggle in settings with English and Chinese localization.
+
 ## [0.6.70] - 2026-10-12
 
 ### Added & Enhanced (Resilience, Diagnostics & Fallback Enhancements)

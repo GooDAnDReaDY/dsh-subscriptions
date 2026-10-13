@@ -207,7 +207,7 @@ const res = await ctx.subscriptions.request('codex', '/backend-api/codex/images/
 * **In-App Toast Alerts (`enableToasts`)**: Lightweight floating toast alerts in the DSH chat interface notifying you when accounts enter quarantine, recover from cooldowns, or exceed quota safety thresholds.
 * **Automated Webhook Integration**: Instant event notifications dispatched via `notifyQuarantineEntered` and `notifyQuarantineReleased`.
 
-### 24. 🛡️ Resilience, Diagnostics & Fallback Enhancements (v0.6.70)
+### 24. 🛡️ Resilience, Diagnostics & Fallback Enhancements (v0.6.71)
 * **Cross-Vendor Cascading Fallback & Provider Priority Ordering (#536)**: Configure fallback ordering across subscription providers with interactive reordering in WebUI.
 * **1-Click Connection Smoke Test & Latency Ping (#536)**: Test individual account connections on the spot with real-time latency badges.
 * **Live Cooldown Countdown & Availability Toasts (#536)**: Exact countdown timer for cooled-down accounts and automated toast alerts upon recovery.
