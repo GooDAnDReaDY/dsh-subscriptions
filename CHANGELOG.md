@@ -1,3 +1,18 @@
+## [0.6.73] - 2026-10-14
+
+### Security & Hardening (Defense-in-Depth Audit #545)
+- **OAuth Loopback Callback Path Boundary**:
+  - Replaced prefix matching (`startsWith(path)`) in `lib/loopback.js` with boundary-aware path verification (`url.pathname === path || (path.endsWith("/") ? url.pathname.startsWith(path) : url.pathname.startsWith(path + "/"))`).
+  - Off-path requests (e.g. `/auth/callback_evil`) now return HTTP 404 without consuming the one-shot OAuth slot or prematurely closing the loopback listener.
+- **Desktop Scheme (`dsh-app:`) Hardening**:
+  - Restricted allowed hosts for custom desktop protocol (`dsh-app:`) in `lib/http.js` to `app` and `localhost`.
+  - Added strict remote socket verification: `dsh-app:` requests originating from non-loopback network sockets are immediately rejected (HTTP 403) before connection service delegation.
+- **Plugin Updater Origin Verification**:
+  - Hardened `isTrustedUpdateRequest` in `lib/updater.js` to check `Sec-Fetch-Site: cross-site` and validate `Origin` against `Host` before honoring the fast-path `x-dsh-plugin-update: 1` header on loopback.
+- **Vendor Proxy Path Traversal Containment**:
+  - Added backslash containment in `lib/routes/proxy.js` (`invalid path`, HTTP 400).
+  - Verified and pinned vendor host containment in `subscriptions.request()` so vendor requests cannot escape declared vendor endpoints.
+
 ## [0.6.72] - 2026-10-13
 
 ### Added & Enhanced (Vendor Auth Doctor, Latency Ping, Model Sync & Client Modularization)
