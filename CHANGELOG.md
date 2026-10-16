@@ -1,3 +1,17 @@
+## [0.6.75] - 2026-10-16
+
+### Added & Enhanced (Issue #548 - Proactive OAuth Health Probe & Zero-Downtime Invalidation Cascade)
+- **Zero-Downtime Cascade on Mid-Flight Token Invalidation**:
+  - Enhanced `isAuthError` in `lib/rotate.js` to identify HTTP 401, `TOKEN_REVOKED`, `invalid_grant`, and remote session terminations.
+  - Transparent failover in `lib/stream-rotate.js`: when an account encounters mid-flight invalidation before output tokens are emitted, it marks the account in `SESSION_REVOKED` quarantine and immediately cascades to the next healthy account of the same vendor without breaking the chat session.
+- **Proactive OAuth Refresh Token Health Probe**:
+  - Hardened background probe loop in `lib/index.js` to proactively test refresh tokens via `store.ensureFresh` and `vendor.check`.
+  - Automatically flags expired/revoked credentials with `store.recordBroken` and `SESSION_REVOKED` quarantine before user prompts fail mid-chat.
+  - Dispatches webhook notifications via `notifySessionExpired`.
+- **Prominent Status Warning Badge & 1-Click Re-Auth**:
+  - Exposes `isRevoked` and `authWarning` in `lib/accounts.js:describeRef` and `lib/accounts-view.js`.
+  - Renders red status badge `⛔ Revoked / Expired` and inline warning banner with direct 1-click `🔄 Re-authenticate now` button in WebUI.
+
 ## [0.6.74] - 2026-10-16
 
 ### Added & Enhanced (Issue #547 - Subscription Profile Identity, In-Place Re-Auth & OAuth Scope Health Inspector)
