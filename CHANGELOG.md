@@ -1,3 +1,18 @@
+## [0.6.74] - 2026-10-16
+
+### Added & Enhanced (Issue #547 - Subscription Profile Identity, In-Place Re-Auth & OAuth Scope Health Inspector)
+- **Subscription Profile Identity**:
+  - Automatically extract and display authenticated user email, avatar/initials, and subscription plan tier (`Pro`, `Team`, `Max`, `Enterprise`, `Ultra`, etc.) on account cards.
+  - Added JWT token claims decoders in `lib/jwt.js` (`decodeJwtPayload`, `chatgptAccountId`, `emailFromToken`, `planFromToken`, `avatarFromToken`, `scopesFromToken`).
+  - Supported avatar rendering (fallback to initials circle) and email display in WebUI with full `privacyMask` protection (`pmE`).
+- **In-Place 1-Click Re-Authentication**:
+  - Dedicated re-authenticate actions for active slot refs (`REF_OAUTH_N`) that preserve existing slot metadata and credentials while refreshing OAuth authorization.
+  - Completing re-auth clears any active cooldowns, quarantines, and cached refresh failure states (`store.clearRefreshFailure`, `store.clearCooldown`, `store.recordSuccess`).
+  - Added direct inline `🔄 Re-authenticate now` button inside token refresh failure banners.
+- **OAuth Scope Health Inspector**:
+  - Added `lib/scope-inspector.js` validating granted token scopes against provider requirements (`REQUIRED_SCOPES` for Codex, Claude, Antigravity, Copilot, Grok).
+  - Displays visible warning banner (`⚠️ OAuth scope warning`) with 1-click `🔄 Re-grant scopes` button when critical vendor permissions are missing.
+
 ## [0.6.73] - 2026-10-14
 
 ### Security & Hardening (Defense-in-Depth Audit #545)
