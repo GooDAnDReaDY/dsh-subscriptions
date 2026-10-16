@@ -1,3 +1,16 @@
+## [0.6.77] - 2026-10-16
+
+### Added & Enhanced (Issue #550 - Encrypted Vault Backup/Restore & Credentials Encryption at Rest)
+- **Encrypted OAuth Vault Backup & Restore**:
+  - Export all active subscription account slots and OAuth credential blobs into an encrypted portable archive (`dsh-subscriptions-vault.enc`).
+  - Strong AES-256-GCM encryption with user passphrase and PBKDF2/scrypt key derivation.
+  - WebUI modal with 1-click file download and file upload input, allowing seamless migration across DSH instances.
+- **Credentials Encryption at Rest**:
+  - Optional encryption for local credential store on disk using master key (`DSH_SUBSCRIPTIONS_MASTER_KEY` environment variable or `config.masterKey`).
+  - Automatically encrypts sensitive token fields at rest with AES-256-GCM and transparently decrypts upon access.
+  - Exposes `isEncryptedAtRest` on accounts view and renders security status badge `🔒 Encrypted at Rest (AES-256-GCM)` in WebUI.
+  - Masks `masterKey` in public configurations.
+
 ## [0.6.76] - 2026-10-16
 
 ### Added & Enhanced (Issue #549 - Rolling Quota Window Countdown & Multi-Tenant Organization Switcher)
