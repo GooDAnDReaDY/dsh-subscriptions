@@ -1,3 +1,16 @@
+## [0.6.76] - 2026-10-16
+
+### Added & Enhanced (Issue #549 - Rolling Quota Window Countdown & Multi-Tenant Organization Switcher)
+- **Subscription Rolling Window Countdown Timer**:
+  - Exact rate-limit reset boundary resolution across vendor headers (`Retry-After`, `x-ratelimit-reset`, Anthropic rolling 5-hour window, Codex 3-hour window).
+  - Real-time countdown computation (`formatRollingCountdown`, `computeEffectiveResetAt`) displayed as `⏳ Window resets at HH:MM (in Xm · MM:SS)` with live ticking.
+  - Rendered in slot card status header and exposed in `accountsView` (`resetAt`, `resetCountdown`, `resetWindowMs`).
+- **Team & Enterprise Workspace / Organization Selector**:
+  - Automatically extract and list organizations and workspaces from OAuth tokens and profile endpoints in `lib/jwt.js` (`organizationsFromToken`) and vendor profile hooks.
+  - Multi-tenant organization switcher on account cards for ChatGPT Team/Enterprise, Claude Team/Enterprise workspaces, Google Antigravity project IDs, and Copilot enterprise organizations.
+  - Dedicated endpoint `POST /dsh-subscriptions/accounts/switch-organization` dynamically switches active organization/workspace and immediately synchronizes live provider adapters.
+  - Outgoing vendor requests include corresponding organization headers (`chatgpt-account-id`, `OpenAI-Organization`, `anthropic-organization-id`, `x-anthropic-organization`).
+
 ## [0.6.75] - 2026-10-16
 
 ### Added & Enhanced (Issue #548 - Proactive OAuth Health Probe & Zero-Downtime Invalidation Cascade)
