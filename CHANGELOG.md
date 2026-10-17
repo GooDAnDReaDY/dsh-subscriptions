@@ -1,3 +1,18 @@
+## [0.6.78] - 2026-10-17
+
+### Added & Enhanced (Issues #555 & #560 - Per-Slot Concurrency Queue & Atomic Refresh Mutex with Clock Drift Compensation)
+- **Per-Slot Concurrency Queue & Stream Throttle Guard (Issue #555)**:
+  - Added `maxConcurrency` configuration per slot in `Slot` schema, defaulting to 1 for consumer OAuth subscription safety.
+  - Updated default `accountMaxConcurrency` from 2 to 1 in plugin config to protect against 429 rate limit triggers.
+  - Preserved slot-level `maxConcurrency` during normalization, listing, and stream rotation.
+  - Real-time stream tracking exposed on accounts view (`activeStreams`, `queuedStreams`, `maxConcurrency`).
+  - Added interactive per-slot concurrency limit control (`⚡ 1`) and live badge (`⚡ N active · ⏳ M queued`) in WebUI slot cards.
+- **Atomic Token Refresh Mutex Singleflight & Clock Drift Compensation (Issue #560)**:
+  - Implemented singleflight mutex guarantee in `ensureFresh` deduplicating concurrent refresh calls for the same account into a single upstream request.
+  - Dynamic server-to-vendor clock drift compensation: parses upstream HTTP `Date` header, tracks offset in ms, and adjusts local expiry calculations accordingly.
+  - Expanded proactive refresh safety margin to 5 minutes (`300_000 ms`) with drift adjustment.
+  - Integrated transient failure backoff to protect against tight retry loops and avoid slamming vendor OAuth token endpoints.
+
 ## [0.6.77] - 2026-10-16
 
 ### Added & Enhanced (Issue #550 - Encrypted Vault Backup/Restore & Credentials Encryption at Rest)
