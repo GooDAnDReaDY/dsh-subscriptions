@@ -1,3 +1,23 @@
+## [0.6.79] - 2026-10-17
+
+### Added & Enhanced (Issues #556, #558, #559, #561 - Capabilities Matrix, Billing Cycle Notifier, Pacing Runway & Value Delivered Counter)
+- **Subscription Capability Matrix & Request Normalizer (Issue #556)**:
+  - Introspected model & subscription tier capabilities: context window limits (128K, 200K, 500K Team, 1M, 2M Ultra), thinking modes, multimodal vision, and function tools.
+  - Implemented adaptive request normalization in `lib/capabilities.js` and `streamWithRotation`: automatically clamps `maxTokens` and strips unsupported tools or reasoning parameters to prevent HTTP 400 Bad Request errors.
+  - Rendered interactive capability badges on WebUI slot cards (`[500K Context] [Adaptive Thinking] [Vision] [Tools]`).
+- **Billing Cycle Renewal Countdown & Payment Notifier (Issue #558)**:
+  - Extracted billing cycle reset timestamps from token metadata and computed human-readable renewal countdown (`📅 Renews in X days (YYYY-MM-DD)` / `📅 Renews today`).
+  - Added payment failure detector: identifies `past_due`, `unpaid`, and `payment_failed` statuses, rendering warning badge `⚠️ Payment Failed` / `⚠️ Renewal Overdue`.
+  - Dispatches automated webhook alerts 48h/24h before expiry and immediately upon billing failures via `notifyBillingAlert`.
+- **Quota Pacing Runway & Sliding Window Burn Predictor (Issue #559)**:
+  - Real-time runway duration estimator (`calculatePacingRunway`) combining sliding window velocity and remaining quota percent.
+  - Added color-coded pacing status indicators in WebUI: green `⏱️ Runway: Sustainable` / `> 2.5h`, yellow `⏱️ Runway: ~1h` (elevated), red `⏱️ Runway: < 15m` (critical).
+  - Exposed runway metrics (`runwayMs`, `runwayText`, `pacingStatus`) in `/dsh-subscriptions/analytics` and slot view.
+- **Subscription Value Delivered & API Cost Equivalent Counter (Issue #561)**:
+  - Built official token pricing registry in `lib/pricing.js` for Claude 3.7 Sonnet, GPT-4o, o1, Grok, and Gemini models.
+  - Computed monetary value delivered from prompt, completion, and cache tokens vs $20/mo flat subscription fee.
+  - Rendered ROI widget in WebUI (`📊 $64.20 (3.2x ROI)`) and included value delivered metrics in telemetry and analytics.
+
 ## [0.6.78] - 2026-10-17
 
 ### Added & Enhanced (Issues #555 & #560 - Per-Slot Concurrency Queue & Atomic Refresh Mutex with Clock Drift Compensation)
