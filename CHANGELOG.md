@@ -1,3 +1,19 @@
+## [0.6.80] - 2026-10-18
+
+### Added & Enhanced (Issues #557 & #562 - Headless Auth Helper with SSH Port Forwarding & Automated Encrypted Vault Sync)
+- **Headless Auth Helper with Auto-Generated SSH Port Forwarding & Terminal/Web QR Code (Issue #557)**:
+  - Added SSH port forwarding command generator in `lib/headless-auth.js` (`generateSshTunnelCommand`) that computes the exact copyable command (`ssh -N -L <port>:127.0.0.1:<port> user@<host>`) using actual remote port and request origin host.
+  - Implemented zero-dependency pure JavaScript QR Code generator (Byte Mode, ECC Level L, Versions 1-10) with terminal ANSI half-block rendering (`renderAsciiQr`) and inline SVG/Data URL rendering (`renderSvgQr`, `renderSvgDataUrl`).
+  - Automatically emits ASCII QR code in terminal/journal logs on device authorization flows and renders high-contrast inline QR code in WebUI modal for mobile/camera scanning.
+  - Added dedicated headless callback relay route `GET /dsh-subscriptions/oauth/headless-redirect` to complete OAuth exchanges and return postMessage/copyable code fallback.
+  - Added WebUI 1-click "Copy SSH Command" button and expandable headless tips in Connect modal.
+- **Automated Encrypted Vault Sync via WebDAV, S3, or Private Gist (Issue #562)**:
+  - Supported automated remote encrypted backup and synchronization to WebDAV (Nextcloud, ownCloud, NAS), secret GitHub/Gitea Gists, and S3-compatible object storage (AWS S3, MinIO, Cloudflare R2) using native SigV4 signing.
+  - Added `vaultSync*` configuration options in `Config` schema with automatic credential masking (`••••••`) and restoration in `publicConfig` and `restoreMaskedSecrets`.
+  - Added background periodic synchronization loop in `lib/index.js` and optional automatic push after successful OAuth logins/refreshes (`vaultSyncAutoPush`).
+  - Added management endpoints `POST /dsh-subscriptions/vault/sync/push`, `POST /dsh-subscriptions/vault/sync/pull`, and `GET /dsh-subscriptions/vault/sync/status`.
+  - Added interactive "Automated Remote Vault Sync" controls and live status in the WebUI Vault modal.
+
 ## [0.6.79] - 2026-10-17
 
 ### Added & Enhanced (Issues #556, #558, #559, #561 - Capabilities Matrix, Billing Cycle Notifier, Pacing Runway & Value Delivered Counter)
