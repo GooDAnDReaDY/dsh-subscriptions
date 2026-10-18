@@ -1,3 +1,19 @@
+## [0.6.81] - 2026-10-18
+
+### Added & Enhanced (Issue #563 - Perplexity Pro & JetBrains AI Subscription OAuth Integration)
+- **Perplexity Pro Subscription OAuth (Issue #563)**:
+  - Integrated OAuth 2.0 PKCE authentication flow for Perplexity Pro accounts (`authorizeUrl`, `exchangeCode`, `refresh`).
+  - Added discovery and catalog for official Perplexity models: `sonar-reasoning-pro` (with low/medium/high reasoning effort support), `sonar-pro`, `sonar-reasoning`, `sonar`, and `r1-1776`.
+  - Added Pro plan decoration, profile avatar, and token usage endpoint integration.
+  - Added token pricing rates in `lib/pricing.js` for value delivered calculations.
+- **JetBrains AI Assistant Subscription Integration (Issue #563)**:
+  - Direct OAuth PKCE authentication flow with JetBrains Accounts for AI Assistant subscribers.
+  - Registered official JetBrains AI models: `jb-claude-3.5-sonnet`, `jb-claude-3.7-sonnet` (with reasoning efforts), `jb-gpt-4o`, `jb-o3-mini`, and `jb-deepseek-r1`.
+  - Added user license check, license decoration, and `IntelliJ-IDEA` User-Agent forwarding.
+- **Capability Matrix & Slot Lifecycle**:
+  - Registered `perplexity` (200K context, low_med_high reasoning, tools) and `jetbrains` (200K context, budget reasoning, vision, tools) in `PROVIDER_CAPABILITIES`.
+  - Added plan badges `[Pro]` and `[AI Assistant]` in WebUI slot cards.
+
 ## [0.6.80] - 2026-10-18
 
 ### Added & Enhanced (Issues #557 & #562 - Headless Auth Helper with SSH Port Forwarding & Automated Encrypted Vault Sync)
