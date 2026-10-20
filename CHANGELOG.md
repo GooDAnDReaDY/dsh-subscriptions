@@ -1,3 +1,21 @@
+## [0.6.89] - 2026-10-20
+
+### Client and Vendor Cleanup
+- Settings navigation uses pluginNavigation.openBundle; the DOM scraper, label guessing and poll chains are removed (#624).
+- Quota bars, LED/tag thresholds, clock padding and mm:ss formatting share one set of helpers (#626).
+- The grok gRPC-web protobuf decoder and its optional credits fallback are removed; usage reads the billing JSON only (#630).
+- Built-in provider ids, display names and isProvider now come from one registry shared by refs and vendors (#632).
+- fetchWithTimeout returns the native Response; the res.json/res.text monkey-patching is removed and the request-wide AbortSignal enforces the body deadline (#633).
+
+### Deferred (closed as not planned)
+- #623 (split the 2040-line SubsSection) — architecture-only, needs an interactive UI harness.
+- #627 (five PluginCard registrations) — distinct host slots/keys required for DSH 0.1/0.2 compatibility, not duplication.
+- #629 (vendor factory for 12 OpenAI adapters) — needs per-vendor integration tests; deferred to a dedicated task.
+
+### Verification
+- Full `npm test`: 849/849 pass.
+- `dsh-plugin-preflight`: FAIL=0.
+
 ## [0.6.88] - 2026-10-20
 
 ### Reliability and Cleanup
