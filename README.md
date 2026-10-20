@@ -305,6 +305,13 @@ dsh-subscriptions:
 
 ---
 
+### Custom Providers and Host Trust
+
+- `customVendors.authUrl`, `tokenUrl` and `baseUrl` must use `https://`. Plain `http://` is accepted only for loopback hosts (`localhost`, `127.0.0.1`, `::1`).
+- Grok `baseUrl` overrides must point to `api.x.ai`, `grok.com` / `*.grok.com`, or a loopback host; other hosts are rejected with `GROK_UNTRUSTED_HOST` so bearer tokens never leave trusted xAI infrastructure.
+- The error buffer and diagnostics reports redact bearer tokens, API keys, JWTs and `key=value` credentials before storing or returning them.
+
+
 ## 🧠 Claude Adaptive Thinking & Effort (Added in v0.6.7)
 
 Supports Anthropic's adaptive thinking (`thinking: { type: "adaptive" }`) and reasoning effort steering (`output_config: { effort }`):

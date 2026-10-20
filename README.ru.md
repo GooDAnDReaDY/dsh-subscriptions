@@ -278,6 +278,13 @@ dsh-subscriptions:
 
 ---
 
+### Кастомные провайдеры и доверие хостам
+
+- `customVendors.authUrl`, `tokenUrl` и `baseUrl` обязаны использовать `https://`. Открытый `http://` допускается только для loopback-хостов (`localhost`, `127.0.0.1`, `::1`).
+- Переопределение Grok `baseUrl` должно указывать на `api.x.ai`, `grok.com` / `*.grok.com` или loopback-хост; остальные хосты отклоняются с `GROK_UNTRUSTED_HOST`, чтобы bearer-токен не покидал доверенную инфраструктуру xAI.
+- Error buffer и диагностические отчёты редактируют bearer-токены, API-ключи, JWT и `key=value`-credentials до сохранения и выдачи.
+
+
 ## 🧠 Адаптивное мышление Claude и уровни усилия (Добавлено в v0.6.7)
 
 Поддержка адаптивного мышления Anthropic (`thinking: { type: "adaptive" }`) и управления глубиной рассуждений (`output_config: { effort }`):

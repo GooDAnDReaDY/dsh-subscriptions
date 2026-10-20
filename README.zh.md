@@ -184,6 +184,13 @@ dsh plugin --profile web add @goodandready/dsh-subscriptions
 
 ---
 
+### 自定义供应商与主机信任
+
+- `customVendors.authUrl`、`tokenUrl` 和 `baseUrl` 必须使用 `https://`。明文 `http://` 仅允许用于回环主机（`localhost`、`127.0.0.1`、`::1`）。
+- Grok `baseUrl` 覆盖只能指向 `api.x.ai`、`grok.com` / `*.grok.com` 或回环主机；其他主机会以 `GROK_UNTRUSTED_HOST` 拒绝，避免 bearer 令牌离开可信的 xAI 基础设施。
+- 错误缓冲区和诊断报告会在存储或返回前脱敏 bearer 令牌、API 密钥、JWT 和 `key=value` 凭据。
+
+
 ## 🧠 Claude 自适应思考与推理深度控制 (v0.6.7 新增)
 
 支持 Anthropic 自适应思考 (`thinking: { type: "adaptive" }`) 及推理深度调节 (`output_config: { effort }`):

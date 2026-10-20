@@ -1,3 +1,29 @@
+## [0.6.82] - 2026-10-20
+
+### Security Hardening (Audit Fixes #568-#587)
+- **OAuth and token transport**:
+  - ERNIE token exchange sends client credentials in the request body instead of the URL (#568). The inference access token is tracked separately in #636.
+  - Custom vendor config objects are no longer forwarded as HTTP headers (#569).
+  - Settings `masterKey` now encrypts credentials at rest and matches `isEncryptedAtRest` (#570).
+  - Custom vendor `authUrl`/`tokenUrl`/`baseUrl` require HTTPS; plain HTTP is allowed only for loopback hosts (#571).
+- **Copilot CLI**:
+  - Model ids are validated before argv construction, preventing flag injection (#574).
+  - `stdin` EPIPE is handled without crashing the host (#583).
+- **Grok**:
+  - Bearer tokens are sent only to trusted xAI hosts (`api.x.ai`, `grok.com`/`*.grok.com`, loopback) (#575).
+  - The CLI catalog cache is capped at 32 entries and keyed by `sha256(token)` (#587).
+- **Diagnostics and OAuth state**:
+  - Error buffer, diagnostics report and wizard redact Bearer tokens, API keys, JWTs and `key=value` credentials (#578).
+  - Expired pending OAuth states are swept on start and every 60 seconds (#580).
+
+### Breaking Changes
+- Custom vendor endpoints using non-loopback `http://` must switch to `https://`.
+- Grok `baseUrl` overrides must point to `api.x.ai`, `grok.com`/`*.grok.com`, or a loopback host.
+
+### Verification
+- Full `npm test`: 792/792 pass.
+- `dsh-plugin-preflight`: FAIL=0.
+
 ## [0.6.81] - 2026-10-18
 
 ### Added & Enhanced (Issue #563 - Perplexity Pro & JetBrains AI Subscription OAuth Integration)
