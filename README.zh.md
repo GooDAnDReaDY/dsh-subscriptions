@@ -190,6 +190,7 @@ dsh plugin --profile web add @goodandready/dsh-subscriptions
 - Grok `baseUrl` 覆盖只能指向 `api.x.ai`、`grok.com` / `*.grok.com` 或回环主机；其他主机会以 `GROK_UNTRUSTED_HOST` 拒绝，避免 bearer 令牌离开可信的 xAI 基础设施。
 - Antigravity CLI 导入必须配置 `antigravityClientSecret`；内置默认值已移除。
 - `copilotCliPath` 必须指向 `copilot`、`github-copilot-cli` 或 `copilot-cli` 可执行文件；自定义包装器请重命名。
+- 凭据备份使用 `/dsh-subscriptions/vault/export` 和 `/vault/import`；旧路由 `/export`、`/import`、`/export-backup`、`/import-backup` 已移除。
 - 错误缓冲区和诊断报告会在存储或返回前脱敏 bearer 令牌、API 密钥、JWT 和 `key=value` 凭据。
 
 

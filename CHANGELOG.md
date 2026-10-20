@@ -1,3 +1,22 @@
+## [0.6.87] - 2026-10-20
+
+### Breaking Changes
+- The backup API exposes only `/dsh-subscriptions/vault/export` and `/vault/import`; the legacy `/export`, `/import`, `/export-backup` and `/import-backup` routes were removed (#599).
+
+### Reliability and UI
+- Config reload aborts stale requests and ignores out-of-order responses (#608).
+- Client state timers are tracked and cleared on unmount (#609).
+- Clipboard writes are awaited and caught (#611).
+- Added the missing cancel/quota/subs5hWindow translations (#613).
+- The proxy prefix ends with a slash, so /proxy-check keeps its own handler (#601).
+- Custom vendor ids cannot collide with built-ins (#617); invalid profiles are skipped individually (#618).
+- The updater reuses the shared request-trust policy (#634).
+- Removed no-op vendor usage()/check fields (#631).
+
+### Verification
+- Full `npm test`: 836/836 pass.
+- `dsh-plugin-preflight`: FAIL=0.
+
 ## [0.6.86] - 2026-10-20
 
 > 0.6.85 was not published to npm because the registry kept a staged-version tombstone after the first publish attempt. 0.6.86 contains the same code and is the published artifact.
