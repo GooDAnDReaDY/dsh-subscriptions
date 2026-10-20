@@ -1,4 +1,6 @@
-## [0.6.85] - 2026-10-20
+## [0.6.86] - 2026-10-20
+
+> 0.6.85 was not published to npm because the registry kept a staged-version tombstone after the first publish attempt. 0.6.86 contains the same code and is the published artifact.
 
 ### Reliability and Security
 - OAuth Connect opens its popup before the first await and keeps a fallback link; the slash command copies the URL when a popup is blocked (#595).
