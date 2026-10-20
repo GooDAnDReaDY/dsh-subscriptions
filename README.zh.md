@@ -188,6 +188,7 @@ dsh plugin --profile web add @goodandready/dsh-subscriptions
 
 - `customVendors.authUrl`、`tokenUrl` 和 `baseUrl` 必须使用 `https://`。明文 `http://` 仅允许用于回环主机（`localhost`、`127.0.0.1`、`::1`）。
 - Grok `baseUrl` 覆盖只能指向 `api.x.ai`、`grok.com` / `*.grok.com` 或回环主机；其他主机会以 `GROK_UNTRUSTED_HOST` 拒绝，避免 bearer 令牌离开可信的 xAI 基础设施。
+- Antigravity CLI 导入必须配置 `antigravityClientSecret`；内置默认值已移除。
 - 错误缓冲区和诊断报告会在存储或返回前脱敏 bearer 令牌、API 密钥、JWT 和 `key=value` 凭据。
 
 

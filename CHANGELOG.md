@@ -1,3 +1,27 @@
+## [0.6.83] - 2026-10-20
+
+### Security Hardening (Audit Batch 2)
+- **OAuth and request trust**:
+  - JetBrains and Perplexity require a real PKCE challenge and state (#576).
+  - Antigravity requires an explicit client secret; the embedded default was removed (#577).
+  - The headless redirect requires a trusted request and posts state only to a validated origin (#579).
+  - Loopback settings requests pin Host to loopback or configured hosts (#572).
+  - Sandboxed CLI discovery no longer reads the real Windows Credential Manager (#581).
+- **Imports and settings**:
+  - Imported credential blobs are validated before saving (#584).
+  - Import and vault sync pass the settings revision they read (#585).
+- **Vendors and proxy**:
+  - Copilot CLI launches `.cmd` shims on Windows (#588).
+  - Copilot stderr is capped and GitHub tokens are redacted (#589).
+  - The proxy allowlist covers all built-in providers (#600).
+
+### Breaking Changes
+- Antigravity CLI imports must configure `antigravityClientSecret`; the embedded default no longer exists.
+
+### Verification
+- Full `npm test`: 802/802 pass.
+- `dsh-plugin-preflight`: FAIL=0.
+
 ## [0.6.82] - 2026-10-20
 
 ### Security Hardening (Audit Fixes #568-#587)
