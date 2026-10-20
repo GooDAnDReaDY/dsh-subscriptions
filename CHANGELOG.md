@@ -1,4 +1,18 @@
+## [0.6.91] - 2026-10-20
+
+### Security
+- The OAuth callback trust-checks non-navigation requests; top-level provider redirects still work (#606).
+
+### Packaging
+- 0.6.90 was normalized by npm to 0.6.9 (trailing zero), so an exact 0.6.90 install does not exist and 0.6.9 sorts below 0.6.89. 0.6.91 supersedes both; do not use 0.6.90 or 0.6.9.
+
+### Verification
+- Full `npm test`: 850/850 pass.
+- `dsh-plugin-preflight`: FAIL=0.
+
 ## [0.6.90] - 2026-10-20
+
+> Packaging note: npm normalized this version to 0.6.9; it is superseded by 0.6.91.
 
 ### Security
 - The OAuth callback now trust-checks non-navigation requests: top-level provider redirects still work, but cross-site fetch/subresource attempts are rejected with 403 (#606).
