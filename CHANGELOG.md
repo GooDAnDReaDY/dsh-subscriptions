@@ -1,3 +1,25 @@
+## [0.6.84] - 2026-10-20
+
+### Security and Reliability
+- Copilot CLI paths are restricted to copilot binaries (#573, breaking).
+- Client links and images require http/https/dsh-app; data:image is allowed only for images (#586).
+- Status vendor probes are bounded by a 15s vendorFetch timeout (#582).
+- The diagnostic wizard uses canonical vendor signatures and a real proxy HEAD (#597).
+- Vault exports use the package version; imports reject future majors (#598).
+
+### Configuration and UI
+- monthlyCost and per-account maxQueueSize are part of the Slot schema; monthlyCost is editable in the slot UI (#590, #592).
+- Removed the dead INSTRUCTIONS branch (#593).
+- The device polling effect has dependencies and handles errors (#594).
+- Slot updates are functional and keyed by provider and index (#596).
+
+### Breaking Changes
+- `copilotCliPath` must point to a `copilot`, `github-copilot-cli` or `copilot-cli` binary; rename custom wrappers.
+
+### Verification
+- Full `npm test`: 813/813 pass.
+- `dsh-plugin-preflight`: FAIL=0.
+
 ## [0.6.83] - 2026-10-20
 
 ### Security Hardening (Audit Batch 2)

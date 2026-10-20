@@ -283,6 +283,7 @@ dsh-subscriptions:
 - `customVendors.authUrl`, `tokenUrl` и `baseUrl` обязаны использовать `https://`. Открытый `http://` допускается только для loopback-хостов (`localhost`, `127.0.0.1`, `::1`).
 - Переопределение Grok `baseUrl` должно указывать на `api.x.ai`, `grok.com` / `*.grok.com` или loopback-хост; остальные хосты отклоняются с `GROK_UNTRUSTED_HOST`, чтобы bearer-токен не покидал доверенную инфраструктуру xAI.
 - Импорт Antigravity CLI требует явного `antigravityClientSecret`; встроенный default удалён.
+- `copilotCliPath` должен указывать на бинарь `copilot`, `github-copilot-cli` или `copilot-cli`; кастомные обёртки переименуйте.
 - Error buffer и диагностические отчёты редактируют bearer-токены, API-ключи, JWT и `key=value`-credentials до сохранения и выдачи.
 
 

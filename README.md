@@ -310,6 +310,7 @@ dsh-subscriptions:
 - `customVendors.authUrl`, `tokenUrl` and `baseUrl` must use `https://`. Plain `http://` is accepted only for loopback hosts (`localhost`, `127.0.0.1`, `::1`).
 - Grok `baseUrl` overrides must point to `api.x.ai`, `grok.com` / `*.grok.com`, or a loopback host; other hosts are rejected with `GROK_UNTRUSTED_HOST` so bearer tokens never leave trusted xAI infrastructure.
 - Antigravity CLI imports must configure `antigravityClientSecret`; the embedded default was removed.
+- `copilotCliPath` must point to a `copilot`, `github-copilot-cli` or `copilot-cli` binary; rename custom wrappers.
 - The error buffer and diagnostics reports redact bearer tokens, API keys, JWTs and `key=value` credentials before storing or returning them.
 
 
