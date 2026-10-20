@@ -1,3 +1,21 @@
+## [0.6.85] - 2026-10-20
+
+### Reliability and Security
+- OAuth Connect opens its popup before the first await and keeps a fallback link; the slash command copies the URL when a popup is blocked (#595).
+- ERNIE access_token is URL-encoded in the v1 chat URL (#636).
+- Loopback parsing validates IPv4 octets; the updater uses the same rule (#603).
+- /logout validates provider and index before clearing a credential ref (#607).
+- /history relies on isTrustedSettingsRequest instead of re-checking Host (#602).
+- SSE parsing caps the buffer at 8 MB and enforces a 10-minute deadline (#604).
+- Claude billing fallback keys are sha256-based (#615).
+- vendor-factory rethrows 401/403 from listModels (#616).
+- Vendor error bodies are read with a 4 KB cap (#605).
+- Copilot CLI removes its abort listener and escalates to SIGKILL (#620).
+
+### Verification
+- Full `npm test`: 826/826 pass.
+- `dsh-plugin-preflight`: FAIL=0.
+
 ## [0.6.84] - 2026-10-20
 
 ### Security and Reliability
