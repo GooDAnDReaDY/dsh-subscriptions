@@ -1,3 +1,12 @@
+## [0.6.90] - 2026-10-20
+
+### Security
+- The OAuth callback now trust-checks non-navigation requests: top-level provider redirects still work, but cross-site fetch/subresource attempts are rejected with 403 (#606).
+
+### Verification
+- Full `npm test`: 850/850 pass.
+- `dsh-plugin-preflight`: FAIL=0.
+
 ## [0.6.89] - 2026-10-20
 
 ### Client and Vendor Cleanup
