@@ -1,3 +1,21 @@
+## [0.6.88] - 2026-10-20
+
+### Reliability and Cleanup
+- VIP/tags/weight/isPro are persisted in Slot and returned by listAccounts (#591).
+- Vendors return null instead of fabricated usage snapshots (#619).
+- Vendors no longer mutate the caller's credential blob (#621).
+- Outbound header values are sanitized for CRLF and non-Latin1 input (#622).
+- Removed the unused sessions service from client inject (#628).
+- Removed 43 dead translation keys, added missing lang/error/settingsError, and added a key-parity test (#635).
+- Locale detection uses the lang key instead of translated prose (#614).
+- The composer forecast uses the server analytics.forecast instead of a client EWMA (#625).
+- Plugin-settings DOM polling is generation-guarded so a new navigation cancels old chains (#610).
+- Alert, status and vault failures are surfaced instead of rendered as empty state (#612).
+
+### Verification
+- Full `npm test`: 847/847 pass.
+- `dsh-plugin-preflight`: FAIL=0.
+
 ## [0.6.87] - 2026-10-20
 
 ### Breaking Changes
