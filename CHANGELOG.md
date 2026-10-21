@@ -1,3 +1,15 @@
+## [0.7.14] - 2026-10-21
+
+### Changed
+- Settings now render as a full `settings.section` page on DSH 0.2, with the legacy `plugins.item`/row seats kept as fallback (#764).
+- All setting groups are collapsed by default; the status/action header stays visible.
+- Add provider opens a searchable modal picker instead of an inline gallery.
+- Client CSS moved to `lib/client.css` and served from `/dsh-subscriptions/client.css`; `client.js` is now 232 KB.
+
+### Verification
+- Full `npm test`: 937/937 pass.
+- `dsh-plugin-preflight`: FAIL=0.
+- Pack: 121 files, client.js 232 348 B, client.css 25 319 B.
 ## [0.7.13] - 2026-10-21
 
 ### Fixed
