@@ -1,3 +1,23 @@
+## [0.7.11] - 2026-10-21
+
+### Added
+- Per-device vault keys: stable device id, derived passphrase, device-suffixed WebDAV/Gist/S3 objects, legacy shared vault fallback (#749).
+- `dsh-subscriptions tui [--once]`: ANSI dashboard with health, accounts, sources and vault snapshots; r refresh, q quit (#750).
+- `webhookFormat: native | notify` with dsh-plugin-notify compatible `{kind,title,sessionId,summary,reason}` payloads (#751).
+
+### Verification
+- Full `npm test`: 926/926 pass.
+- `dsh-plugin-preflight`: FAIL=0.
+## [0.7.10] - 2026-10-21
+
+### Added
+- Prometheus `GET /dsh-subscriptions/metrics`: configured/usage/cooldown gauges, selected source, request and alert counters (#744).
+- Source-aware `/health`: connected accounts, key-rotation, Ollama, webhook, snapshots; `healthy|degraded` (#745).
+- `/diagnostics` includes source chain and vault snapshot stats; `doctor` prints snapshots (#746).
+
+### Verification
+- Full `npm test`: 919/919 pass.
+- `dsh-plugin-preflight`: FAIL=0.
 ## [0.7.9] - 2026-10-21
 
 ### Added

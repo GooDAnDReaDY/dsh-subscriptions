@@ -6,11 +6,12 @@ import { readFile } from 'node:fs/promises'
 export function parseArgs(argv) {
   const args = Array.isArray(argv) ? argv.slice() : []
   const command = args.shift() || 'status'
-  const options = { command, csv: false, json: false, type: 'accounts', sessionId: '', mode: 'fast', help: false, setKey: '', setValue: '', packAction: '', packFile: '', vaultAction: '', vaultArg: '' }
+  const options = { command, csv: false, json: false, once: false, type: 'accounts', sessionId: '', mode: 'fast', help: false, setKey: '', setValue: '', packAction: '', packFile: '', vaultAction: '', vaultArg: '' }
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i]
     if (arg === '--csv') options.csv = true
     else if (arg === '--json') options.json = true
+    else if (arg === '--once') options.once = true
     else if (arg === '--help' || arg === '-h') options.help = true
     else if (arg === '--type') options.type = args[++i] || 'accounts'
     else if (arg === '--session') options.sessionId = args[++i] || ''
@@ -105,6 +106,8 @@ export function formatDoctor(payload) {
   lines.push('doctor: ' + (doctorFailed(payload) ? 'degraded' : 'ok'))
   lines.push('errors: ' + errors + ' conflicts: ' + conflicts)
   lines.push('key-rotation: ' + (kr.available ? (kr.healthyKeys + '/' + kr.totalKeys + ' healthy keys') : ('unavailable' + (kr.reason ? ' (' + kr.reason + ')' : ''))))
+  const snapshots = diag.vaultSnapshots || {}
+  lines.push('snapshots: ' + (snapshots.count || 0) + ' (' + (snapshots.bytes || 0) + ' bytes)')
   for (const row of (sources.providers || [])) lines.push(row.provider + ': ' + (row.selected || 'none'))
   return lines.join('\n')
 }
@@ -121,6 +124,36 @@ export function sanitizePack(pack) {
 
 export function formatPacks(packs) {
   return JSON.stringify((Array.isArray(packs) ? packs : []).map(sanitizePack), null, 2) + '\\n'
+}
+
+export function renderTui(data, { color = false } = {}) {
+  const health = (data && data.health) || {}
+  const checks = health.checks || {}
+  const sources = (data && data.sources) || {}
+  const snapshots = (data && data.snapshots && data.snapshots.stats) || {}
+  const accounts = Array.isArray(data && data.accounts) ? data.accounts : []
+  const dim = (text) => color ? '\x1b[2m' + text + '\x1b[0m' : text
+  const green = (text) => color ? '\x1b[32m' + text + '\x1b[0m' : text
+  const red = (text) => color ? '\x1b[31m' + text + '\x1b[0m' : text
+  const lines = []
+  lines.push('DSH Subscriptions' + (health.version ? ' ' + health.version : '') + '  ' + (health.status === 'healthy' ? green('healthy') : red(health.status || 'unknown')))
+  lines.push(dim('accounts: ' + (checks.connectedAccounts || 0) + ' configured · key-rotation: ' + (checks.keyRotation ? 'yes' : 'no') + ' · ollama: ' + (checks.ollama ? 'yes' : 'no') + ' · webhook: ' + (checks.webhook ? 'yes' : 'no')))
+  lines.push('')
+  lines.push('ACCOUNTS')
+  for (const account of accounts) {
+    if (!account || !account.provider) continue
+    const usage = account.usagePercent == null ? '-' : Math.round(account.usagePercent) + '%'
+    lines.push('  ' + String(account.provider).padEnd(14) + '#' + (account.index || 1) + '  ' + (account.configured ? green('ok') : dim('off')) + '  ' + usage)
+  }
+  lines.push('')
+  lines.push('SOURCES')
+  for (const row of (sources.providers || [])) lines.push('  ' + String(row.provider).padEnd(14) + (row.selected || dim('none')))
+  lines.push('')
+  lines.push('VAULT')
+  lines.push('  snapshots: ' + (snapshots.count || 0) + ' · ' + (snapshots.bytes || 0) + ' bytes')
+  lines.push('')
+  lines.push(dim('r refresh · q quit'))
+  return lines.join('\n')
 }
 
 export function formatSnapshotStatus(payload) {
@@ -174,6 +207,21 @@ export function buildSetRequest(options, configPayload, env = process.env) {
 export async function run(argv = process.argv.slice(2), env = process.env, fetchImpl = fetch) {
   const options = parseArgs(argv)
   if (options.help) return { help: true }
+  if (options.command === 'tui') {
+    const base = String(env.DSH_SUBS_URL || 'http://127.0.0.1:3080/dsh-subscriptions').replace(/\/$/, '')
+    const headers = { Accept: 'application/json' }
+    if (env.DSH_AUTH_TOKEN) headers.Authorization = 'Bearer ' + env.DSH_AUTH_TOKEN
+    const get = (path) => fetchImpl(base + path, { method: 'GET', headers }).then(async (res) => {
+      const text = await res.text()
+      if (!res.ok) throw new Error('HTTP ' + res.status + ': ' + text.slice(0, 300))
+      return JSON.parse(text || '{}')
+    })
+    const [health, sources, snapshots, config] = await Promise.all([
+      get('/health'), get('/sources'), get('/vault/snapshots'), get('/config'),
+    ])
+    const data = { health, sources, snapshots, accounts: (config && config.accounts) || [] }
+    return { text: renderTui(data, { color: false }), tuiData: data, contentType: 'text/plain' }
+  }
   if (options.command === 'doctor') {
     const diagReq = buildRequest({ command: 'diagnostics' }, env)
     const srcReq = buildRequest({ command: 'sources' }, env)
@@ -240,12 +288,41 @@ export async function run(argv = process.argv.slice(2), env = process.env, fetch
   return { text, contentType: res.headers.get('content-type') || '' }
 }
 
+async function runTui(initial) {
+  let cleanup = () => {}
+  const paint = (data) => process.stdout.write('\x1b[2J\x1b[H' + renderTui(data, { color: true }) + '\n')
+  paint(initial)
+  const onKey = async (buf) => {
+    const key = String(buf)
+    if (key === 'q' || key === '\u0003') { cleanup(); process.exit(0) }
+    if (key === 'r') {
+      try {
+        const next = await run(['tui', '--once'])
+        if (next.tuiData) paint(next.tuiData)
+      } catch (err) { process.stdout.write('\n' + String(err && err.message || err) + '\n') }
+    }
+  }
+  if (process.stdin.isTTY && typeof process.stdin.setRawMode === 'function') {
+    process.stdin.setRawMode(true)
+    process.stdin.resume()
+    process.stdin.on('data', onKey)
+    cleanup = () => {
+      process.stdin.removeListener('data', onKey)
+      process.stdin.setRawMode(false)
+      process.stdin.pause()
+    }
+  }
+}
+
 async function main() {
-  const result = await run()
+  const argv = process.argv.slice(2)
+  const options = parseArgs(argv)
+  const result = await run(argv)
   if (result.help) {
-    process.stdout.write('Usage: dsh-subscriptions <status|usage|fast|config|set|sources|packs|vault|doctor> [options]\n  usage --csv --type accounts|calls\n  fast <session> [fast|standard]\n  config\n  set <dot.path> <value>\n  sources [--json]\n  packs\n  packs add <file.json>\n  vault snapshots | vault snapshot [label] | vault restore <id> | vault status\n  doctor [--json]\n')
+    process.stdout.write('Usage: dsh-subscriptions <status|usage|fast|config|set|sources|packs|vault|tui|doctor> [options]\n  usage --csv --type accounts|calls\n  fast <session> [fast|standard]\n  config\n  set <dot.path> <value>\n  sources [--json]\n  packs\n  packs add <file.json>\n  vault snapshots | vault snapshot [label] | vault restore <id> | vault status\n  tui [--once]\n  doctor [--json]\n')
     return
   }
+  if (result.tuiData && !options.once) { await runTui(result.tuiData); return }
   process.stdout.write(result.text.endsWith('\n') ? result.text : result.text + '\n')
   if (result.code) process.exitCode = result.code
 }
