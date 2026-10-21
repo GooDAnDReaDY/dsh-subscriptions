@@ -1,3 +1,51 @@
+## [0.7.2] - 2026-10-21
+
+### Fixed
+- Native tools declare the host-required output schema/render (#683).
+- Duplicate tool names owned by other DSH plugins no longer abort activation (#683).
+
+### Packaging
+- 0.7.0 and 0.7.1 were tagged but not published: 0.7.0 failed the tool output contract, 0.7.1 hit duplicate x_search. 0.7.2 is the first working 0.7.x npm release.
+
+### Verification
+- Full `npm test`: 869/869 pass.
+- `dsh-plugin-preflight`: FAIL=0.
+
+## [0.7.1] - 2026-10-21
+
+### Fixed
+- Native tools now declare the host-required output { schema, render }; 0.7.0 failed to activate with "tool image_generate must declare output" (#683).
+
+### Added
+- read-only /usage with accounts and calls, JSON or CSV, including quota source, age, reset and health (#687).
+- modelPlans and plan-aware picker filtering, with plan metadata on models (#690).
+- credential-free route/billing/quota-confidence report in /diagnostics (#692).
+
+### Packaging
+- 0.7.0 was tagged but never published to npm because the tool contract prevented activation. Use 0.7.1.
+
+### Verification
+- Full `npm test`: 868/868 pass.
+- `dsh-plugin-preflight`: FAIL=0.
+
+## [0.7.0] - 2026-10-21
+
+### DSH-native Parity
+- Per-model display names, hidden models, context-window overrides and reasoning defaults; session-scoped Codex Speed with /fast (#681).
+- Composer quota follows the provider of the current model and can be hidden from the status bar (#682).
+- Native tools: image_generate (saved workspace files), x_search, web_search and video_generate submit (#683).
+- Rate-limit waits use only a disclosed reset; retryAfterMs/resetAt flow to dsh-llm-retry with a bounded max wait (#684).
+- Settings show connected providers first, hide the rest behind Add provider, and expose VIP/Pro/tags/weight/queue per slot (#685).
+- Conflicting DSH subscription plugins are detected, logged and exposed in /diagnostics (#686).
+
+### Behavior changes
+- A 429 without a disclosed reset no longer parks the account for a guessed 2-24h vendor window; local backoff applies.
+- `tools` is now a required injected service for the native media tools.
+
+### Verification
+- Full `npm test`: 863/863 pass.
+- `dsh-plugin-preflight`: FAIL=0.
+
 ## [0.6.91] - 2026-10-20
 
 ### Security
