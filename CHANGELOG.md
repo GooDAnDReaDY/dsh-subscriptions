@@ -1,3 +1,18 @@
+## [0.7.6] - 2026-10-21
+
+### Added
+- Provider packs settings panel: list, paste JSON, server-side validation, revisioned save and masked export (#724).
+- Webhook URL, Webhook secret and Digest interval fields in settings (#725).
+
+### Fixed
+- Restored the expiry warning hint after the notification fields landed (#725).
+
+### Performance
+- Key-rotation status reads use a 10s TTL cache with in-flight de-duplication and an explicit bypass (#726).
+
+### Verification
+- Full `npm test`: 902/902 pass.
+- `dsh-plugin-preflight`: FAIL=0.
 ## [0.7.5] - 2026-10-21
 
 ### Fixed

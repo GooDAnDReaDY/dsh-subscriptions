@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 import process from 'node:process'
 import { pathToFileURL } from 'node:url'
+import { readFile } from 'node:fs/promises'
 
 export function parseArgs(argv) {
   const args = Array.isArray(argv) ? argv.slice() : []
   const command = args.shift() || 'status'
-  const options = { command, csv: false, json: false, type: 'accounts', sessionId: '', mode: 'fast', help: false, setKey: '', setValue: '' }
+  const options = { command, csv: false, json: false, type: 'accounts', sessionId: '', mode: 'fast', help: false, setKey: '', setValue: '', packAction: '', packFile: '' }
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i]
     if (arg === '--csv') options.csv = true
@@ -15,6 +16,8 @@ export function parseArgs(argv) {
     else if (arg === '--session') options.sessionId = args[++i] || ''
     else if (command === 'set' && !options.setKey) options.setKey = arg
     else if (command === 'set') options.setValue = arg
+    else if (command === 'packs' && arg === 'add') options.packAction = 'add'
+    else if (command === 'packs' && options.packAction === 'add' && !options.packFile) options.packFile = arg
     else if (command === 'fast' && !options.sessionId) options.sessionId = arg
     else if (command === 'fast') options.mode = arg === 'standard' || arg === 'off' ? 'standard' : 'fast'
   }
@@ -67,7 +70,58 @@ export function buildRequest(options, env = process.env) {
   }
   if (options.command === 'config') return { url: base + '/config', init: { method: 'GET', headers } }
   if (options.command === 'sources') return { url: base + '/sources', init: { method: 'GET', headers } }
+  if (options.command === 'packs') return { url: base + '/config', init: { method: 'GET', headers } }
+  if (options.command === 'diagnostics') return { url: base + '/diagnostics', init: { method: 'GET', headers } }
   throw new Error('unknown command: ' + options.command)
+}
+
+export function doctorFailed(payload) {
+  const diag = (payload && payload.diagnostics) || {}
+  const report = diag.report || {}
+  const errors = Array.isArray(report.recentErrors) ? report.recentErrors.length : 0
+  const conflicts = Array.isArray(diag.conflicts) ? diag.conflicts.length : 0
+  return errors > 0 || conflicts > 0
+}
+
+export function formatDoctor(payload) {
+  const diag = (payload && payload.diagnostics) || {}
+  const report = diag.report || {}
+  const sources = (payload && payload.sources) || {}
+  const errors = Array.isArray(report.recentErrors) ? report.recentErrors.length : 0
+  const conflicts = Array.isArray(diag.conflicts) ? diag.conflicts.length : 0
+  const kr = sources.keyRotation || {}
+  const lines = []
+  lines.push('doctor: ' + (doctorFailed(payload) ? 'degraded' : 'ok'))
+  lines.push('errors: ' + errors + ' conflicts: ' + conflicts)
+  lines.push('key-rotation: ' + (kr.available ? (kr.healthyKeys + '/' + kr.totalKeys + ' healthy keys') : ('unavailable' + (kr.reason ? ' (' + kr.reason + ')' : ''))))
+  for (const row of (sources.providers || [])) lines.push(row.provider + ': ' + (row.selected || 'none'))
+  return lines.join('\n')
+}
+
+export function sanitizePack(pack) {
+  if (!pack || typeof pack !== 'object') return pack
+  const copy = JSON.parse(JSON.stringify(pack))
+  if (copy.clientSecret) copy.clientSecret = '••••••'
+  if (copy.headers && typeof copy.headers === 'object') {
+    copy.headers = Object.fromEntries(Object.keys(copy.headers).map((key) => [key, '••••••']))
+  }
+  return copy
+}
+
+export function formatPacks(packs) {
+  return JSON.stringify((Array.isArray(packs) ? packs : []).map(sanitizePack), null, 2) + '\\n'
+}
+
+export function mergeProviderPack(packs, pack) {
+  const list = (Array.isArray(packs) ? packs : []).filter((p) => p && p.id !== pack.id)
+  return [...list, pack]
+}
+
+export function buildValidatePackRequest(pack, env = process.env) {
+  const base = String(env.DSH_SUBS_URL || 'http://127.0.0.1:3080/dsh-subscriptions').replace(/\/$/, '')
+  const headers = { Accept: 'application/json', 'Content-Type': 'application/json' }
+  if (env.DSH_AUTH_TOKEN) headers.Authorization = 'Bearer ' + env.DSH_AUTH_TOKEN
+  return { url: base + '/provider-packs/validate', init: { method: 'POST', headers, body: JSON.stringify({ pack }) } }
 }
 
 export function formatSources(payload) {
@@ -98,6 +152,41 @@ export function buildSetRequest(options, configPayload, env = process.env) {
 export async function run(argv = process.argv.slice(2), env = process.env, fetchImpl = fetch) {
   const options = parseArgs(argv)
   if (options.help) return { help: true }
+  if (options.command === 'doctor') {
+    const diagReq = buildRequest({ command: 'diagnostics' }, env)
+    const srcReq = buildRequest({ command: 'sources' }, env)
+    const [diagRes, srcRes] = await Promise.all([fetchImpl(diagReq.url, diagReq.init), fetchImpl(srcReq.url, srcReq.init)])
+    const diagText = await diagRes.text()
+    const srcText = await srcRes.text()
+    if (!diagRes.ok) throw new Error('HTTP ' + diagRes.status + ': ' + diagText.slice(0, 500))
+    if (!srcRes.ok) throw new Error('HTTP ' + srcRes.status + ': ' + srcText.slice(0, 500))
+    const payload = { diagnostics: JSON.parse(diagText || '{}'), sources: JSON.parse(srcText || '{}') }
+    return {
+      text: options.json ? JSON.stringify(payload, null, 2) + '\n' : formatDoctor(payload),
+      contentType: options.json ? 'application/json' : 'text/plain',
+      code: doctorFailed(payload) ? 1 : 0,
+    }
+  }
+  if (options.command === 'packs' && options.packAction === 'add') {
+    if (!options.packFile) throw new Error('packs add requires a JSON file')
+    const pack = JSON.parse(await readFile(options.packFile, 'utf8'))
+    const validate = buildValidatePackRequest(pack.pack || pack, env)
+    const checked = await fetchImpl(validate.url, validate.init)
+    const checkedText = await checked.text()
+    if (!checked.ok) throw new Error('invalid pack: ' + checkedText.slice(0, 500))
+    const current = await fetchImpl(buildRequest({ command: 'config' }, env).url, buildRequest({ command: 'config' }, env).init)
+    const currentText = await current.text()
+    if (!current.ok) throw new Error('HTTP ' + current.status + ': ' + currentText.slice(0, 500))
+    const payload = JSON.parse(currentText || '{}')
+    const nextConfig = Object.assign({}, payload.config, {
+      providerPacks: mergeProviderPack(payload.config && payload.config.providerPacks, pack.pack || pack),
+    })
+    const put = buildSetRequest({ setKey: 'providerPacks', setValue: JSON.stringify(nextConfig.providerPacks) }, { config: nextConfig, revision: payload.revision }, env)
+    const saved = await fetchImpl(put.url, put.init)
+    const savedText = await saved.text()
+    if (!saved.ok) throw new Error('HTTP ' + saved.status + ': ' + savedText.slice(0, 500))
+    return { text: 'saved provider pack ' + ((pack.pack && pack.pack.id) || pack.id || ''), contentType: 'text/plain' }
+  }
   let request = buildRequest(options.command === 'set' ? { ...options, command: 'config' } : options, env)
   if (options.command === 'set') {
     const current = await fetchImpl(request.url, request.init)
@@ -108,6 +197,12 @@ export async function run(argv = process.argv.slice(2), env = process.env, fetch
   const res = await fetchImpl(request.url, request.init)
   const text = await res.text()
   if (!res.ok) throw new Error('HTTP ' + res.status + ': ' + text.slice(0, 500))
+  if (options.command === 'packs' && options.packAction !== 'add') {
+    try {
+      const payload = JSON.parse(text || '{}')
+      return { text: formatPacks((payload.config && payload.config.providerPacks) || []), contentType: 'application/json' }
+    } catch { /* fall back to raw */ }
+  }
   if (options.command === 'sources' && !options.json) {
     try { return { text: formatSources(JSON.parse(text || '{}')), contentType: 'text/plain' } } catch { /* fall back to raw */ }
   }
@@ -117,10 +212,11 @@ export async function run(argv = process.argv.slice(2), env = process.env, fetch
 async function main() {
   const result = await run()
   if (result.help) {
-    process.stdout.write('Usage: dsh-subscriptions <status|usage|fast|config|set|sources> [options]\n  usage --csv --type accounts|calls\n  fast <session> [fast|standard]\n  config\n  set <dot.path> <value>\n  sources [--json]\n')
+    process.stdout.write('Usage: dsh-subscriptions <status|usage|fast|config|set|sources|packs|doctor> [options]\n  usage --csv --type accounts|calls\n  fast <session> [fast|standard]\n  config\n  set <dot.path> <value>\n  sources [--json]\n  packs\n  packs add <file.json>\n  doctor [--json]\n')
     return
   }
   process.stdout.write(result.text.endsWith('\n') ? result.text : result.text + '\n')
+  if (result.code) process.exitCode = result.code
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
