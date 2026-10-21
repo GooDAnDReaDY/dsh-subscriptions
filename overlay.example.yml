@@ -1,0 +1,8 @@
+# Headless/TUI overlay for a profile that has no web UI.
+# Usage: dsh --profile headless --patch /absolute/path/overlay.example.yml "your task"
+- id: dsh-subscriptions
+  name: '@goodandready/dsh-subscriptions'
+  config:
+    composerQuota: percent
+    composerQuotaDisplay: current
+    rotationStrategy: least-loaded

@@ -1,3 +1,19 @@
+## [0.7.3] - 2026-10-21
+
+### Added
+- DSH market metadata (bilingual name/description, category, tags, default providers) and a repeatable listing checklist (#693).
+- Data-only provider pack SDK: `normalizeVendorPack`/`registerVendorPack`, `providerPacks` config and docs; no eight-file vendor edit (#694).
+- Headless/remote `dsh-subscriptions` CLI (`status`, `usage --csv`, `fast`), overlay example and docs (#695).
+- Floating/docked quota capsule with off/docked/floating modes and pointer dragging (#688).
+- Vault v2: conflict-reporting slot merge, provider allowlist for selective sync, encrypted snapshots/restore (#691).
+- Signed (`x-dsh-signature`) and retrying webhook delivery with 24h notification digest (#696).
+
+### Changed
+- Key ownership is explicit: `dsh-key-rotation` owns API-key pools and cooldowns; this plugin owns OAuth subscriptions. No duplicate rotation (#689).
+
+### Verification
+- Full `npm test`: 880/880 pass.
+- `dsh-plugin-preflight`: FAIL=0.
 ## [0.7.2] - 2026-10-21
 
 ### Fixed
