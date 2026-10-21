@@ -1,3 +1,13 @@
+## [0.7.9] - 2026-10-21
+
+### Added
+- Durable vault snapshots at `DSH_HOME/storages/dsh-subscriptions/vault-snapshots.json` (temp+rename, 0600, corrupt-file tolerant) (#739).
+- 2MB byte budget with oldest-first eviction and `stats()` (#740).
+- Snapshot stats in `/vault/snapshots`, CLI `vault status`, and the settings panel (#741).
+
+### Verification
+- Full `npm test`: 915/915 pass.
+- `dsh-plugin-preflight`: FAIL=0.
 ## [0.7.8] - 2026-10-21
 
 ### Added

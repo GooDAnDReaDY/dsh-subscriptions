@@ -123,6 +123,11 @@ export function formatPacks(packs) {
   return JSON.stringify((Array.isArray(packs) ? packs : []).map(sanitizePack), null, 2) + '\\n'
 }
 
+export function formatSnapshotStatus(payload) {
+  const stats = (payload && payload.stats) || {}
+  return 'snapshots: ' + (stats.count || 0) + '  bytes: ' + (stats.bytes || 0) + '  path: ' + (stats.path || '-')
+}
+
 export function formatSnapshots(payload) {
   const rows = (payload && payload.snapshots) || []
   if (!rows.length) return 'no vault snapshots'
@@ -217,6 +222,7 @@ export async function run(argv = process.argv.slice(2), env = process.env, fetch
   if (options.command === 'vault' && !options.json) {
     try {
       const payload = JSON.parse(text || '{}')
+      if (options.vaultAction === 'status') return { text: formatSnapshotStatus(payload), contentType: 'text/plain' }
       if (options.vaultAction === 'snapshots' || !options.vaultAction) return { text: formatSnapshots(payload), contentType: 'text/plain' }
       if (options.vaultAction === 'snapshot') return { text: 'created ' + (payload.snapshot && payload.snapshot.id), contentType: 'text/plain' }
       if (options.vaultAction === 'restore') return { text: 'restored ' + (payload.slotCount || 0) + ' slots', contentType: 'text/plain' }
@@ -237,7 +243,7 @@ export async function run(argv = process.argv.slice(2), env = process.env, fetch
 async function main() {
   const result = await run()
   if (result.help) {
-    process.stdout.write('Usage: dsh-subscriptions <status|usage|fast|config|set|sources|packs|vault|doctor> [options]\n  usage --csv --type accounts|calls\n  fast <session> [fast|standard]\n  config\n  set <dot.path> <value>\n  sources [--json]\n  packs\n  packs add <file.json>\n  vault snapshots | vault snapshot [label] | vault restore <id>\n  doctor [--json]\n')
+    process.stdout.write('Usage: dsh-subscriptions <status|usage|fast|config|set|sources|packs|vault|doctor> [options]\n  usage --csv --type accounts|calls\n  fast <session> [fast|standard]\n  config\n  set <dot.path> <value>\n  sources [--json]\n  packs\n  packs add <file.json>\n  vault snapshots | vault snapshot [label] | vault restore <id> | vault status\n  doctor [--json]\n')
     return
   }
   process.stdout.write(result.text.endsWith('\n') ? result.text : result.text + '\n')
