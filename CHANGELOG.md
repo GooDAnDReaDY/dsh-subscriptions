@@ -1,3 +1,16 @@
+## [0.7.12] - 2026-10-21
+
+### Fixed
+- Per-device pre-pull snapshots now restore with the key recorded at capture time; legacy snapshots fall back to the base key (#754).
+- `/health` probes the actual Ollama endpoint instead of treating `ollamaFallback` as availability, and no longer performs a full account view per request (#755).
+- `/oauth/headless-info` requires same-origin/loopback and rejects non-http(s) URLs; query host/user are ignored (#756).
+- `npm run typecheck` is green and runs as part of `npm test` (#757).
+- New Sources/packs/snapshots/webhook UI strings use en/zh locale keys (#758).
+
+### Verification
+- Full `npm test`: 933/933 pass (includes typecheck).
+- `dsh-plugin-preflight`: FAIL=0.
+- `npm pack`: client.js 255 965 B (below 256 000 practical threshold).
 ## [0.7.11] - 2026-10-21
 
 ### Added
