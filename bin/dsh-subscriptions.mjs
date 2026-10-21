@@ -6,7 +6,7 @@ import { readFile } from 'node:fs/promises'
 export function parseArgs(argv) {
   const args = Array.isArray(argv) ? argv.slice() : []
   const command = args.shift() || 'status'
-  const options = { command, csv: false, json: false, type: 'accounts', sessionId: '', mode: 'fast', help: false, setKey: '', setValue: '', packAction: '', packFile: '' }
+  const options = { command, csv: false, json: false, type: 'accounts', sessionId: '', mode: 'fast', help: false, setKey: '', setValue: '', packAction: '', packFile: '', vaultAction: '', vaultArg: '' }
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i]
     if (arg === '--csv') options.csv = true
@@ -18,6 +18,8 @@ export function parseArgs(argv) {
     else if (command === 'set') options.setValue = arg
     else if (command === 'packs' && arg === 'add') options.packAction = 'add'
     else if (command === 'packs' && options.packAction === 'add' && !options.packFile) options.packFile = arg
+    else if (command === 'vault' && !options.vaultAction) options.vaultAction = arg
+    else if (command === 'vault' && !options.vaultArg) options.vaultArg = arg
     else if (command === 'fast' && !options.sessionId) options.sessionId = arg
     else if (command === 'fast') options.mode = arg === 'standard' || arg === 'off' ? 'standard' : 'fast'
   }
@@ -72,6 +74,15 @@ export function buildRequest(options, env = process.env) {
   if (options.command === 'sources') return { url: base + '/sources', init: { method: 'GET', headers } }
   if (options.command === 'packs') return { url: base + '/config', init: { method: 'GET', headers } }
   if (options.command === 'diagnostics') return { url: base + '/diagnostics', init: { method: 'GET', headers } }
+  if (options.command === 'vault') {
+    if (options.vaultAction === 'restore') {
+      return { url: base + '/vault/snapshots/restore', init: { method: 'POST', headers: { ...headers, 'Content-Type': 'application/json' }, body: JSON.stringify({ id: options.vaultArg }) } }
+    }
+    if (options.vaultAction === 'snapshot') {
+      return { url: base + '/vault/snapshots', init: { method: 'POST', headers: { ...headers, 'Content-Type': 'application/json' }, body: JSON.stringify({ label: options.vaultArg || 'manual' }) } }
+    }
+    return { url: base + '/vault/snapshots', init: { method: 'GET', headers } }
+  }
   throw new Error('unknown command: ' + options.command)
 }
 
@@ -110,6 +121,12 @@ export function sanitizePack(pack) {
 
 export function formatPacks(packs) {
   return JSON.stringify((Array.isArray(packs) ? packs : []).map(sanitizePack), null, 2) + '\\n'
+}
+
+export function formatSnapshots(payload) {
+  const rows = (payload && payload.snapshots) || []
+  if (!rows.length) return 'no vault snapshots'
+  return rows.map((s) => s.id + '  ' + s.createdAt + '  ' + (s.label || '-') + '  ' + s.slotCount + ' slots').join('\n')
 }
 
 export function mergeProviderPack(packs, pack) {
@@ -197,6 +214,14 @@ export async function run(argv = process.argv.slice(2), env = process.env, fetch
   const res = await fetchImpl(request.url, request.init)
   const text = await res.text()
   if (!res.ok) throw new Error('HTTP ' + res.status + ': ' + text.slice(0, 500))
+  if (options.command === 'vault' && !options.json) {
+    try {
+      const payload = JSON.parse(text || '{}')
+      if (options.vaultAction === 'snapshots' || !options.vaultAction) return { text: formatSnapshots(payload), contentType: 'text/plain' }
+      if (options.vaultAction === 'snapshot') return { text: 'created ' + (payload.snapshot && payload.snapshot.id), contentType: 'text/plain' }
+      if (options.vaultAction === 'restore') return { text: 'restored ' + (payload.slotCount || 0) + ' slots', contentType: 'text/plain' }
+    } catch { /* fall back to raw */ }
+  }
   if (options.command === 'packs' && options.packAction !== 'add') {
     try {
       const payload = JSON.parse(text || '{}')
@@ -212,7 +237,7 @@ export async function run(argv = process.argv.slice(2), env = process.env, fetch
 async function main() {
   const result = await run()
   if (result.help) {
-    process.stdout.write('Usage: dsh-subscriptions <status|usage|fast|config|set|sources|packs|doctor> [options]\n  usage --csv --type accounts|calls\n  fast <session> [fast|standard]\n  config\n  set <dot.path> <value>\n  sources [--json]\n  packs\n  packs add <file.json>\n  doctor [--json]\n')
+    process.stdout.write('Usage: dsh-subscriptions <status|usage|fast|config|set|sources|packs|vault|doctor> [options]\n  usage --csv --type accounts|calls\n  fast <session> [fast|standard]\n  config\n  set <dot.path> <value>\n  sources [--json]\n  packs\n  packs add <file.json>\n  vault snapshots | vault snapshot [label] | vault restore <id>\n  doctor [--json]\n')
     return
   }
   process.stdout.write(result.text.endsWith('\n') ? result.text : result.text + '\n')

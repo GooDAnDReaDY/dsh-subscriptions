@@ -1,3 +1,14 @@
+## [0.7.8] - 2026-10-21
+
+### Added
+- Bounded encrypted vault snapshot store; every pull captures a `pre-pull` snapshot (#734).
+- GET/POST `/vault/snapshots` and POST `/vault/snapshots/restore` with revision/CAS (#735).
+- CLI `vault snapshots`, `vault snapshot [label]`, `vault restore <id>` (#735).
+- Vault snapshots settings panel with create/restore (#736).
+
+### Verification
+- Full `npm test`: 912/912 pass.
+- `dsh-plugin-preflight`: FAIL=0.
 ## [0.7.7] - 2026-10-21
 
 ### Security
