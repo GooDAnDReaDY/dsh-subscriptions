@@ -1,3 +1,12 @@
+## [0.7.13] - 2026-10-21
+
+### Fixed
+- Add provider gallery: clicking ChatGPT Codex (or any hidden provider) now immediately reveals its slot and Connect button instead of silently adding an invisible blank slot (#761).
+
+### Verification
+- Full `npm test`: 934/934 pass.
+- `dsh-plugin-preflight`: FAIL=0.
+- client.js 255 985 B.
 ## [0.7.12] - 2026-10-21
 
 ### Fixed
