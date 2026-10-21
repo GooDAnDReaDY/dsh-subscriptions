@@ -1,3 +1,15 @@
+## [0.7.7] - 2026-10-21
+
+### Security
+- Webhook URLs reject userinfo, non-http(s) schemes and loopback/private/link-local/CGNAT hosts by default; `webhookAllowPrivate` is the explicit opt-in (#729).
+
+### Added
+- POST `/dsh-subscriptions/webhook/test` and a Send test button with delivered/failed feedback (#730).
+- Quota widget candidate popover: source availability, cooldown and healthy-key counts, plus Open settings (#731).
+
+### Verification
+- Full `npm test`: 907/907 pass.
+- `dsh-plugin-preflight`: FAIL=0.
 ## [0.7.6] - 2026-10-21
 
 ### Added
