@@ -1,3 +1,26 @@
+## [0.7.5] - 2026-10-21
+
+### Fixed
+- `/dsh-subscriptions/sources` read a non-existent `hasToken` field, so every OAuth account was reported unavailable and no source was selected. It now reads `configured` (#709, #716).
+
+### Verification
+- Full `npm test`: 892/892 pass.
+- `dsh-plugin-preflight`: FAIL=0.
+## [0.7.4] - 2026-10-21
+
+### Added
+- Read-only `dsh-key-rotation` bridge and `GET /dsh-subscriptions/sources`: OAuth → API key → Ollama, health/cooldown, no key values and no duplicate rotation (#709).
+- Sources panel in Subscriptions settings (#713).
+- `sources` CLI command with `--json` (#714).
+- Source badge in the floating/docked quota widget (#715).
+- `config` and `set <dot.path> <value>` CLI commands with revision/CAS (#710).
+
+### Fixed
+- Floating quota widget now persists its position across reloads (#711).
+
+### Verification
+- Full `npm test`: 891/891 pass.
+- `dsh-plugin-preflight`: FAIL=0.
 ## [0.7.3] - 2026-10-21
 
 ### Added
