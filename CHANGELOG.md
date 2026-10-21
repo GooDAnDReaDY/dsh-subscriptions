@@ -1,3 +1,12 @@
+## [0.7.15] - 2026-10-21
+
+### Changed
+- Settings split into Overview / Accounts / Routing / Models / Vault / Notifications / Advanced panes (#767).
+- The overloaded groupRotation was split into display, sources, packs, vault and notification groups; header, Add provider, picker and save footer stay visible on every tab.
+
+### Verification
+- Full `npm test`: 938/938 pass.
+- `dsh-plugin-preflight`: FAIL=0.
 ## [0.7.14] - 2026-10-21
 
 ### Changed
