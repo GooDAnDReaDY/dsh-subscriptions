@@ -1,3 +1,14 @@
+## [0.7.17] - 2026-10-22
+
+### Fixed
+- Status header now localizes the host-latency text instead of hardcoding `Host online (... ms)`.
+- Provider count now uses the localized `subsPoolTitle` label instead of `Pool: N accounts`.
+- Russian UI remaining labels are covered by `dsh-russian-lang` 0.4.5 (`subsLogged`, `runSmoke`).
+
+### Verification
+- Full `npm test` pass; `dsh-plugin-preflight` FAIL=0.
+- WEB 111 and Desktop updated to 0.7.17.
+
 ## [0.7.16] - 2026-10-21
 
 ### Fixed
