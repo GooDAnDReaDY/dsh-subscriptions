@@ -1,3 +1,13 @@
+## [0.7.16] - 2026-10-21
+
+### Fixed
+- Settings tabs now filter panes correctly: `data-tab` is on the real root, nested groups are filtered, and Overview/Accounts hide the settings container (#770).
+- Peer ranges accept DSH `0.2.1-rc.2` for credentials, host-webserver, llm and settings (#771).
+
+### Verification
+- Full `npm test`: 939/939 pass.
+- `dsh-plugin-preflight`: FAIL=0.
+- WEB 111 and Desktop both on DSH 0.2.1-rc.2; health/CSS verified.
 ## [0.7.15] - 2026-10-21
 
 ### Changed
