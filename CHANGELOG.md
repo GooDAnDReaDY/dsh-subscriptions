@@ -1,3 +1,13 @@
+## [0.7.18] - 2026-10-22
+
+### Fixed
+- **#18**: subscription-native `image_generate`, `x_search`, `web_search` and `video_generate` are now **opt-in** (`nativeTools: true` or `DSH_SUBSCRIPTIONS_NATIVE_TOOLS=1`). They no longer shadow required builtin tools during boot, so `dsh-image-generation` cannot abort startup.
+- Registration now also skips names already present in `ctx.tools` before calling `register`.
+
+### Verification
+- Full `npm test`: 941/941.
+- `dsh-plugin-preflight`: FAIL=0.
+
 ## [0.7.17] - 2026-10-22
 
 ### Fixed
