@@ -251,6 +251,26 @@ dsh plugin --profile web add @goodandready/dsh-subscriptions
 
 ---
 
+## 🔌 HTTP API
+
+插件在 DSH Web 服务器上注册以下精确路由。除非另有说明，仅接受同源或 loopback 请求；写入请求必须携带与 Host 匹配的 `Origin` 或 `Referer`（#782）。除特别说明外返回 JSON。
+
+| 方法 | 路径 | 用途 |
+|---|---|---|
+| GET | `/dsh-subscriptions/usage?type=accounts\|calls&format=json\|csv` | 面向外部配额插件的额度快照与调用账本（#687）。 |
+| GET | `/dsh-subscriptions/instructions` | 动态供应商接入说明（#540）。 |
+| GET | `/dsh-subscriptions/metrics` | Prometheus 文本指标（#744）；仅 loopback 或同源。 |
+| GET | `/dsh-subscriptions/health` | 供监控使用的深度健康报告（#745）；公开 GET。 |
+| GET | `/dsh-subscriptions/models` | 当前订阅的增强模型目录。 |
+| POST | `/dsh-subscriptions/heartbeat/run` | 触发一次额度/健康刷新；返回 `{ok, refreshed}`。 |
+| GET | `/dsh-subscriptions/discover-local` | 发现可导入的本地 CLI 会话。 |
+| GET | `/dsh-subscriptions/subscriptions` | 仅限 localhost 的 HTML 订阅概览。 |
+| GET | `/dsh-subscriptions/session-reasoning?sessionId=…&provider=…&model=…` | 读取会话的 reasoning effort 与模型能力。 |
+| POST | `/dsh-subscriptions/session-reasoning` | 设置 `{sessionId, provider, model, effort, budgetTokens}`。 |
+| DELETE | `/dsh-subscriptions/session-reasoning?sessionId=…` | 清除会话 reasoning 覆盖。 |
+
+`/discover-local` 与 `/subscriptions` 保留为受支持的 API/UI 接口（决策记录于 `docs/design/DESIGN.md`）。
+
 ## 🌐 本地化
 
 插件源语言仅为英语。俄语及其他翻译由独立的语言插件（如俄化插件）在运行时对注册的本地化键进行翻译，包本身不内置翻译（Changed in 0.6.1）。

@@ -1,3 +1,23 @@
+## [0.7.19] - 2026-10-22
+
+### Security
+- **#782**: every mutating route now requires an explicit `Origin` or `Referer` matching `Host`; a loopback socket alone is no longer trusted, closing the LAN/Tailscale bridge write path.
+
+### Fixed
+- **#776**: one `numberOrNull` (null/undefined/empty string -> null); missing quota values no longer become 0% or 100%.
+- **#777**: #322 tests keep the event loop alive, loopback tests use ephemeral ports, SSE #450 timing has a parallel-safe margin.
+- **#778**: `npm test` now fails when any packed file exceeds 262 144 B and warns above 256 000 B.
+- **#780**: DESIGN.md marks the 2026-09-10 settings decision as superseded by 2026-10-21.
+- **#781**: removed `pnpm-lock.yaml`, synced the legacy DEV root, and removed test-only exports from production modules.
+
+### Docs
+- **#779**: documented all external HTTP API routes in README.md, README.ru.md and README.zh.md.
+
+### Verification
+- `npm test`: 945/945, cancelled 0.
+- Four concurrent `npm test` runs: all exit 0.
+- `dsh-plugin-preflight`: FAIL=0, no dead-export warning.
+
 ## [0.7.18] - 2026-10-22
 
 ### Fixed

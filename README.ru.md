@@ -345,6 +345,26 @@ dsh-subscriptions:
 
 ---
 
+## 🔌 HTTP API
+
+Плагин регистрирует на веб-сервере DSH следующие точные маршруты. Если не указано иное, они принимают same-origin или loopback-запросы; изменяющие запросы обязаны содержать `Origin` или `Referer`, совпадающий с хостом (#782). Ответы — JSON, если не указано иное.
+
+| Метод | Путь | Назначение |
+|---|---|---|
+| GET | `/dsh-subscriptions/usage?type=accounts\|calls&format=json\|csv` | Снимок квоты и журнал вызовов для внешних плагинов квот (#687). |
+| GET | `/dsh-subscriptions/instructions` | Динамические инструкции по подключению вендоров (#540). |
+| GET | `/dsh-subscriptions/metrics` | Prometheus text exposition (#744); только loopback или same-origin. |
+| GET | `/dsh-subscriptions/health` | Подробный отчёт здоровья для мониторинга (#745); публичный GET. |
+| GET | `/dsh-subscriptions/models` | Обогащённый каталог моделей активных подписок. |
+| POST | `/dsh-subscriptions/heartbeat/run` | Запустить одно обновление квот/здоровья; возвращает `{ok, refreshed}`. |
+| GET | `/dsh-subscriptions/discover-local` | Найти локально установленные CLI-сессии для импорта. |
+| GET | `/dsh-subscriptions/subscriptions` | HTML-обзор подписок только с localhost. |
+| GET | `/dsh-subscriptions/session-reasoning?sessionId=…&provider=…&model=…` | Прочитать reasoning effort и возможности модели для сессии. |
+| POST | `/dsh-subscriptions/session-reasoning` | Установить `{sessionId, provider, model, effort, budgetTokens}`. |
+| DELETE | `/dsh-subscriptions/session-reasoning?sessionId=…` | Сбросить переопределение reasoning для сессии. |
+
+`/discover-local` и `/subscriptions` сохранены как поддерживаемые API/UI-поверхности (решение записано в `docs/design/DESIGN.md`).
+
 ## 🌐 Локализация
 
 Исходный язык плагина - только английский. Русский и другие переводы во время работы предоставляют отдельные языковые плагины (например, плагин русификации), переводящие зарегистрированные ключи локали, - сам пакет не содержит встроенных переводов (Changed in 0.6.1).

@@ -372,6 +372,26 @@ Supports Anthropic's adaptive thinking (`thinking: { type: "adaptive" }`) and re
 
 ---
 
+## 🔌 HTTP API
+
+The plugin registers these exact routes on the DSH web server. Unless noted, they accept same-origin or loopback requests; mutating requests must carry `Origin` or `Referer` matching the host (#782). Responses are JSON unless noted.
+
+| Method | Path | Purpose |
+|---|---|---|
+| GET | `/dsh-subscriptions/usage?type=accounts\|calls&format=json\|csv` | Quota snapshot and per-call ledger for external quota plugins (#687). |
+| GET | `/dsh-subscriptions/instructions` | Dynamic vendor connection instructions (#540). |
+| GET | `/dsh-subscriptions/metrics` | Prometheus text exposition (#744); loopback or same-origin only. |
+| GET | `/dsh-subscriptions/health` | Deep health report used by monitoring (#745); public GET. |
+| GET | `/dsh-subscriptions/models` | Enriched model catalog for active subscriptions. |
+| POST | `/dsh-subscriptions/heartbeat/run` | Trigger one quota/health refresh; returns `{ok, refreshed}`. |
+| GET | `/dsh-subscriptions/discover-local` | Detect locally installed CLI sessions available for import. |
+| GET | `/dsh-subscriptions/subscriptions` | Localhost-only HTML overview of subscriptions. |
+| GET | `/dsh-subscriptions/session-reasoning?sessionId=…&provider=…&model=…` | Read reasoning effort/capabilities for a session. |
+| POST | `/dsh-subscriptions/session-reasoning` | Set `{sessionId, provider, model, effort, budgetTokens}`. |
+| DELETE | `/dsh-subscriptions/session-reasoning?sessionId=…` | Clear session reasoning override. |
+
+`/discover-local` and `/subscriptions` are retained as supported API/UI surfaces (decision recorded in `docs/design/DESIGN.md`).
+
 ## 🌐 Localization
 
 The plugin source language is English only. Russian and other translations are provided at runtime by separate language plugins (for example the russification plugin), which translate the registered locale keys - the package itself ships no bundled translations (Changed in 0.6.1).
