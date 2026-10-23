@@ -1,3 +1,14 @@
+## [0.7.21] - 2026-10-23
+
+### Fixed
+- **GitHub #20**: Claude models now declare `inputModalities: ['text','image']` for built-in, configured and remotely discovered models, so DSH's `read_image` gate accepts the route.
+- Durable image blocks `{type:'image', attachment}` are resolved through the host `attachments` service before request serialization and converted to Anthropic base64 blocks.
+- `anthropicPayload()` now preserves images inside `role: 'tool'` results as `tool_result` content blocks instead of flattening them to text.
+
+### Verification
+- Deterministic #20 tests: modality advertisement, attachment resolution, tool-result image block.
+- Full `npm test`: 949/949; preflight FAIL=0.
+
 ## [0.7.20] - 2026-10-23
 
 ### Fixed
