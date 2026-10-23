@@ -1,3 +1,12 @@
+## [0.7.20] - 2026-10-23
+
+### Fixed
+- **GitHub #19**: `QuotaCapsule` no longer violates the Rules of Hooks. The popover `useEffect` moved above the conditional `return null`, so the hook count stays constant when config resolves or the widget is disabled.
+- Added a static regression test that fails if any hook appears after the component's early return.
+
+### Verification
+- Full `npm test`; `dsh-plugin-preflight` FAIL=0.
+
 ## [0.7.19] - 2026-10-22
 
 ### Security
