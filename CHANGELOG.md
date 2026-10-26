@@ -1,3 +1,15 @@
+## [0.7.22] - 2026-10-23
+
+### Fixed
+- **PR #21 (@miztizm)**: Anthropic payloads no longer send `temperature` while thinking is enabled, never emit empty text blocks, and place the cache breakpoint only on a block that can carry it. Persistent billing statuses are announced once and re-armed when cleared.
+- **PR #22 (@miztizm)**: error toasts are rate-limited per message and auto-dismiss after 12 s.
+- **PR #23 (@miztizm)**: Claude CLI import reads the dotted `~/.claude/.credentials.json` first, with the undotted file as fallback and the real source path in `discover-local`.
+- **PR #24 (@miztizm)**: Subscription Hub provider rows are keyboard-accessible controls and open Settings → Subscriptions.
+- **PR #25 (@miztizm)**: config polling retries once and host-down toasts are throttled to once per two minutes.
+
+### Verification
+- Full `npm test`: 954/954; preflight FAIL=0; client 235667 B.
+
 ## [0.7.21] - 2026-10-23
 
 ### Fixed
