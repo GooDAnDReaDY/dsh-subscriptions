@@ -12,4 +12,6 @@ AGENTS.md
 index.md
 deploy.sh
 docs/plans/
-.gitea/
+.gitea/*
+!.gitea/workflows/
+!.gitea/workflows/**

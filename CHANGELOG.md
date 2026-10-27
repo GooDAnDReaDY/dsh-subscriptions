@@ -1,3 +1,13 @@
+## [0.7.23] - 2026-10-27
+
+### Changed
+- CI/CD now runs in Gitea: PR quality gate, four parallel test runs, tag-driven release, npm publish and GitHub mirror.
+- Added a manual **Deploy WEB** workflow that validates the published version, deploys it to 111 over SSH, restarts `dsh-web` and waits for the health endpoint.
+
+### Verification
+- Full `npm test`: 954/954; preflight FAIL=0; four parallel runs green.
+- Deploy workflow verified against `0.7.22`; WEB health reports `0.7.22`.
+
 ## [0.7.22] - 2026-10-23
 
 ### Fixed
