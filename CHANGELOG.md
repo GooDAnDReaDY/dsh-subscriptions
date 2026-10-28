@@ -1,3 +1,14 @@
+## [0.7.37] - 2026-10-28
+
+### Added
+- **#822**: media failure taxonomy and retry policy; ambiguous post-submit failures are never retried.
+- **#800**: conservative media-pool account selection with default preference and cooldown/quota/disabled filtering.
+- **#809**: per-provider tool policy config (`toolPolicies`) and allow checks.
+- **#835/#836**: safe provider icon URL resolution with initials fallback and URL allowlisting.
+
+### Verification
+- Full `npm test`: 993/993; pack-size OK (client 250268 B).
+
 ## [0.7.36] - 2026-10-28
 
 ### Added
