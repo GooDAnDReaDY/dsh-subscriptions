@@ -1,3 +1,16 @@
+## [0.7.30] - 2026-10-28
+
+### Added
+- **#829**: per-provider default account marker (★), separate from pool participation.
+- **#830**: global automatic-pool kill switch and a separate media-pool switch. Off uses only the default account with no silent fallback.
+- **#811**: `quota-aware` balancing strategy using remaining quota, reset time and urgency; default account wins within a small urgency tolerance. Trace includes urgency/default info.
+- **#825**: pool-scoped earliest recovery ETA/reason attached to exhausted-pool errors and trace.
+- **#814**: model-scoped cooldowns for Claude/Antigravity quota failures; auth/account-wide failures still block the whole account. Trace distinguishes `model_cooldown`.
+
+### Verification
+- Full `npm test`: 975/975; pack-size OK (client 251221 B).
+- New tests cover default selection, kill switch/no fallback, urgency/default ordering, pool ETA and model-scope cooldown matrix.
+
 ## [0.7.29] - 2026-10-28
 
 ### Added
