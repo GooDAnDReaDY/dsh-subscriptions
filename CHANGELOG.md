@@ -1,3 +1,15 @@
+## [0.7.40] - 2026-10-28
+
+### Added
+- **#803**: per-account `proxyBypass` config, host/domain bypass matching and proxy-vs-provider connectivity classification.
+- **#817**: validated named tiers with isolated member selection and no cross-tier fallback.
+- **#832**: frozen session tool-policy snapshots with session lookup.
+- **#834**: explicit Claude `cli-synced` vs `standalone` modes and Keychain write ownership guard.
+- **#815**: Codex web-search result normalization with citations, bounded text and retry-delay policy.
+
+### Verification
+- Full `npm test`: 1006/1006; coverage gates pass; pack-size OK.
+
 ## [0.7.39] - 2026-10-28
 
 ### Added
