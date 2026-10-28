@@ -1,3 +1,13 @@
+## [0.7.35] - 2026-10-28
+
+### Changed
+- Refactored the client bundle: Vault snapshots, provider packs, source chain and webhook test panels now load on demand from `lib/client.panels.js` via `require.async` and React.lazy.
+- Main client bundle dropped from 255971 B to 245247 B, restoring headroom for UI work while keeping the 256000 B practical gate.
+
+### Verification
+- Full `npm test`: 988/988; pack-size OK (main client 245247 B, panel chunk 11554 B).
+- No behavior change intended; panel tests read both bundles.
+
 ## [0.7.34] - 2026-10-28
 
 ### Added
