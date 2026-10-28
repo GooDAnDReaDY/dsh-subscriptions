@@ -1,3 +1,12 @@
+## [0.7.25] - 2026-10-28
+
+### Added
+- **#839**: the Models catalog now supports case-insensitive search by id, name, alias and provider; sorting by name, provider, context window or availability; total/matched/shown/hidden counters; and incremental "Show more"/"Show all" rendering. Search and sort keep the same selected catalog rows and do not mutate the source list.
+
+### Verification
+- Full `npm test`: 958/958; pack-size OK (client 241375 B).
+- New tests cover filtering, all sort modes, stable/non-mutating ordering and counters over 120 rows.
+
 ## [0.7.24] - 2026-10-27
 
 ### Fixed
