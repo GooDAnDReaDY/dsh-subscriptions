@@ -1,3 +1,15 @@
+## [0.7.31] - 2026-10-28
+
+### Added
+- **#804**: per-model display-name editor with Reset; names are presentation-only and persist in config.
+- **#819**: Settings draft now has an explicit Cancel, dirty indicator and beforeunload guard; Save failure keeps the draft.
+- **#805**: Accounts cards show remaining quota per account (not only the aggregate).
+- **#828**: model rows expose and display catalog source (`live`/`cached`/`builtin`) as a badge.
+
+### Verification
+- Full `npm test`: 976/976; pack-size OK (client 255963 B).
+- New test covers catalog source attribution.
+
 ## [0.7.30] - 2026-10-28
 
 ### Added
