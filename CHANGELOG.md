@@ -1,3 +1,16 @@
+## [0.7.33] - 2026-10-28
+
+### Added
+- **#813**: routing now rejects accounts whose per-account catalog does not contain the requested model (`model_not_in_account_catalog`), while unknown/empty catalogs remain permissive.
+- **#792**: opt-in proactive quota guard with remaining/low and zero states before a request.
+- **#810**: prompt-cache affinity scoring helper with configurable TTL and cache-expired states.
+- **#820**: connect-attempt timeout normalization with a 1.5s floor while preserving larger host values.
+- **#824**: hashed provider/account/model replay envelope helpers; mismatched envelopes are not sent and legacy histories remain compatible.
+
+### Verification
+- Full `npm test`: 986/986; pack-size OK.
+- New tests cover catalog membership, cache TTL, timeout floor, replay match/mismatch/legacy and proactive quota.
+
 ## [0.7.32] - 2026-10-28
 
 ### Fixed
