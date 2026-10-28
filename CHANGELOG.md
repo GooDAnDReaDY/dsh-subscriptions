@@ -1,3 +1,13 @@
+## [0.7.26] - 2026-10-28
+
+### Added
+- **#795**: account-scoped pool participation. Each slot now has `poolEnabled` (default true) and an optional `poolModels` allowlist. Absent means all current and future models; empty means no model routing; an explicit list allows only those ids. Selection applies the filter before quota tiers, weighting and session pinning, and trace evaluations report `pool_disabled` / `model_not_allowed`.
+- Accounts → Advanced slot settings now exposes the pool toggle and a model list with Automatic / Select all / None.
+
+### Verification
+- Full `npm test`: 966/966; pack-size OK (client 246520 B).
+- Tests cover absent/empty/explicit allowlists, disabled pool, trace reasons, config round-trip, store mapping and stream model propagation.
+
 ## [0.7.25] - 2026-10-28
 
 ### Added
