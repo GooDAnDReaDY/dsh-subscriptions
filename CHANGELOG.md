@@ -1,3 +1,15 @@
+## [0.7.42] - 2026-10-28
+
+### Added
+- **#798**: npm metadata resolver for Codex/Claude client versions with local-CLI and built-in fallback, 6h cache, config override, and a source badge in Settings.
+- **#815**: Codex subscription search registered through the host `web` seam as `subscriptions-codex`, with citations, retry policy and bounded text.
+
+### Changed
+- **#816**: tool-call IDs (including `toolUseId`) and settings RPC results now go through one compatibility layer; unsupported settings APIs raise `DSH_HOST_INCOMPATIBLE`.
+
+### Verification
+- Full `npm test` green; coverage gates pass; pack-size OK (client 251588 B).
+
 ## [0.7.41] - 2026-10-28
 
 ### Fixed
