@@ -1,3 +1,16 @@
+## [0.7.32] - 2026-10-28
+
+### Fixed
+- **#827**: corrupt/empty credentials are marked unusable per account instead of breaking status/list reads; errors stay token-free.
+- **#818**: aliases resolve to stable refs, so renaming a label does not change credential identity.
+- **#831**: duplicate provider identities are detected and exposed as `duplicateOf`; unknown identities are never merged.
+- **#806**: refresh lineage guard and versioned writes are covered; stale writes cannot overwrite newer credentials.
+- **#833**: deterministic host-proxy vs plugin-proxy precedence helper with conflict detection.
+
+### Verification
+- Full `npm test`: 981/981; pack-size OK.
+- New tests cover credential state, identity keys, alias resolution, refresh lineage and proxy precedence.
+
 ## [0.7.31] - 2026-10-28
 
 ### Added
