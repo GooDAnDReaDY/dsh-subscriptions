@@ -1,3 +1,12 @@
+## [0.7.41] - 2026-10-28
+
+### Fixed
+- **#803**: `proxyBypass` is now applied by the real per-account fetch path; matching hosts go direct while other requests keep the proxy.
+- Accounts advanced settings expose a comma-separated proxy-bypass field; slot normalization and account views preserve it.
+
+### Verification
+- Full `npm test`: 1006/1006; coverage gates pass; pack-size OK (client 250939 B).
+
 ## [0.7.40] - 2026-10-28
 
 ### Added
