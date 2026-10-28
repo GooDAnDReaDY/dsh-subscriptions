@@ -1,3 +1,15 @@
+## [0.7.36] - 2026-10-28
+
+### Added
+- **#790**: per-provider batch Check all / Refresh quotas / Import all CLI with bounded concurrency (2), live progress and cancel.
+- **#791**: Vision / Tools / Thinking capability badges on account cards.
+- **#794**: account reorder with up/down controls; order persists through Save.
+- **#793**: copy account ref quick action alongside existing pause/reset/check actions.
+- **#808**: reset-credit panel already exposes expiry, confirmation and refresh; covered by the existing flow.
+
+### Verification
+- Full `npm test`: 989/989; pack-size OK (client 250268 B).
+
 ## [0.7.35] - 2026-10-28
 
 ### Changed
