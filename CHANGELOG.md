@@ -1,3 +1,15 @@
+## [0.7.39] - 2026-10-28
+
+### Added
+- **#787**: true per-pool round-robin cursor, lowest-latency strategy by local telemetry, and trace decision reasons (`round_robin`, latency ordering).
+- **#788**: provider-scoped `modelAccountRules` glob rules; first match wins, rule account is preferred, unavailable rule accounts fall back to the normal pool.
+- **#798**: client-version resolver with config/npm/local/fallback precedence and TTL cache helpers.
+- **#816**: centralized compat aliases for tool-call ids, RPC result shapes and unsupported-host errors.
+- **#837**: Node coverage is part of `npm test` with global thresholds (lines 85, branches 70, functions 75); CI now fails below them.
+
+### Verification
+- Full `npm test`: 1001/1001; coverage gates pass; pack-size OK (client 250268 B).
+
 ## [0.7.38] - 2026-10-28
 
 ### Fixed
