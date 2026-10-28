@@ -1,3 +1,14 @@
+## [0.7.38] - 2026-10-28
+
+### Fixed
+- **GitHub #27**: Grok model resolution no longer treats a failed CLI metadata fetch as a capability verdict. The resolution path uses the per-account last-known-good catalog and does not perform a live metadata fetch on every request.
+- The CLI catalog cache keeps the previous snapshot on transport failure or empty response, and grok-4.x gets a conservative high/medium/low reasoning fallback when metadata is unavailable.
+- Streaming and resolution now share the same fallback, so an explicit effort no longer silently disappears.
+
+### Verification
+- Full `npm test`: 995/995; pack-size OK.
+- Regression covers unreachable CLI metadata and the grok-4.x heuristic.
+
 ## [0.7.37] - 2026-10-28
 
 ### Added
