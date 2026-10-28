@@ -1,3 +1,15 @@
+## [0.7.34] - 2026-10-28
+
+### Added
+- **#792**: proactive quota guard is wired through config/routing; opt-in self-heal timer probes cooling accounts and clears cooldown on success.
+- **#810**: prompt-cache TTL/affinity is wired through config, `lastUsedAt`, routing scores and trace.
+- **#820**: plugin HTTP calls use a per-address connect floor from config/env without lowering larger values.
+- **#824**: opaque replay state is enveloped by provider/account/model, stripped on mismatch and preserved for legacy histories.
+- **#838**: Settings terminology normalized from vendor to provider.
+
+### Verification
+- Full `npm test`: 988/988; pack-size OK (client 255972 B).
+
 ## [0.7.33] - 2026-10-28
 
 ### Added
