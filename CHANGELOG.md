@@ -1,3 +1,12 @@
+## [0.7.24] - 2026-10-27
+
+### Fixed
+- **GitHub #26**: DSH Desktop validates `dsh-app://app`, then strips `Origin`, `Referer` and `Sec-Fetch-Site` before forwarding. Mutating requests on loopback that carry the shell's `dsh-auth-*` session cookie are now accepted as shell-forwarded; all other origin, cross-site and host checks remain unchanged.
+
+### Verification
+- Full `npm test`: 955/955; pack-size OK.
+- Regression test covers desktop cookie + loopback, missing/wrong cookie, non-loopback peer, cross-site and mismatched origin.
+
 ## [0.7.23] - 2026-10-27
 
 ### Changed
