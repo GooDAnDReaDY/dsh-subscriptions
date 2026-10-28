@@ -1,3 +1,12 @@
+## [0.7.27] - 2026-10-28
+
+### Changed
+- Release is now a single strict pipeline: the tag must be on `main`, the full quality gate and four parallel runs must pass, the GitHub mirror is updated before npm, and WEB deploy runs automatically only after npm + GitHub Release succeed.
+- Manual **Deploy WEB** is now a rollback path and refuses versions without a final GitHub Release.
+
+### Verification
+- Strict workflow validated on PR #850; release and deploy smoke-tested with the 0.7.27 tag.
+
 ## [0.7.26] - 2026-10-28
 
 ### Added
