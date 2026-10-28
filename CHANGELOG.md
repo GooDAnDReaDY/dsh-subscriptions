@@ -1,3 +1,10 @@
+## [0.7.43] - 2026-10-28
+
+### Tests
+- **#837**: added account-route branch tests; `lib/routes/accounts.js` coverage is 90.96%.
+- **#837**: added message-adapter cases for tool-call aliases and orphan reconciliation; `lib/messages.js` coverage is 93.38%.
+- Global coverage is 87.44% lines / 74.23% branches / 80.80% functions.
+
 ## [0.7.42] - 2026-10-28
 
 ### Added
