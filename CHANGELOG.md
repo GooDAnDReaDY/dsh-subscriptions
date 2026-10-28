@@ -1,3 +1,16 @@
+## [0.7.29] - 2026-10-28
+
+### Added
+- **#797**: model catalogs are kept per account; the picker merges the account-specific snapshots and preserves which accounts can see each model.
+- **#799**: startup + hourly catalog refresh with a five-minute per-account freshness guard and last-known-good retention; failures never clear the picker.
+- **#828**: an empty or broken live catalog falls back to cached or built-in models instead of dropping the provider.
+- **#821**: explicit `all / selected / none` allowlist modes with mode labels in Accounts.
+- **#839**: search inside the account model allowlist, filtered Select all/none and shown/selected/total counters.
+
+### Verification
+- Full `npm test`: 970/970; pack-size OK (client 248617 B).
+- New tests cover live/cached/builtin resolution, freshness, per-account merge attribution and the three allowlist modes.
+
 ## [0.7.28] - 2026-10-28
 
 ### Changed
