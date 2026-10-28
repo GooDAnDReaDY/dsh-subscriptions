@@ -1,3 +1,11 @@
+## [0.7.28] - 2026-10-28
+
+### Changed
+- Release order is now strict: full quality gate → Gitea Release → GitHub mirror → npm → GitHub Release → automatic WEB deploy. A failed step before Gitea Release prevents it from being created; a failed Gitea Release prevents GitHub/npm/deploy.
+
+### Verification
+- Strict pipeline validated on `v0.7.27`; Gitea Release API tested against the existing tag.
+
 ## [0.7.27] - 2026-10-28
 
 ### Changed
