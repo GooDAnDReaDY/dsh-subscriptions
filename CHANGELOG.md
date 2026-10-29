@@ -1,3 +1,11 @@
+## [0.7.55] - 2026-10-29
+
+### Changed
+- **#890**: completed the module split — `lib/accounts.js` is now 559 lines; account normalization/config moved to `accounts-config.js` and `describeRef` to `accounts-describe.js`. Largest production module is now `messages.js` at 589 lines; every route/facade module is below 600.
+
+### Verification
+- Full `npm test`: 1052/1052; coverage 88.50/74.46/81.27; pack-size OK (client 252284 B).
+
 ## [0.7.54] - 2026-10-29
 
 ### Changed
