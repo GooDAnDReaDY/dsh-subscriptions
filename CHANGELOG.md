@@ -1,3 +1,12 @@
+## [0.7.50] - 2026-10-28
+
+### Added
+- **#789**: dashboard heatmap is now per account and model, using 24 hourly buckets from request history.
+- **#801**: generated images are also stored through the host attachment service and returned as attachment refs.
+
+### Verification
+- Full `npm test` green; coverage 87.81/74.12/81.18; client 254413 B; pack-size OK.
+
 ## [0.7.49] - 2026-10-28
 
 ### Added
