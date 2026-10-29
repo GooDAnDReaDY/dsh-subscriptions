@@ -1,3 +1,14 @@
+## [0.7.54] - 2026-10-29
+
+### Changed
+- **#889**: removed production helpers that had no caller (`resolveIndependentEntry`, `createUsageLoader`, `accountDashboard`, `modelEditor`, `normalizeWebSearchResult`, tier/tool-policy helpers); `shouldBypassProxy` and `webSearchRetryDelay` remain because the server uses them.
+- **#890**: split oversized modules: `routes/status.js` → `routes/status.js` + `routes/status-extras.js`; vault transfer routes moved from `routes/accounts.js` to `routes/vault.js`; background loops and Codex web search moved out of `index.js`; accounts helpers moved to `accounts-config.js`.
+- **#891**: added method/origin/parse coverage for packs, metrics, status extras and OAuth routes.
+- **#893**: reduced `lib/client.js` from 255046 B to 252284 B by removing generated comments/blank lines while preserving the #839 test markers; pack check now has ~3.7 KB of warning headroom.
+
+### Verification
+- Full `npm test`: 1052/1052; global coverage 88.53/74.34/81.26; pack-size OK.
+
 ## [0.7.53] - 2026-10-29
 
 ### Fixed
