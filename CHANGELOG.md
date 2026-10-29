@@ -1,3 +1,18 @@
+## [0.7.53] - 2026-10-29
+
+### Fixed
+- **#878**: snapshot writes now fail loudly and roll back in-memory state when the disk write fails instead of losing the snapshot after restart.
+- **#879**: pre-pull snapshots now include credential blobs; restoring a snapshot writes credentials back alongside slots.
+- **#880**: logout now returns an error when credential deletion fails instead of reporting false success.
+- **#883**: vault export/sync aborts on unreadable or missing configured credentials instead of silently producing an incomplete vault.
+- **#884**: WebDAV/Gist/S3 sync requests and response reads have a configurable `vaultSyncTimeoutMs` (default 30s) and propagate cancellation.
+- **#885**: diagnostic wizard refreshes tokens through `store.ensureFresh`, preserving the standard lock/save path and refreshed tokens.
+- **#881**: lowering `maxQueueSize` or disabling the queue now rejects excess waiters instead of retaining an over-limit backlog.
+- **#882**: `enableQueue`, `queueTimeoutMs`, and `maxQueueSize` are now passed from live config into every rotation request.
+
+### Verification
+- Full `npm test`: 1057/1057; pack-size OK (client 255046 B).
+
 ## [0.7.52] - 2026-10-29
 
 ### Security
