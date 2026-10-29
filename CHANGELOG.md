@@ -1,3 +1,13 @@
+## [0.7.52] - 2026-10-29
+
+### Security
+- **#875/#888**: webhook and vault-sync outbound targets now reject IPv4-mapped IPv6/private hosts, resolve DNS before fetch, and prevent redirects into private networks.
+- **#877**: provider error bodies are sanitized before they reach logs, alerts, webhooks, or diagnostics.
+- **#876/#886/#887**: updated `undici` to 8.12.3 and pinned transitive `ip-address` to 10.7.5; `npm audit --omit=dev` is clean.
+
+### Verification
+- Full `npm test`: 1049/1049; pack-size OK (client 255046 B); `npm audit --omit=dev` clean.
+
 ## [0.7.51] - 2026-10-28
 
 ### Added
