@@ -1,3 +1,12 @@
+## [0.7.46] - 2026-10-28
+
+### Added
+- **#807**: model editor can override display name, context window, reasoning effort and visibility, with Save/Cancel and reset.
+- **#789**: dashboard heatmap for the last 24h (analytics hourly buckets) and compact-mode control.
+
+### Verification
+- Full `npm test` green; coverage 87.84/74.23/81.10; client 253937 B; pack-size OK.
+
 ## [0.7.45] - 2026-10-28
 
 ### Added
