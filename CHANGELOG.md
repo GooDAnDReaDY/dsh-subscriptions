@@ -1,3 +1,12 @@
+## [0.7.49] - 2026-10-28
+
+### Added
+- **#802**: composer Speed toggle in `conversation.input.right`, per-session `/speed`, `/fast`, subagent default precedence, and explicit `FAST_UNSUPPORTED` for models without a fast tier.
+- **#789**: dashboard compact mode now hides per-account quota/usage detail.
+
+### Verification
+- Full `npm test` green; coverage 87.53/74.18/81.23; client 254413 B; pack-size OK.
+
 ## [0.7.48] - 2026-10-28
 
 ### Added
