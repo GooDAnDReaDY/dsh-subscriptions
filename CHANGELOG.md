@@ -1,3 +1,13 @@
+## [0.7.48] - 2026-10-28
+
+### Added
+- **#802**: per-session Speed now resolves explicit child → subagent default → session mode, and subagent speed comes from `codexSubagentSpeed`.
+- **#823**: Claude token refresh writes back to macOS Keychain only when the stored access token still matches the refreshed one.
+- **#801**: `image_generate` accepts 1–5 validated `referenceImages` and forwards them to GPT/Grok image bodies.
+
+### Verification
+- Full `npm test` green; coverage 87.82/74.27/81.21; pack-size OK.
+
 ## [0.7.47] - 2026-10-28
 
 ### Added
