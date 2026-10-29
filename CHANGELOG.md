@@ -1,3 +1,14 @@
+## [0.7.45] - 2026-10-28
+
+### Added
+- **#812**: new Dashboard tab with per-account cards, lazy usage loading, in-flight dedupe and stale response drop.
+- **#807**: dashboard includes searchable model list with discovered/shown counters and bounded 40-row rendering.
+- **#802**: subagent Speed selector (Standard/Fast) in the dashboard, persisted to config.
+- **#789**: per-provider dashboard with risk/quota/name sorting, health state and quota/request/error cards.
+
+### Verification
+- Full `npm test` green; coverage 87.77/74.25/81.10; client 253663 B; pack-size OK.
+
 ## [0.7.44] - 2026-10-28
 
 ### Added
