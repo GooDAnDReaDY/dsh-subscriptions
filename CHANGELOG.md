@@ -1,3 +1,13 @@
+## [0.7.47] - 2026-10-28
+
+### Added
+- **#826**: Antigravity family-specific reasoning budgets (Claude/GPT-OSS/Gemini), effort validation and maxTokens guard; tool schemas expand local `$ref`, reject remote/cyclic refs and widen unions.
+- **#823**: macOS Claude Keychain reader for discovery/import, corrupt-blob validation, CLI-newer merge and guarded write-back helper.
+- **#801**: reference-image validation (1–5, no duplicates/empty) and GPT/Grok edit request builders.
+
+### Verification
+- Full `npm test` green; coverage 87.72/74.33/81.31; pack-size OK.
+
 ## [0.7.46] - 2026-10-28
 
 ### Added
