@@ -1,3 +1,15 @@
+## [0.7.44] - 2026-10-28
+
+### Added
+- **#796**: per-account `independentEntry`/`independentAlias`; independent picker rows bind to the stable ref and never fall back.
+- **#789**: dashboard aggregation with risk sort, quota runway, error count and p95 latency.
+- **#807**: searchable model editor with override counters and bounded row rendering.
+- **#812**: usage loader with per-account in-flight dedupe, stale-drop and removed-account cleanup.
+- **#802**: speed precedence child → subagent → session, with explicit fast-tier errors.
+
+### Verification
+- Full `npm test` green; global coverage 87.71/74.20/81.10; pack-size OK.
+
 ## [0.7.43] - 2026-10-28
 
 ### Tests
