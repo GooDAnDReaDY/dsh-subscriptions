@@ -1,3 +1,12 @@
+## [0.7.51] - 2026-10-28
+
+### Added
+- **#801**: inline media row for `image_generate`/`video_generate` via `tool.call.toolview`, rendering attachment images and video URLs.
+- **#801**: video generation validates duration/aspect/resolution/image-to-video, polls asynchronously with bounded backoff and reports failures explicitly.
+
+### Verification
+- Full `npm test` green; coverage 87.72/74.29/81.22; client 255046 B; pack-size OK.
+
 ## [0.7.50] - 2026-10-28
 
 ### Added
