@@ -1,3 +1,12 @@
+## [0.7.62] - 2026-10-30
+
+### Fixed
+- **settings save on DSH 0.2.1-rc.4**: every write from the Subscriptions settings page returned HTTP 400 `Config field "antigravityClientSecret" is not volatile`, because the adapter passed the whole parsed config to the host settings service and the host rejects an update that carries a profile-owned field. Writes now send only volatile fields; a changed profile-owned field is rejected up front with an explicit "requires a profile edit and plugin reload" instead of a host-level error, and the cached snapshot is merged from the editable subset.
+
+### Verification
+- Live check on the production web instance (host 0.2.1-rc.4, plugin 0.7.61): cold start and Settings → Subscriptions render without console errors or duplicate slot registration; all panes load, including the lazy chunk panels.
+- `npm test`: 1217 tests; coverage gate (80% branches) green.
+
 ## [0.7.61] - 2026-10-30
 
 ### Fixed
