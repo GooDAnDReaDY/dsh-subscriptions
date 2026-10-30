@@ -1,3 +1,11 @@
+## [0.7.56] - 2026-10-29
+
+### Changed
+- **#892**: replaced 114 comment-only silent `catch` blocks with the shared `ignoreError(label, err)` collector (100 server + 14 client). The collector keeps a bounded 100-entry ring buffer, forwards to the plugin debug logger, and exposes `ignoredErrors` in the diagnostics report. Deliberate parse/URL fallbacks that must return a value remain explicit. Added `test/catch-audit.test.mjs` so new silent comment-only catches fail CI.
+
+### Verification
+- Full `npm test`: 1055/1055; coverage 88.47/74.27/81.32; pack-size OK (client 252968 B).
+
 ## [0.7.55] - 2026-10-29
 
 ### Changed
