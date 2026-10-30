@@ -1,3 +1,12 @@
+## [0.7.58] - 2026-10-29
+
+### Fixed
+- **#881**: releasing a slot now decrements the active count and drains waiters only while `active < min(global, waiter) maxConcurrency`. Lowering concurrency from 2 to 1 with two in-flight requests no longer starts a third request when the first finishes.
+- **#875/#888**: vault sync no longer uses automatic redirect following. Every WebDAV/Gist/S3 request sets `redirect: 'manual'`, re-validates the target host, resolves and pins the new address per hop, and stops after 5 hops.
+
+### Verification
+- Full `npm test`: 1064/1064; coverage 88.70/74.65/81.36; pack-size OK.
+
 ## [0.7.57] - 2026-10-29
 
 ### Fixed
