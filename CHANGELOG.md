@@ -1,3 +1,11 @@
+## [0.7.61] - 2026-10-30
+
+### Fixed
+- **GitHub #28**: the `subscriptions-codex` web-search provider always failed with HTTP 400. The Codex backend rejects a non-streaming `/backend-api/codex/responses` call (`Store must be set to false`, then `Stream must be set to true`). The provider now posts to the standalone `/alpha/search` endpoint with the `command`/`settings` request shape, and `normalizeCodexSearch` maps the returned `{ output, results }` — stripping U+E200…U+E201 citation markers, keeping only https `text_result` sources, deduped and capped at 50, with title and snippet. Legacy `{ output: [...] }` and `output_text` payloads keep the previous mapping.
+
+### Verification
+- `npm test`: 1137 tests; targets the URL, request body and alpha payload mapping; coverage 89.4/77.0/82.6; pack-size OK.
+
 ## [0.7.60] - 2026-10-30
 
 ### Added
