@@ -1,3 +1,13 @@
+## [0.7.60] - 2026-10-30
+
+### Added
+- **namespaced routes (opt-in)**: `namespacedRoutes` registers `subscriptions-<vendor>` and wraps the adapter, so this plugin and another subscription plugin can serve models side by side instead of one being skipped by the claim guard. Off by default; bare vendor ids stay the default behaviour for existing installs.
+- **scheduled morning warm-up**: `warmupAt: "HH:MM"` (local time) refreshes tokens and probes every configured account once a day, ahead of the first turn. The schedule always targets the next occurrence; empty disables it.
+- **update rollback**: a failed update now reinstalls the version that was in the profile before the attempt. The 503 response carries `rollback: "restored" | "failed"`, so the UI can never claim a rollback that did not happen.
+
+### Verification
+- `npm test`: eslint + typecheck clean; 1100 tests; coverage 89.16/75.67/82.08; pack-size OK.
+
 ## [0.7.59] - 2026-10-30
 
 ### Fixed
