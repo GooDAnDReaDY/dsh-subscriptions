@@ -1,3 +1,12 @@
+## [0.7.63] - 2026-10-30
+
+### Fixed
+- **Codex requests failed instantly on Node 24**: `/ping`, `/check` and `image_generate` returned `fetch failed` in 1–2 ms for Codex while grok and antigravity worked. `fetchWithTimeout` handed a dispatcher built by the standalone undici package to Node's global fetch, which rejects it with `UND_ERR_INVALID_ARG` before opening a socket. The native fetch now goes through undici's own fetch (which accepts the dispatcher), while a fetch replaced after module load — tests, the opencode session-header patch — is left untouched.
+
+### Verification
+- Reproduced locally: `fetchWithTimeout(fetch, 'https://auth.openai.com/oauth/token', …)` failed with `UND_ERR_INVALID_ARG` in 9 ms; after the fix the same call answers 401 in ~465 ms.
+- `npm test`: 1218 tests; coverage gate green in CI.
+
 ## [0.7.62] - 2026-10-30
 
 ### Fixed
