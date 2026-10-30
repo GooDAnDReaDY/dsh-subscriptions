@@ -1,6 +1,6 @@
 {
   "name": "@goodandready/dsh-subscriptions",
-  "version": "0.7.58",
+  "version": "0.7.59",
   "description": "Use ChatGPT Codex, Claude, Grok, Antigravity, Kimi, GLM, Cursor, Kiro, Copilot, Qwen, ERNIE, Spark, JetBrains, Perplexity, Replit, and Cody subscriptions as DeepSeek Harness LLM providers via OAuth.",
   "license": "MIT",
   "type": "module",
@@ -39,7 +39,7 @@
     "url": "https://github.com/GooDAnDReaDY/dsh-subscriptions/issues"
   },
   "scripts": {
-    "test": "eslint lib/ test/ && npm run typecheck && node --import ./test/_setup.mjs --test --experimental-test-coverage --test-coverage-lines=85 --test-coverage-branches=70 --test-coverage-functions=75 --test-coverage-include='lib/**/*.js' --test-coverage-exclude='lib/client.js' test/*.test.mjs && node scripts/check-pack-size.mjs",
+    "test": "eslint lib/ test/ && npm run typecheck && node --import ./test/_setup.mjs --test --experimental-test-coverage --test-coverage-lines=85 --test-coverage-branches=75 --test-coverage-functions=75 --test-coverage-include='lib/**/*.js' --test-coverage-exclude='lib/client.js' test/*.test.mjs && node scripts/check-pack-size.mjs",
     "typecheck": "tsc -p tsconfig.checkjs.json"
   },
   "dsh": {
@@ -82,10 +82,10 @@
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "^4.0.1",
-    "@deepseek-ai/dsh-credentials": "^0.1.7-rc.2 || ^0.2.0-rc.1 || ^0.2.0-rc.2 || ^0.2.1-rc.2",
-    "@deepseek-ai/dsh-host-webserver": "^0.1.7-rc.2 || ^0.2.0-rc.1 || ^0.2.0-rc.2 || ^0.2.1-rc.2",
-    "@deepseek-ai/dsh-llm": "^0.1.7-rc.2 || ^0.2.0-rc.1 || ^0.2.0-rc.2 || ^0.2.1-rc.2",
-    "@deepseek-ai/dsh-settings": "^0.1.7-rc.2 || ^0.2.0-rc.1 || ^0.2.0-rc.2 || ^0.2.1-rc.2",
+    "@deepseek-ai/dsh-credentials": "^0.1.7-rc.2 || ^0.2.0-rc.1 || ^0.2.0-rc.2 || ^0.2.1-0",
+    "@deepseek-ai/dsh-host-webserver": "^0.1.7-rc.2 || ^0.2.0-rc.1 || ^0.2.0-rc.2 || ^0.2.1-0",
+    "@deepseek-ai/dsh-llm": "^0.1.7-rc.2 || ^0.2.0-rc.1 || ^0.2.0-rc.2 || ^0.2.1-0",
+    "@deepseek-ai/dsh-settings": "^0.1.7-rc.2 || ^0.2.0-rc.1 || ^0.2.0-rc.2 || ^0.2.1-0",
     "@deepseek-ai/schemastery": "^3.18.4"
   },
   "publishConfig": {

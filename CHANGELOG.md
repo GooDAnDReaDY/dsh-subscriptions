@@ -1,3 +1,19 @@
+## [0.7.59] - 2026-10-30
+
+### Fixed
+- **#901**: DSH 0.2.1-rc.5 declares `tool.call.images` from its own read_image toolview and rejects a second declaration, so the two generated-media toolviews logged the duplicate-slot error twice per cold start. Our entries no longer declare that child slot and no longer dispatch it; the row renders durable attachments through its own `loadImage` prop.
+- **#901**: `image_generate` now returns attachment refs as structured tool output (`attachments` -> `{type:'image', attachment}` blocks) instead of an `Attachment: [object Object]` text line, so images reach both the transcript and the model.
+- **#901**: the four `@deepseek-ai/dsh-*` peers accept every 0.2.1 build (`^0.2.1-0`), including alpha.1-alpha.5 and rc.1, not only rc.2 and above.
+
+### Changed
+- **bundle**: the Simplified Chinese dictionary (23 KB) moved to the lazy `lib/client.zh.js` chunk loaded through `require.async`, the same mechanism as `client.panels.js`. `lib/client.js` drops from 253132 B to 235212 B (~20 KB of headroom below the 250 KiB store threshold).
+- **repo**: `.gitattributes` pins LF, so the Windows checkout no longer reports the shell scripts as modified purely from CRLF conversion.
+- **tests**: repo-wide walkers and the pack check use `fileURLToPath` and a Windows-safe npm spawn, so the same assertions run on Windows and Linux.
+- **coverage**: new tests for accounts view, usage export, coexistence, OAuth callbacks, quarantine and Codex web search; branch coverage 74.61 -> 75.80 and the CI threshold 70 -> 75.
+
+### Verification
+- Full `npm test`: 1091/1091; coverage 89.03/75.80/81.92; pack-size OK (largest file 235212 B).
+
 ## [0.7.58] - 2026-10-29
 
 ### Fixed
