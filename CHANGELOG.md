@@ -1,3 +1,15 @@
+## [0.7.57] - 2026-10-29
+
+### Fixed
+- **#875/#888**: outbound webhook and vault-sync requests now pin the validated DNS address with an undici dispatcher, so a second DNS answer cannot rebind the connection to a private host.
+- **#877**: JSON error bodies such as `{"access_token":"..."}` are now redacted; the previous regex had a bad backreference and skipped quoted values.
+- **#880**: logout now marks the ref as clearing before the unset, and `saveBlob` drops writes while a logout owns the ref, preventing a racing save from recreating the credential. The marker is rolled back if unset fails.
+- **#881**: a lower per-request or global `maxQueueSize` now trims existing waiters immediately instead of letting the old backlog start extra requests.
+- **#882**: `enableQueue:false` now fails fast with `QUEUE_OVERFLOW` when the active limit is reached; it no longer returns a no-op release that bypasses concurrency limiting. Live queue settings are re-applied on configuration changes.
+
+### Verification
+- Full `npm test`: 1061/1061; coverage 88.57/74.49/81.33; pack-size OK.
+
 ## [0.7.56] - 2026-10-29
 
 ### Changed
