@@ -1,3 +1,12 @@
+## [0.7.64] - 2026-10-30
+
+### Fixed
+- **GitHub #29 — env proxy bypassed**: with `NODE_USE_ENV_PROXY=1` and `http(s)_proxy` set, `fetchWithTimeout` still left the host directly, because the connect dispatcher used a bare `Agent` (0.7.60) and the switch to undici's own fetch skipped Node's env-proxy handling entirely (0.7.63). On a host whose direct egress is region-blocked, Codex device login rendered the QR code but failed the token exchange with `403 unsupported_country_region_territory`. The dispatcher is now an `EnvHttpProxyAgent` whenever the env contract is active, keyed by mode + connect timeout; otherwise a bare `Agent` as before.
+
+### Verification
+- Regression test runs a local HTTP proxy and asserts the request reaches the proxy, not the target, with `NODE_USE_ENV_PROXY=1`.
+- `npm test`: 1220 tests; coverage gate green in CI.
+
 ## [0.7.63] - 2026-10-30
 
 ### Fixed
