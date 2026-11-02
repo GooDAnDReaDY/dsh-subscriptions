@@ -1,3 +1,8 @@
+## [0.7.65] - 2026-10-31
+
+### Tests
+- The `/import-local` route test read the developer's real `~/.codex/auth.json`, so a machine with a local Codex login expected 200 where a clean CI runner got 400. The test now points `HOME`/`USERPROFILE` at an empty fixture for its duration and restores them afterwards. No runtime change.
+
 ## [0.7.64] - 2026-10-30
 
 ### Fixed
