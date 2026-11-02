@@ -1,3 +1,28 @@
+## [0.7.66] - 2026-10-31
+
+Security and correctness batch from the audit (13 issues).
+
+### Fixed
+- **#924 — Vault sync leaked credentials on redirect**: cross-origin redirects are now refused for authorized requests and uploads, https→http downgrades are refused, redirect method semantics follow 301/302/303/307/308, and S3 requests are re-signed for a same-origin target instead of reusing the old SigV4 signature. Webhook delivery also refuses cross-origin redirects.
+- **#925 / #926 — SSRF classification**: hostnames are no longer classified by IPv6 prefix (`fcdn.example` stays public) and IPv6 is parsed into bytes, so `::`, `[::]`, mapped/compatible forms, link-local and unique-local addresses are rejected before and after DNS and on every redirect hop.
+- **#927 — webhook/Vault sync on Node 24**: both now use a fetch that accepts the pinned undici dispatcher; with `NODE_USE_ENV_PROXY` the env proxy is honoured instead of being replaced by a pin.
+- **#877 — secrets in errors and notifications**: redaction covers provider token prefixes, JWTs, header/query/userinfo shapes and emails at the error boundary, alerts, webhook payloads, logs and account cards. Raw upstream bodies stay capped and sanitized.
+- **#883 — incomplete Vault export**: a logged-out slot is skipped, while a configured account whose credential cannot be read blocks the export, so a full remote backup is never replaced with a partial one.
+- **#928 — logout vs token save race**: credential writes are serialized per ref; a save queued during logout is persisted, a logout queued after a save wins, and a failed unset surfaces an error instead of a false success.
+- **#929 — queue throughput**: acquire and drain share one limit (explicit per-account, otherwise the live global value), new requests no longer jump the FIFO line, and raising a limit starts waiting work immediately.
+- **#930 — session pin store**: bounded at 200 entries with LRU eviction after expired entries, with separate expiry/eviction counters.
+- **#932 — zero subscription cost**: an explicit `0` is preserved through config, account view, analytics and export; ROI reports `n/a` instead of dividing by zero.
+- **#933 — CSV formula injection**: formula-leading text cells are prefixed with an apostrophe; numbers and booleans keep their type.
+- **#934 — export fields**: `createAccountsView` now exposes `usageAt` and `monthlyCost`, so `/usage` JSON/CSV carry the age and cost, and diagnostics reports `maxUsageAgeMs` / `staleQuota` instead of treating old quota as fresh.
+- **#935 — dev dependency advisories**: `zod` 4.6.7, `fast-uri` 3.1.9 and `minimatch` 11.0.4 via overrides; `npm audit` reports 0 vulnerabilities and eslint still runs on minimatch 11.
+
+### Docs
+- `docs/OUTBOUND-SECURITY.md`: address classification, redirect contract, dispatcher/proxy behaviour, redaction formats and the CSV safety contract.
+
+### Verification
+- `npm test`: 1262 tests, coverage gates green, pack-size check OK.
+- Live prod smoke: health, Codex `ping`/`check`, `image_generate` render and settings save.
+
 ## [0.7.65] - 2026-10-31
 
 ### Tests
