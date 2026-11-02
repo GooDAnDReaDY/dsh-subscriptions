@@ -1,3 +1,14 @@
+## [0.7.67] - 2026-11-02
+
+### Fixed
+- **Env proxy at runtime**: `fetchWithPinnedDispatcher` now builds the `EnvHttpProxyAgent` itself when `NODE_USE_ENV_PROXY` is set, instead of relying on Node's startup-only flag, so webhook and Vault sync really leave through the proxy (and end-to-end tests can toggle it).
+- **Gist base URL**: a trailing slash is stripped before appending `/gists`, avoiding a double slash that servers resolved to 404.
+- **Webhook payload**: the outgoing body is scrubbed again in `dispatchNotification`, so an alert passed directly (not through `recordAlert`) cannot carry a secret.
+
+### Tests
+- Real-HTTP integration suite (`test/outbound-integration.test.mjs`): pinned dispatcher against a live local server, signed webhook delivery, WebDAV push/pull, same-origin redirect, Gist create/update/pull, S3 push/pull with SigV4, and both drivers through a local env proxy.
+- Suite also passes on Node 22.23.4 (1270 tests).
+
 ## [0.7.66] - 2026-10-31
 
 Security and correctness batch from the audit (13 issues).
