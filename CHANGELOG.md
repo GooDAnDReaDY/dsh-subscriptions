@@ -1,3 +1,13 @@
+## [0.7.68] - 2026-11-02
+
+### Fixed
+- **#30 — sync-models dropped the live catalog**: the route flattened every catalog entry to a bare id string, which the picker merge discarded because a string has no `id`/`slug`/`name`. The route now passes objects, `rememberDynamicModels` normalizes strings and preserves display names at the single write point, and `mergeAccountCatalogs` accepts legacy string entries. The HTTP response keeps its previous id list.
+- **#31 — session-header pill modal was clipped**: overlays rendered inside the header inherited its stacking context and `overflow`. Every `.dsub-modalWrap` is now portaled to `document.body` (with a fallback when `react-dom` is unavailable), which covers the pill modal, setup wizard and quota popover.
+
+### Verification
+- `npm test`: 1290 tests, coverage gates and pack-size check green.
+- Live prod: sync-models returns live Grok models and the pill modal renders at viewport size.
+
 ## [0.7.67] - 2026-11-02
 
 ### Fixed
