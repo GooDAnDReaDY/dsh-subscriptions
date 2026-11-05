@@ -1,3 +1,27 @@
+## [0.7.70] - 2026-11-05
+
+Follow-up to the audit batch (remaining sub-items).
+
+### Fixed
+- **#958** the remaining user-visible literals are localized in both dictionaries: ErrorBoundary (title/unknown/retry), wizard counters, panel units (`snapshots/bytes/slots/models/healthy keys`), quota aria labels, active/fast badges, `m ago`, `of`, connected/Codex Speed replies and the speed toggle.
+- **#959** shared `useModalA11y()`: focus trap inside `.dsub-modal`, body scroll lock, Escape to close and focus restore. Applied to the pill modal, setup wizard, provider picker and quota popover.
+- **#968** “Refresh quotas” now runs the heartbeat instead of duplicating the per-account check; legacy plugin seats are unregistered when the host registers `settings.section` after the fallback timer, removing duplicate cards.
+- **#966** a mid-stream failure records `stream_error` plus a short cooldown (and persists it through `onCooldown`) instead of retrying forever with no trace; queue-only failures retry the same account once before consuming the attempt.
+- **#967** expired quarantines without warm-up attempts are pruned and no longer persisted (records with attempts stay for the mandatory probe), the round-robin cursor map is capped at 128 entries, and the interval digest seeds its clock so a remount does not fire immediately.
+- **#969** one source of truth for package-size limits (`scripts/pack-limits.mjs`, used by CI and the test, both with `--ignore-scripts`); the locale test reads fixtures relative to itself.
+- **#965** `X-Forwarded-Proto/Host` are only trusted when `DSH_TRUST_PROXY=1`.
+
+### Still open
+- **#960** lazy pane mounting / memoized catalog / resetTick isolation.
+- **#965** Claude keychain secret via stdin.
+- **#966** per-apply queue instance, cascade model mapping, 401-vs-revocation policy.
+- **#967** debounced quarantine persistence, warm-up DST documentation.
+- **#969** peer-range collapse, mirror tree/.gitignore, runnable mirror.
+- **#970** signed tags/SBOM/provenance defaults.
+
+### Verification
+- `npm test`: 1279 tests, coverage (line 93%, branch 80.5%) and pack-size gates green.
+
 ## [0.7.69] - 2026-11-04
 
 Audit batch (#940–#971). One branch, one release.
