@@ -1,3 +1,12 @@
+## [0.7.74] - 2026-11-05
+
+### Fixed
+- **#979** new independent `showSubsPill` setting controls the SUBS indicator in the chat header (default visible). It is discoverable next to the Codex Speed toggle, applies immediately without a reload, survives restarts, and only hides the pill: account tracking, rotation, quotas, toasts and the Speed setting stay active. `GET /status` reports the visibility so a reload restores the same state.
+- **#974/#979** documented both visibility settings in the configuration reference.
+
+### Verification
+- `npm test`: 1289 tests, coverage and pack-size gates green. Tested against the released Web build; no Desktop-only code paths are involved.
+
 ## [0.7.73] - 2026-11-05
 
 ### Fixed
