@@ -1,3 +1,16 @@
+## [0.7.73] - 2026-11-05
+
+### Fixed
+- **#967** quarantine persistence no longer writes synchronously on every success/cooldown transition: the in-memory pruning stays immediate, the disk write is debounced by one second, and pending data is flushed on plugin dispose and process exit. The `warmupAt` description now states local wall-clock/DST semantics.
+- **#969** peer ranges collapse to the two tested cohorts (`^0.1.7-rc.2 || ^0.2.0-rc.1`), the cordis peer gets an explicit bounds test, the mirror no longer publishes `.gitignore`, and the README documents why the sanitized mirror is not a runnable test tree.
+
+### Still open
+- **#969** CI leg against the 0.2.1 host cohort.
+- **#965**, **#966**, **#970**.
+
+### Verification
+- `npm test`: 1288 tests, coverage (branch 80.4%) and pack-size gates green.
+
 ## [0.7.72] - 2026-11-05
 
 ### Fixed

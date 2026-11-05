@@ -396,6 +396,10 @@ The plugin registers these exact routes on the DSH web server. Unless noted, the
 
 The plugin source language is English only. Russian and other translations are provided at runtime by separate language plugins (for example the russification plugin), which translate the registered locale keys - the package itself ships no bundled translations (Changed in 0.6.1).
 
+## 🪞 Mirror
+
+The GitHub repository is a sanitized distribution mirror: it ships product files only, without tests, build sources or internal tooling. `npm test` therefore only runs in the canonical Gitea repository; use the published npm package or the Gitea tree for development.
+
 ---
 
 ## 📄 License
