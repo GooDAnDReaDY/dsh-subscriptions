@@ -1,3 +1,13 @@
+## [0.7.72] - 2026-11-05
+
+### Fixed
+- **#960** settings panes now mount on first visit instead of all at once: Sources, Dashboard, Provider packs, Vault and Accounts render lazily and keep their state afterwards.
+- Sources polling stops while the Routing tab is inactive and while the document is hidden; the reset-credit countdown moved into a `ResetCreditsPanel` leaf so its 1 s tick no longer re-renders the whole settings section.
+- Model catalog filtering/sorting/slicing and the dirty-form comparison are memoized, removing repeated work on every render.
+
+### Verification
+- `npm test`: 1285 tests, coverage and pack-size gates green.
+
 ## [0.7.71] - 2026-11-05
 
 ### Fixed
