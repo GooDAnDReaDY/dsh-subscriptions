@@ -1,3 +1,11 @@
+## [0.7.71] - 2026-11-05
+
+### Fixed
+- **#974** new `showSpeedToggle` setting controls the Codex Speed button in the composer toolbar. It defaults to visible, is saved with the plugin config (Web and Desktop), applies immediately after saving, and only hides the button — the selected speed mode, `/fast` command, subscriptions, quotas and other indicators are untouched. `GET /speed` now reports the current visibility so the button survives reloads.
+
+### Verification
+- `npm test`: 1284 tests, coverage and pack-size gates green (client 243564 B).
+
 ## [0.7.70] - 2026-11-05
 
 Follow-up to the audit batch (remaining sub-items).
