@@ -1,3 +1,11 @@
+## [0.7.77] - 2026-11-05
+
+### Fixed
+- **#965** vault imports that use the legacy weak KDFs (DSHE1 scrypt, or DSHE2's 100k PBKDF2 fallback) now return `weakKdf: true`, the detected `kdf` and a re-export warning. Fresh DSHE2-600k/DSHE3 exports are unaffected.
+
+### Verification
+- `npm test`: 1301 tests, coverage (branch 80.6%) and pack-size gates green.
+
 ## [0.7.76] - 2026-11-05
 
 ### Fixed
