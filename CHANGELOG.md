@@ -1,3 +1,14 @@
+## [0.7.76] - 2026-11-05
+
+### Fixed
+- **#965** Claude keychain writes now feed the whole `security -i` command through stdin; the access/refresh token blob never appears on an argv. Tests cover the stdin runner and assert the secret is absent from the command line.
+- **#966** remaining rotation hardening: one bare 401 no longer parks an account for 24 h (evidence such as `invalid_grant`/`revoked`, or two consecutive 401s within five minutes, is required); the rotation comparator is a strict deterministic weak ordering; cascade fallback maps known cross-vendor model families instead of sending the source id; `pickAccountWithTrace` no longer mutates caller pacing fields; the queue is created per plugin instance and shared by the adapter, status routes, diagnostics and accounts view.
+- **#969** CI now has a `host-cohort` job that installs the production `0.2.1-rc.5` host packages and runs the full suite against them.
+- **#970** release-chain controls are documented in `docs/RELEASE-SECURITY.md`; deploy supports a pinned `DEPLOY_KNOWN_HOSTS` secret (StrictHostKeyChecking=yes when present). Signed tags, npm provenance and Sigstore/SBOM attestations are explicitly documented as unsupported on this runner instead of being implied.
+
+### Verification
+- `npm test`: 1300 tests green locally and against the 0.2.1 host cohort; coverage (branch 80.5%) and pack-size gates pass.
+
 ## [0.7.75] - 2026-11-05
 
 ### Fixed
