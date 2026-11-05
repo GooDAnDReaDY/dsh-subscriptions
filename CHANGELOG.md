@@ -1,3 +1,42 @@
+## [0.7.69] - 2026-11-04
+
+Audit batch (#940–#971). One branch, one release.
+
+### High
+- **#940** `providerPacks` credentials are masked by `publicConfig` and restored on save, like `customVendors`.
+- **#941** partial `PUT /config` merges over the live snapshot; credentials are unlinked only when `slots` is sent with `dropCredentials: true`.
+- **#942** the refresh backoff error is switchable, so one token-endpoint blip rotates to another account instead of failing the call.
+- **#943** a refresh captures the credential generation and discards its result if the user re-authorized meanwhile.
+- **#944** quota pill/capsule read the latest props through a ref and follow model/session switches.
+- **#945** the reload generation guard lives in `useRef`, so stale responses cannot overwrite edits or resurrect removed slots.
+- **#946/#961** the mirror SHA is emitted only after a successful push; the step uses `pipefail`; unchanged trees reuse the mirror head.
+- **#947** `engines.node >= 22.19.0`, README badges updated, and CI runs the suite on Node 22 as well as 24.
+
+### Medium
+- **#948** `/health` is same-origin gated; derived keys are cached (bounded) instead of re-running PBKDF2 per read.
+- **#949** model-scoped cooldowns are forwarded and persisted.
+- **#950** `webhookSecret` is volatile, so it can be saved from the panel.
+- **#951** per-slot concurrency defaults to inherit; `accountMaxConcurrency` now works and `0` is rejected.
+- **#952** the probe loop is single-flight, notifies once per quarantine window and uses the shared revoked duration.
+- **#953** vault pull keeps the newest credential and refuses to resurrect logged-out slots (persisted tombstones).
+- **#954/#955** the at-rest badge reflects the stored value; a key mismatch surfaces `DECRYPT_FAILED` instead of "logged out".
+- **#956** usage, organization switch and OAuth completion use `mutateBlob` inside the serialized write queue.
+- **#957** nullable forecast/wizard fields are guarded; `GET /config` failures surface an error instead of an empty form.
+- **#961/#962** release ordering (npm first), dry-run/tag validation before git/env, real forbidden-path guard, source-SHA pinning, token moved out of the remote URL, cleanup step.
+- **#963** `docs/SUPPLY-CHAIN.md` documents that overrides are dev-only, the Node floor and release ordering.
+- **#964** coverage/lint/typecheck include `bin/`; CI runs a prod dependency audit and Node 22.
+- **#971** ADR-0001/DESIGN/README refreshed (CSS route, Node floor, version).
+
+### Partially addressed (issues stay open)
+- **#958** legacy seats receive the translator; the remaining hardcoded UI strings are not all localized yet.
+- **#959** wizard dialog semantics and portaled toasts; focus trap/scroll lock still missing.
+- **#960** pollers pause when the document is hidden and the composer off-mode returns early; panes are still mounted eagerly and resetTick still re-renders the section.
+- **#965–#970** device-request timeouts, loopback cross-site guard, `/update` GET gate, extra token formats, proxy hardening, FIFO queue eviction, timeout classifier, reset-credit status codes, client keys/opener/CSS cache/zh chunk, `ip-address` override, sharded parallel tests, updater `--ignore-scripts`, publish guards landed; the remaining sub-items in those batches are still open.
+
+### Verification
+- `npm test`: 1275 tests, coverage and pack-size gates green; suite also green on Node 22.
+- Live deploy verification after release.
+
 ## [0.7.68] - 2026-11-02
 
 ### Fixed
