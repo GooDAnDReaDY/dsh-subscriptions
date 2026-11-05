@@ -1,3 +1,11 @@
+## [0.7.75] - 2026-11-05
+
+### Fixed
+- **#981** deploy hardening: both Release and manual Deploy workflows now run the same `scripts/deploy-remote.sh`. Before installing, it scans the WEB profile for `file:/tmp/*.tgz` dependencies whose tarball disappeared and regenerates them from the published npm package, then installs, restarts, and verifies the health version. This prevents the stale-tarball deploy failures seen with `dsh-vision-bridge@0.6.23`.
+
+### Verification
+- `npm test`: 1291 tests, coverage and pack-size gates green (plus `bash -n` for the deploy script on Linux CI).
+
 ## [0.7.74] - 2026-11-05
 
 ### Fixed
