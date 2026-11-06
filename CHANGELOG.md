@@ -1,3 +1,18 @@
+## [0.7.79] - 2026-11-06
+
+### Fixed
+- **#993** Re-exported media policy helpers (classifyMediaFailure, shouldRetryMedia, selectMediaAccount, resolveToolPolicy, toolAllowed) in index.js.
+- **#994** Connected safeProviderIconUrl into accounts-describe.js for avatar URL validation and re-exported provider icon helpers in index.js.
+- **#995** Removed stray validateReasoningEffort function reference from /dsh-subscriptions/session-reasoning response object in routes/status-extras.js.
+- **#996** Re-exported refreshIsCurrent from account-reliability.js in index.js.
+- **#997** Connected parseNpmVersion into client-version-service.js and re-exported client version helpers in index.js.
+- **#998** Corrected example config defaults in README.md (showSpeedToggle: false, showSubsPill: false).
+- **#999** Added functional test suite for POST /dsh-subscriptions/webhook/test covering method guards, same-origin validation, and delivery responses.
+
+### Verification
+- npm test: all tests passing, coverage and pack-size gates green.
+- Preflight: FAIL=0, dead exports resolved.
+
 ## [0.7.78] - 2026-11-06
 
 ### Added

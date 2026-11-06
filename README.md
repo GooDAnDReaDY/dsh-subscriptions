@@ -283,8 +283,8 @@ dsh-subscriptions:
   codexVerbosity: ''        # v0.4.17: low | medium | high (text.verbosity)
   codexFastMode: false      # v0.4.17: service_tier priority (1.5x speed tier)
   composerQuota: 'off'      # v0.4.18: composer indicator: off | percent | bar | forecast
-  showSpeedToggle: true     # v0.7.71: show the Codex Speed button in the composer
-  showSubsPill: true        # v0.7.74: show the SUBS indicator in the chat header
+  showSpeedToggle: false    # v0.7.71: show the Codex Speed button in the composer (default: false)
+  showSubsPill: false       # v0.7.74: show the SUBS indicator in the chat header (default: false)
   enableToasts: true        # v0.6.59: real-time in-app toast alerts on quarantine and quota events
   enableQueue: true         # v0.6.62: bounded concurrency queue to prevent bursts of 429 errors
   accountMaxConcurrency: 2  # v0.6.62: max concurrent active streams per account

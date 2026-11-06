@@ -1,6 +1,6 @@
 {
   "name": "@goodandready/dsh-subscriptions",
-  "version": "0.7.78",
+  "version": "0.7.79",
   "description": "Use ChatGPT Codex, Claude, Grok, Antigravity, Kimi, GLM, Cursor, Kiro, Copilot, Qwen, ERNIE, Spark, JetBrains, Perplexity, Replit, and Cody subscriptions as DeepSeek Harness LLM providers via OAuth.",
   "license": "MIT",
   "type": "module",
@@ -56,11 +56,11 @@
     "market": {
       "name": {
         "en": "Subscriptions",
-        "zh": "订阅管理"
+        "zh": "\u8ba2\u9605\u7ba1\u7406"
       },
       "description": {
         "en": "Use ChatGPT, Claude, Grok, Antigravity and 12 more subscriptions as DSH providers with account pools, quota tools and OAuth.",
-        "zh": "将 ChatGPT、Claude、Grok、Antigravity 等 16 种订阅接入 DSH，支持账户池、额度工具和 OAuth。"
+        "zh": "\u5c06 ChatGPT\u3001Claude\u3001Grok\u3001Antigravity \u7b49 16 \u79cd\u8ba2\u9605\u63a5\u5165 DSH\uff0c\u652f\u6301\u8d26\u6237\u6c60\u3001\u989d\u5ea6\u5de5\u5177\u548c OAuth\u3002"
       },
       "category": "providers",
       "icon": "subscriptions",
