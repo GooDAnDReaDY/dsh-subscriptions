@@ -1,3 +1,22 @@
+## [0.7.80] - 2026-11-06
+
+### Security
+- **#1001** SSRF protection: account for `NO_PROXY` / `no_proxy` in `envProxyForUrl` to enforce pinned DNS dispatchers on direct connections, preventing DNS rebinding.
+- **#1005** Proxy password masking: safely mask proxy passwords containing Unicode, spaces, and percent-encoding in `publicConfig` and restore in `restoreMaskedSecrets`.
+- **#877** Secret scrubbing: expanded `sanitizeSecrets` and `isSecretLike` to scrub camelCase JSON credential fields (`accessToken`, `refreshToken`, `idToken`, `sessionKey`, `sessionToken`, `apiKey`, `apiToken`, `clientSecret`, `privateKey`, `secretKey`, `proxyPassword`, `masterKey`, `passphrase`, `cookie`).
+- **#940** Sensitive headers: masked `Proxy-Authorization`, `Cookie`, and `Set-Cookie` in custom vendors and provider packs.
+- **#1006** Vault KDF safety: `encryptWithPassphrase` rejects unknown algorithms with an explicit error instead of silently falling back to legacy KDF.
+
+### Fixed
+- **#1002** Webhook delivery: follow same-origin redirects regardless of `Content-Length` header presence.
+- **#1003** Vault import atomicity: transactional rollback of stored credential blobs if settings replacement fails during import or snapshot restore.
+- **#953** Vault pull freshness: preserve newer local tokens in `mutateBlob` and strictly enforce cleared account tombstones.
+- **#1004** Image reference builder: consolidated `referenceImageRequest` to delegate to production `codexBody` and `grokBody` from `lib/images.js`.
+
+### Verification
+- Dedicated test suite `test/issues-1001-1006.test.mjs` verifying all 9 issues.
+- Preflight: FAIL=0, all tests pass, coverage gates green.
+
 ## [0.7.79] - 2026-11-06
 
 ### Fixed
