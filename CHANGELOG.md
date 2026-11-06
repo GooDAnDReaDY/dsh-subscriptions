@@ -1,3 +1,25 @@
+## [0.7.78] - 2026-11-06
+
+### Added
+- **#991** All on-screen badges, pills, and widgets default to disabled:
+  - Header SUBS pill (`showSubsPill`) defaults to `false`.
+  - Composer Speed button (`showSpeedToggle`) defaults to `false`.
+  - Quota widget placement (`quotaWidget`) defaults to `off`.
+  - Status-bar quota scope (`composerQuotaDisplay`) defaults to `hidden`.
+  - Composer quota indicator (`composerQuota`) defaults to `off`.
+  All indicators are cleanly enabled by the user in Settings > Display.
+
+### Fixed
+- **#986** Added explicit HTTP method guard to `/dsh-subscriptions/oauth/headless-redirect`; non-GET methods now return `405 Method Not Allowed`.
+- **#987** Connected `proxyPrecedence` from `account-reliability.js` into `proxy.js` and `index.js` for deterministic host vs plugin proxy resolution.
+- **#988** Connected `mergeClaudeCredentials` into `import-auth.js` to merge credentials by token freshness (`expiresAt`) between file and keychain.
+- **#989** Replaced server-side raw `console.log` with canonical `ctx.logger.info` in OAuth device flow (`routes/oauth.js`).
+- **#990** Resolved documentation drift in `docs/design/DESIGN.md`.
+
+### Verification
+- `npm test`: 881 tests passing, coverage and pack-size gates green.
+- Preflight: FAIL=0, 0 console.* outside client.
+
 ## [0.7.77] - 2026-11-05
 
 ### Fixed
