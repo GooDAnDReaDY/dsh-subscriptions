@@ -1,3 +1,18 @@
+## [0.7.81] - 2026-11-07
+
+### Security
+- **#1001** SSRF protection: strict port matching and IPv6 bracket handling in `envProxyForUrl`; documented proxy DNS trust model where public IP resolution fail-closed checks precede outbound routing.
+- **#877** Secret scrubbing: scrub JSON fields `authorization`, `proxy_authorization`, `proxyAuthorization`, `auth_token`, and `authToken` in `sanitizeSecrets` and `isSecretLike`.
+
+### Fixed
+- **#1003** Vault import atomicity: fail-closed preflight snapshot in `handleVaultImport` and `/vault/snapshots/restore` (abort on storage read failure instead of assuming missing credentials), preventing unintended credential deletion during rollback. Tracked rollback errors.
+- **#953** Vault pull race condition: preserved tombstones during concurrent Vault pull & logout in `mutateBlob` and `saveBlob` via `preserveTombstone` option, preventing backup resurrection.
+- **#1008** Preflight conformance: replaced empty catch blocks with tracked error logging (`ignoreError`), achieving `FAIL=0` on standard DSH preflight.
+
+### Verification
+- Added test suite `test/issues-1001-1008-followup.test.mjs` verifying #1001, #877, #953, #1003, and #1008.
+- Preflight: FAIL=0, all tests passing, coverage gates green.
+
 ## [0.7.80] - 2026-11-06
 
 ### Security
