@@ -1,3 +1,20 @@
+## [0.7.82] - 2026-11-09
+
+### Security
+- **#1010** Cross-site data disclosure guard: added strict `isTrustedSettingsRequest(req, ctx)` check to `/dsh-subscriptions/subscriptions` route, blocking cross-site and unauthorized fetches from accessing account emails, quotas, and history.
+- **#1011** SSRF protection: blocked IPv4/IPv6 translation Well-Known Prefix `64:ff9b::/96` (RFC 6052), Local-Use prefix `64:ff9b:1::/48` (RFC 8215), documentation ranges RFC 5737 (`192.0.2.0/24`, `198.51.100.0/24`, `203.0.113.0/24`), RFC 3849 (`2001:db8::/32`), and Discard-Only RFC 6666 (`100::/64`) in `lib/webhook-url.js`.
+
+### Fixed & Polish
+- **#1012** API error contract conformance: unified error formats across `/discover-local`, `/import-local`, `/ping`, and `/webhook/test` to strictly return standard `{ ok: false, error: { code, message } }`.
+- **#1013** Preflight conformance: replaced empty catch in `lib/client.js` settings.section slot registration with tracked diagnostics logging via `debugIgnored`.
+- **#1014** Public facade completeness: exported utility helpers `clearIgnoredErrors`, `resetClientVersionCache`, `referenceImageRequest`, `modelAllowlistMode`, `resetRoundRobinState`, `isSecretLike`, `resetAuthFailureStreaks`, `resolvePublicHostname` in `lib/index.js`.
+- **#1015** Bundle size optimization: extracted `ResetCreditsPanel`, `SubsPill`, and `QuotaCapsule` into `lib/client.panels.js`, reducing `lib/client.js` from 241,779 bytes (92.2% of Store limit) to ~209,800 bytes (~80.0%), leaving >52 KB of safe headroom.
+- **#1016** Architecture documentation: documented the full catalog of all 54 HTTP routes and adapter endpoints in `docs/design/DESIGN.md`.
+- **#1017** Functional test coverage: added comprehensive route tests in `test/routes-functional.test.mjs`, raising `lib/routes.js` test line coverage to 100%.
+
+### Verification
+- Full test suite passing, coverage gates green, package pack size check green (largest file 209 KB vs 262 KB limit), DSH preflight `FAIL=0`.
+
 ## [0.7.81] - 2026-11-07
 
 ### Security
