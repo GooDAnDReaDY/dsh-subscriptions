@@ -7,3 +7,27 @@
 .dsub-wrap[data-tab=overview]>[data-pane]:not([data-pane=overview]),.dsub-wrap[data-tab=accounts]>[data-pane]:not([data-pane=accounts]),.dsub-wrap[data-tab=routing]>[data-pane]:not([data-pane=routing]),.dsub-wrap[data-tab=models]>[data-pane]:not([data-pane=models]),.dsub-wrap[data-tab=vault]>[data-pane]:not([data-pane=vault]),.dsub-wrap[data-tab=notifications]>[data-pane]:not([data-pane=notifications]),.dsub-wrap[data-tab=advanced]>[data-pane]:not([data-pane=advanced]),.dsub-wrap[data-tab=overview] [data-pane]:not([data-pane=overview]),.dsub-wrap[data-tab=accounts] [data-pane]:not([data-pane=accounts]),.dsub-wrap[data-tab=routing] [data-pane]:not([data-pane=routing]),.dsub-wrap[data-tab=models] [data-pane]:not([data-pane=models]),.dsub-wrap[data-tab=vault] [data-pane]:not([data-pane=vault]),.dsub-wrap[data-tab=notifications] [data-pane]:not([data-pane=notifications]),.dsub-wrap[data-tab=advanced] [data-pane]:not([data-pane=advanced]),.dsub-wrap[data-tab=overview]>.dsub-block:not([data-pane]),.dsub-wrap[data-tab=accounts]>.dsub-block:not([data-pane]){display:none}
 
 .dsub-accountCardAction{cursor:pointer}.dsub-accountCardAction:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:-2px}
+
+
+/* #1030: Sidebar footer quota meter button */
+.dsub-sidebar-meter{display:flex;align-items:center;gap:8px;width:100%;padding:6px 10px;margin-bottom:4px;border:1px solid var(--dsw-alias-border-l2);border-radius:8px;background:var(--dsw-alias-bg-layer-2);color:var(--dsw-alias-label-primary);cursor:pointer;font:inherit;text-align:left;transition:all .15s}
+.dsub-sidebar-meter:hover{background:var(--dsw-alias-bg-layer-1);border-color:var(--dsw-alias-label-tertiary)}
+.dsub-sidebar-meter-content{flex:1;min-width:0;display:flex;flex-direction:column}
+.dsub-sidebar-meter-head{display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:600}
+.dsub-sidebar-meter-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dsub-sidebar-meter-pct{font-variant-numeric:tabular-nums;color:var(--dsw-alias-label-secondary)}
+.dsub-sidebar-meter-reset{font-size:10px;color:var(--dsw-alias-label-tertiary);margin-top:2px;font-variant-numeric:tabular-nums}
+
+/* #1031: Central Subscriptions Dashboard Panel */
+.dsub-dash-panel{height:100%;display:flex;flex-direction:column;background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);overflow:auto;padding:16px 24px}
+.dsub-dash-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--dsw-alias-border-l2)}
+.dsub-dash-title{font-size:20px;font-weight:700;line-height:1.2}
+.dsub-dash-sub{font-size:13px;color:var(--dsw-alias-label-secondary);margin-top:4px}
+.dsub-dash-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:16px}
+.dsub-dash-card{border:1px solid var(--dsw-alias-border-l2);border-radius:10px;background:var(--dsw-alias-bg-layer-2);padding:14px}
+.dsub-dash-kpi-val{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
+.dsub-dash-kpi-lbl{font-size:12px;color:var(--dsw-alias-label-secondary);margin-top:2px}
+.dsub-table-clean{width:100%;border-collapse:collapse;font-size:12.5px}
+.dsub-table-clean th{padding:8px 10px;text-align:left;border-bottom:1px solid var(--dsw-alias-border-l2);color:var(--dsw-alias-label-secondary);font-weight:600}
+.dsub-table-clean td{padding:8px 10px;border-bottom:1px solid var(--dsw-alias-border-l3)}
+.dsub-table-clean tr:hover td{background:var(--dsw-alias-bg-layer-2)}

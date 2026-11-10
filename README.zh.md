@@ -184,6 +184,46 @@ dsh plugin --profile web add @goodandready/dsh-subscriptions
 
 ---
 
+## ⚙️ 配置参考（`settings.yaml`）
+
+```yaml
+dsh-subscriptions:
+  switchAtRemaining: 1
+  cooldownMs: 60000
+  autoLoopback: true        # 自动监听本地回调端口并捕获 OAuth 令牌
+  privacyMask: false        # 在 Web UI 中脱敏邮箱和账号标识符
+  ollamaBaseUrl: http://127.0.0.1:11434  # 本地 Ollama 网关地址
+  ollamaFallback: true      # 订阅全部耗尽时无缝降级到本地模型
+  ollamaFallbackModel: ''   # 降级模型（为空默认使用 /api/tags 中的第一个）
+  hideDeprecatedModels: false # 过滤测试/预览/废弃模型
+  codexVerbosity: ''        # low | medium | high
+  codexFastMode: false      # 优先使用 1.5x 速率服务档位
+  composerQuota: 'off'      # 输入框配额指示器: off | percent | bar | forecast
+  composerQuotaDisplay: 'hidden' # 状态栏配额范围: current | hidden
+  sidebarQuotaDisplay: 'off' # 侧边栏底部配额显示: off | auto | always
+  showSpeedToggle: false    # 在输入栏显示 Codex 极速模式按钮
+  showSubsPill: false       # 在对话标题栏显示 SUBS 订阅胶囊
+  enableToasts: true        # 隔离与配额事件的实时弹窗通知
+  enableQueue: true         # 有界并发队列，防止瞬时并发触发 429
+  accountMaxConcurrency: 2  # 单账号最大并发活动请求数
+  maxQueueSize: 20          # 队列最大等待深度
+  queueTimeoutMs: 30000     # 队列等待超时时间（毫秒）
+  accounts:
+    codex:
+      - ref: CODEX_OAUTH_1
+        label: "Work Pro Account"
+      - ref: CODEX_OAUTH_2
+        label: "Personal Plus Account"
+    claude:
+      - ref: CLAUDE_OAUTH_1
+        label: "Claude Max"
+    grok:
+      - ref: GROK_OAUTH_1
+        label: "X Premium"
+```
+
+---
+
 ### 自定义供应商与主机信任
 
 - `customVendors.authUrl`、`tokenUrl` 和 `baseUrl` 必须使用 `https://`。明文 `http://` 仅允许用于回环主机（`localhost`、`127.0.0.1`、`::1`）。
@@ -253,23 +293,82 @@ dsh plugin --profile web add @goodandready/dsh-subscriptions
 
 ## 🔌 HTTP API
 
-插件在 DSH Web 服务器上注册以下精确路由。除非另有说明，仅接受同源或 loopback 请求；写入请求必须携带与 Host 匹配的 `Origin` 或 `Referer`（#782）。除特别说明外返回 JSON。
+插件在 DSH Web 服务器上注册以下 55 个精确路由。除特别说明外，接受同源或 loopback 请求；写入操作必须携带与 Host 匹配的 `Origin` 或 `Referer`（#782）。响应均为 JSON（除非另有说明）。
 
+### 核心与状态
 | 方法 | 路径 | 用途 |
 |---|---|---|
-| GET | `/dsh-subscriptions/usage?type=accounts\|calls&format=json\|csv` | 面向外部配额插件的额度快照与调用账本（#687）。 |
-| GET | `/dsh-subscriptions/instructions` | 动态供应商接入说明（#540）。 |
-| GET | `/dsh-subscriptions/metrics` | Prometheus 文本指标（#744）；仅 loopback 或同源。 |
-| GET | `/dsh-subscriptions/health` | 供监控使用的深度健康报告（#745）；公开 GET。 |
-| GET | `/dsh-subscriptions/models` | 当前订阅的增强模型目录。 |
-| POST | `/dsh-subscriptions/heartbeat/run` | 触发一次额度/健康刷新；返回 `{ok, refreshed}`。 |
-| GET | `/dsh-subscriptions/discover-local` | 发现可导入的本地 CLI 会话。 |
-| GET | `/dsh-subscriptions/subscriptions` | 仅限 localhost 的 HTML 订阅概览。 |
-| GET | `/dsh-subscriptions/session-reasoning?sessionId=…&provider=…&model=…` | 读取会话的 reasoning effort 与模型能力。 |
-| POST | `/dsh-subscriptions/session-reasoning` | 设置 `{sessionId, provider, model, effort, budgetTokens}`。 |
-| DELETE | `/dsh-subscriptions/session-reasoning?sessionId=…` | 清除会话 reasoning 覆盖。 |
+| GET | `/dsh-subscriptions/status` | 全局状态、配置的槽位、活跃用量与额度 |
+| GET | `/dsh-subscriptions/health` | 供监控使用的深度健康检查报告（#745）；公开 GET |
+| GET | `/dsh-subscriptions/metrics` | Prometheus 文本指标（#744）；仅 loopback 或同源 |
+| GET | `/dsh-subscriptions/models` | 当前活跃订阅的增强模型目录 |
+| POST | `/dsh-subscriptions/heartbeat/run` | 触发一次额度与健康状态刷新；返回 `{ok, refreshed}`（#968） |
+| GET | `/dsh-subscriptions/subscriptions` | 仅限 localhost 的自适应 HTML 订阅概览表格（#1021） |
+| GET | `/dsh-subscriptions/telemetry` | 请求计数聚合、平均延迟与成功率 |
+| GET | `/dsh-subscriptions/usage` | 面向外部配额插件的额度快照与调用账本（#687） |
+| POST | `/dsh-subscriptions/smoke` | 针对活跃供应商发起合成连通性测试请求 |
+| GET | `/dsh-subscriptions/ping` | 轻量级往返网络延迟检测 |
+| GET | `/dsh-subscriptions/instructions` | 动态供应商连接操作指引（#540） |
+| GET | `/dsh-subscriptions/alerts` | 应用内近期警报与通知列表 |
 
-`/discover-local` 与 `/subscriptions` 保留为受支持的 API/UI 接口（决策记录于 `docs/design/DESIGN.md`）。
+### 账号、轮换与推理
+| 方法 | 路径 | 用途 |
+|---|---|---|
+| GET/PUT | `/dsh-subscriptions/config` | 配置架构读取与原子化更新 |
+| POST | `/dsh-subscriptions/check` | 校验账号凭据并从供应商 API 获取最新配额 |
+| POST | `/dsh-subscriptions/logout` | 断开指定账号槽位并清除存储的凭据 |
+| GET | `/dsh-subscriptions/discover-local` | 扫描发现宿主机上已登录的本地 CLI 会话 |
+| POST | `/dsh-subscriptions/import-local` | 将发现的本地 CLI 凭据导入账号槽位 |
+| POST | `/dsh-subscriptions/import-token` | 手动导入刷新令牌或 API 密钥 |
+| POST | `/dsh-subscriptions/accounts/sync-models` | 从上游供应商拉取并同步可用模型列表 |
+| POST | `/dsh-subscriptions/accounts/switch-organization` | 为 Codex 账号切换活跃组织 |
+| POST | `/dsh-subscriptions/quarantine/park` | 手动将账号置入隔离状态（支持 durationMs 与 reason） |
+| POST | `/dsh-subscriptions/quarantine/probe` | 执行预热探测或立即解除账号隔离 |
+| GET/POST | `/dsh-subscriptions/reset-credits` | 查看、准备并消费 Codex 额度重置信用点 |
+| GET | `/dsh-subscriptions/routing/trace` | 实时路由决策审计日志与原因统计（#1028） |
+| GET/POST/DEL | `/dsh-subscriptions/session-reasoning` | 会话级推理思考预算与档位覆盖管理 |
+| GET/POST | `/dsh-subscriptions/speed` | 会话级 Codex 极速模式（fast-tier）开关 |
+
+### 统计分析、经济价值与并发
+| 方法 | 路径 | 用途 |
+|---|---|---|
+| GET | `/dsh-subscriptions/analytics` | 缓存命中率、24小时请求分桶、热力图与额度耗尽预测 |
+| GET | `/dsh-subscriptions/analytics/savings` | 交付价值估算、提示词缓存节省费用与多周期 ROI 报告（#1029） |
+| GET | `/dsh-subscriptions/queue` | 实时并发队列深度与活跃并发请求监控（#518） |
+| GET | `/dsh-subscriptions/history` | 历史请求明细与耗时账本 |
+
+### OAuth 与设备码授权
+| 方法 | 路径 | 用途 |
+|---|---|---|
+| GET | `/dsh-subscriptions/oauth/start` | 发起浏览器 OAuth 授权登录流程 |
+| GET | `/dsh-subscriptions/oauth/callback` | OAuth 本地回环端口回调监听服务（#1019） |
+| POST | `/dsh-subscriptions/oauth/complete` | 提交重定向 URL 或授权码完成登录绑定 |
+| POST | `/dsh-subscriptions/oauth/device/start` | 发起 RFC 8628 设备码授权（Codex、Grok、Copilot） |
+| POST | `/dsh-subscriptions/oauth/device/poll` | 轮询设备码授权确认状态 |
+| GET | `/dsh-subscriptions/oauth/headless-info` | 无头服务器远程连接所需的 SSH 隧道命令与 SVG 二维码 |
+| GET | `/dsh-subscriptions/oauth/headless-redirect` | 引导浏览器直连上游供应商授权登录页 |
+
+### 加密保管库与同步
+| 方法 | 路径 | 用途 |
+|---|---|---|
+| GET/POST | `/dsh-subscriptions/vault/snapshots` | 查看或手动创建本地加密拉取前快照（#734） |
+| POST | `/dsh-subscriptions/vault/snapshots/restore` | 从快照安全恢复账号凭据，支持失败自动回滚（#1003, #1022） |
+| POST | `/dsh-subscriptions/vault/export` | 导出可移植加密备份归档文件 |
+| POST | `/dsh-subscriptions/vault/import` | 导入并解密便携式备份归档文件 |
+| GET | `/dsh-subscriptions/vault/sync/status` | 远程 Git 保管库同步状态检查 |
+| POST | `/dsh-subscriptions/vault/sync/push` | 将本地加密快照推送到远程保管库 |
+| POST | `/dsh-subscriptions/vault/sync/pull` | 从远程保管库拉取并应用快照 |
+
+### 诊断与实用工具
+| 方法 | 路径 | 用途 |
+|---|---|---|
+| GET | `/dsh-subscriptions/diagnostics` | 匿名化系统与健康诊断报告（严格排除所有私密凭据） |
+| POST | `/dsh-subscriptions/diagnostics/errors/clear` | 清理近期错误缓冲区 |
+| POST | `/dsh-subscriptions/diagnostic-wizard` | 自动化故障排查向导 |
+| POST | `/dsh-subscriptions/webhook/test` | 测试向配置的 Webhook 发送探活事件 |
+| POST | `/dsh-subscriptions/proxy-check` | 检测代理到供应商上游网关的连接延迟 |
+| GET | `/dsh-subscriptions/sources` | 列出活跃上下文源与集成状态 |
+| POST | `/dsh-subscriptions/provider-packs/validate` | 校验第三方自定义供应商扩展包规范 |
 
 ## 🌐 本地化
 

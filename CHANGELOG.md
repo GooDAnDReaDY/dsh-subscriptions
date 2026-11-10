@@ -1,3 +1,29 @@
+## [0.7.83] - 2026-11-10
+
+### Added & Features
+- **#1028** Cache-affinity session routing: expanded prompt caching support to Gemini, Kimi, and Qwen; registered `/dsh-subscriptions/routing/trace` route with per-session cache hit telemetry and decision reason.
+- **#1029** Economic ROI & token savings analytics: implemented `calculateSavingsReport` engine and `GET /dsh-subscriptions/analytics/savings` route to calculate delivered value, prompt caching savings, and subscription ROI multipliers.
+- **#1030** Sidebar quota indicator: registered quota card in `sidebar.footer.action` (`dsh-subscriptions-quota`) positioned above Settings, matching sibling plugins (Clinebot, OpenCode, Ollama), clicking it opens Subscriptions Center.
+- **#1031** Central Subscriptions Center: registered central dashboard panel `SubscriptionsPanel` (`main: subscriptions-panel`) with tabs: Accounts Matrix, Routing Trace, Savings & ROI, and Activity.
+- **#1032** Settings account polish: added per-account savings & quota badges in Settings and `sidebarQuotaDisplay` dropdown selector (`off`, `auto`, `always`).
+
+### Security & Hardening
+- **#1019** OAuth lifecycle decoupled: modernized `lib/loopback.js` with async server replacement and port release, decoupling OAuth completion from HTTP listener lifecycle.
+- **#1020** Toast notification control: exposed and enforced `enableToasts` configuration in `pollAlerts` to allow users to disable toast popups.
+- **#1021** Responsive HTML subscriptions table: structured `/dsh-subscriptions/subscriptions` with an adaptive CSS-styled HTML table showing account quotas, resets, and status.
+- **#1022** Vault snapshot restore test suite: created comprehensive test suite `test/routes-vault-snapshots.test.mjs` verifying snapshot restore, preflight read error, and fail-closed handling during key rollback.
+- **#1023** SSRF protection: blocked IPv6 transitional address ranges 6to4 (`2002::/16`) and Teredo (`2001:0000::/32`) in `lib/webhook-url.js`.
+- **#1024** Request source validation: removed test-only step 7 host validation bypass from `isTrustedSettingsRequest` in `lib/http.js`.
+- **#1025** Code cleanup: removed redundant `lib/utils.js`, unified logging with `ignoreError` in `lib/index.js`.
+- **#1026** Route documentation sync: synchronized catalog of all 55 HTTP routes and added full `settings.yaml` reference in `README.zh.md`, `README.ru.md`, and `README.md`.
+- **#1027** DEV repository hygiene: fast-forwarded DEV working copy, cleaned old merged branches and worktrees.
+
+### Verification
+- Full test suite passing (1,341 unit tests, 100% pass), ESLint clean, TypeScript check clean.
+- Coverage: lines 93.9%, branches 80.2%, functions 85.1%.
+- DSH Preflight: `FAIL=0, WARN=3`.
+- Pack size check: largest file `lib/client.js` 250,391 bytes (under 262 KB limit).
+
 ## [0.7.82] - 2026-11-09
 
 ### Security
