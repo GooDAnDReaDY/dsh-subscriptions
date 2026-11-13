@@ -1,3 +1,19 @@
+## [0.7.84] - 2026-11-13
+
+### Fixed & Hardening
+- **#1035** Background loops error logging & health monitoring:
+  - Implemented `lib/loop-health.js` with deduplicated `logger.warn` reporting (5-minute cooldown per operation), consecutive failure tracking, and secret masking in error messages.
+  - Wrapped background tasks in `lib/background-loops.js` (`heartbeat`, `probe`, `ollamaSync`, `vaultSync`, `digest`) via `safeLoop(...)`.
+  - Exposed `backgroundLoops` health status in `GET /dsh-subscriptions/status` and `GET /dsh-subscriptions/diagnostics`, flagging warnings when consecutive failures >= 3.
+  - Eliminated 45+ silent `.catch(() => {})` sites across `lib/` (`index.js`, `accounts.js`, `routes/*.js`, `vault-sync.js`, `wire.js`, `sse.js`, `alerts.js`, `client.panels.js`, `client.js`), ensuring all swallowed errors are recorded in the diagnostics ring buffer via `ignoreErr(label)`.
+  - Added test suite `test/loop-health.test.mjs` and enforced clean catch audit in `test/catch-audit.test.mjs`.
+
+### Verification
+- Full test suite passing (100% pass, 0 failures), ESLint clean, TypeScript check clean.
+- Coverage: lines 93.92%, branches 80.28%, functions 87.05%.
+- DSH Preflight: `FAIL=0, WARN=3`.
+- Pack size check: largest file `lib/client.js` 251,203 bytes (under 262 KB limit).
+
 ## [0.7.83] - 2026-11-10
 
 ### Added & Features
