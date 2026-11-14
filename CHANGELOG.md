@@ -1,3 +1,21 @@
+## [0.7.86] - 2026-11-14
+
+### Added
+- **#1041** Window-aligned quota forecast:
+  - New `lib/quota-windows.js` (`forecastWindow`, `forecastWindows`) reports, per quota window: remaining percent, burn rate per hour, ETA to the safety floor, hours to reset, predicted percent at reset, a survives-to-reset verdict, confidence and sample count.
+  - Confidence stays `calibrating` until 30 minutes of observations exist; a window without samples reports zero burn instead of a guess.
+  - `GET /dsh-subscriptions/quota-forecast?provider=&ref=&safetyFloor=` (same-origin) exposes the report per slot and synthesises a window when a vendor reports only a bare percentage.
+- **#1040** Chained account logins:
+  - New `lib/login-queue.js` (`planNextSlot`) picks the first free slot index for a provider, fills gaps, ignores other providers and reports exhaustion at the 99-slot cap.
+  - `POST /dsh-subscriptions/accounts/next-slot` reserves that slot through the settings API (same revision-safe path as `import-local`).
+  - The provider card gained a **Connect another** button that reserves the slot and immediately starts the existing OAuth flow for it (EN/ZH labels).
+
+### Verification
+- Full suite: 1384 tests, 100% pass, exit 0.
+- Coverage: lines 93.9%, branches 80.4%, functions 87.1%.
+- ESLint clean, TypeScript check clean, pack size OK (largest file 227 556 B).
+- Host cohort 0.2.1-rc.5 verified locally: 1384/1384.
+
 ## [0.7.85] - 2026-11-14
 
 ### Added
