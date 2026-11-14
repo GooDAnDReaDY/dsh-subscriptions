@@ -1,3 +1,22 @@
+## [0.7.88] - 2026-11-14
+
+### Added
+- **#1045** Session routing presets:
+  - `lib/routing-presets.js` normalises, upserts (dedup by id or name, cap 20) and removes a named preset that bundles a model, a reasoning effort, an account rule and a fallback chain;
+  - `lib/preset-session.js` binds a preset to a session;
+  - `POST /dsh-subscriptions/presets` stores presets through the settings API and `POST /dsh-subscriptions/presets/apply` binds one to a session, returning its effort/model (presets are readable from `GET /config`);
+  - `streamWithRotation` merges the bound preset account rule into the picker rules, so applying a preset changes account selection immediately.
+- **#1046** Time-of-day account windows:
+  - `lib/schedule-rules.js` (`normalizeScheduleRule`, `isScheduleActive`, `filterBySchedule`) supports explicit `tzOffsetMinutes`, weekday scoping, overnight windows and provider- or account-scoped rules, and never returns an empty pool;
+  - `streamWithRotation` filters the pool by `config.scheduleRules` before any other selection step.
+
+### Configuration
+- New keys: `routingPresets`, `scheduleRules` (both empty by default, so behaviour is unchanged until configured).
+
+### Verification
+- Full suite: 1407 tests, 100% pass, exit 0; 17 new tests including a stream integration.
+- Coverage: lines 93.9%, branches 80.4%, functions 87.1%; pack size 231 371 B.
+
 ## [0.7.87] - 2026-11-14
 
 ### Added
