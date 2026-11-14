@@ -1,3 +1,32 @@
+## [0.7.85] - 2026-11-14
+
+### Added
+- **#1039** Cross-process and cross-machine account lease:
+  - New `lib/account-lease.js` writes one atomic lease file per `provider#ref` under `$DSH_HOME/subscriptions/leases` (holder pid/host, acquire/heartbeat/release/list, TTL takeover after a crash).
+  - `streamWithRotation` skips an account leased by another instance, records `lease_held` in the decision trace, and falls back to the shared pool (`lease_all_held`) only when every account is taken.
+  - In-process `ctx.subscriptions.request` honours the same lease.
+  - Settings `leaseEnabled` (default true), `leaseTtlMs` (60 s) and `leaseDir`; active leases exposed by `GET /dsh-subscriptions/status`.
+- **#1053** `lowest-latency` rotation strategy is now selectable in settings (it was implemented but unreachable), with English and Chinese labels and a test that cross-checks the select against `rotate.js`.
+
+### Fixed
+- **#1058** Codex web search no longer defaults to a hardcoded model id: the setting is empty by default and the request omits `model` so the upstream picks its own; the body builder is exported and unit-tested.
+
+### Performance & Packaging
+- **#1057** English locale dictionary (~480 keys) moved into the lazy chunk `lib/client.en.js`; `lib/client.js` shrank from 251 364 B to 226 677 B (−9.8%) against the 262 144 B Store limit. Added a dedicated 240 000 B client-bundle ceiling (`scripts/pack-limits.mjs`, enforced by `check-pack-size.mjs`) plus a test proving the guard trips on an artificial oversize.
+
+### Documentation
+- **#1054** `docs/design/DESIGN.md` rebuilt as a current contract (300 lines instead of 780 with 43 version-stamped sections): added Feature Surface Map, Route Policy and Publication Set; corrected the stale "no CLI / no tools" claims.
+- **#1055** All three READMEs lost their release chronology (35 version tokens removed, capability list renumbered); the settings samples no longer carry version tags.
+- **#1056** Repository hygiene: orphaned worktree directories removed (5), stale `.planning/` archived.
+
+### Refactoring
+- **#1059** Oversized modules split without behaviour changes: `vault-sync.js` 782 → 415 (`vault-sync/remote.js`), `index.js` 656 → 595 (`oauth-html.js`, `image-service.js`, `startPendingSweep`), `accounts.js` 639 → 595 (`account-clock.js`, `account-master-key.js`). `client.panels.js` stays single with a recorded design decision.
+
+### Verification
+- Full suite: 1367 tests, 100% pass, exit 0.
+- Coverage: lines 93.93%, branches 80.43%, functions 87.12%.
+- ESLint clean, TypeScript check clean, pack size OK (largest file 226 677 B).
+
 ## [0.7.84] - 2026-11-13
 
 ### Fixed & Hardening

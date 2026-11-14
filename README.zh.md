@@ -96,74 +96,74 @@ graph LR
 
 ### 安全与无头登录
 * OAuth 令牌绝不通过 HTTP API 返回，也不在 Web 界面渲染；仅存放于宿主加密凭据存储。
-* **回环自动回调 (`autoLoopback`，`v0.4.9`)**：供应商重定向为回环地址（如 Codex `:1455`）时，插件自动启动临时本地服务器接收回调，无需手动粘贴链接。
-* **设备码登录（Codex，`v0.4.9`）**：完全无浏览器的主机上，点击 **Device login**，在任意设备打开 `https://auth.openai.com/codex/device` 输入短码即可完成 PKCE 授权。
+* **回环自动回调 (`autoLoopback`)**：供应商重定向为回环地址（如 Codex `:1455`）时，插件自动启动临时本地服务器接收回调，无需手动粘贴链接。
+* **设备码登录**：完全无浏览器的主机上，点击 **Device login**，在任意设备打开 `https://auth.openai.com/codex/device` 输入短码即可完成 PKCE 授权。
 
-### 账号级代理（`v0.4.9`）
+### 账号级代理
 * 每个账号可配置独立代理（`http://`、`https://`、`socks5://`）；令牌刷新、供应商检查、模型请求均走该代理。
 * 账号卡片内的 **Check proxy** 按钮一键检测代理延迟。
 
-### 本地 Ollama 网关与无缝回退（`v0.4.17`）
+### 本地 Ollama 网关与无缝回退
 * **原生 provider (`ollama`)**：本地 Ollama 可达时（`ollamaBaseUrl`，默认 `http://127.0.0.1:11434`），自动出现在 DSH 原生模型选择器中（模型来自 `/api/tags`），无需密钥。
 * **无缝配额回退 (`ollamaFallback`，默认开启)**：某供应商的所有账号耗尽或不可达且尚未输出任何内容时，对话自动切换到本地模型（`ollamaFallbackModel` 或 `/api/tags` 第一个模型），并记录到请求历史（`kind: fallback`）。
 * 免费（$0）应急通道：无网络、无配额也能用。
 
-### Effort、Verbosity 与 Fast Mode（`v0.4.17`）
+### Effort、Verbosity 与 Fast Mode
 * **推理力度 (Effort)**：Codex 模型从实时目录上报支持的力度等级，原生选择器校验后以 `reasoning.effort` 传入 `/responses` 协议；Grok 按自身目录过滤转发。
 * **详略程度 (`codexVerbosity`)**：`low`/`medium`/`high` 以 `text.verbosity` 传给 Codex 推理模型；留空为协议默认。
 * **Fast Mode (`codexFastMode`)**：每次 Codex 请求携带 `service_tier: priority`（1.5x 速度计费档）；启用时活动订阅芯片显示 `⚡`。
 
-### 按模型家族的冷却与模型过滤（`v0.4.17`）
+### 按模型家族的冷却与模型过滤
 * **Reasoning 与 Standard 分离**：推理模型（claude `*thinking*`、grok `*reasoning*`、全部 codex 模型）触发 429 时，只冷却该账号的 reasoning 家族——同账号的 standard 模型立即可用；旧版冷却仍按整账号生效。
 * **隐藏过时模型 (`hideDeprecatedModels`)**：从原生选择器中过滤 `test`/`preview`/`dev`/`alpha`/`beta`/`legacy` 模型 id（同时作用于实时目录与静态回退）。
 
-### 隐私模式与诊断报告（`v0.4.9`）
+### 隐私模式与诊断报告
 * **`privacyMask`**：一个开关即可在整个界面隐藏个人数据（邮箱显示为 `j***n@example.com`），服务端遮蔽，适合屏幕共享。
 * **匿名诊断报告**：设置卡片内一键生成（插件/运行时版本、系统、各供应商健康状态、HTTP 状态聚合、最近错误与耗时、非敏感配置）并自动复制到剪贴板；令牌、邮箱、凭据名与代理地址严格排除。
 * 同区块提供问题追踪器链接，便于提交 issue。
 
-### 隔离管理、动态额度重置倒计时与应用内弹窗提醒 (v0.6.59)
+### 隔离管理、动态额度重置倒计时与应用内弹窗提醒
 * **手动隔离管理（暂停与预热探测）**：支持在设置面板的账户卡片中一键暂停隔离活跃账户（`POST /dsh-subscriptions/quarantine/park`），或立即触发真实上游预热微探测（`probeWarmup`）并在验证成功后即时解除隔离（`POST /dsh-subscriptions/quarantine/probe`）。
 * **动态额度重置倒计时**：在顶部会话栏 `SubsPill` 和账户卡片中秒级动态更新，精准展示滚动配额窗口（`five_hour`、`seven_day`、`primary_window`）的剩余解锁时间。
 * **应用内即时弹窗提醒（Toast）**：当账户进入隔离、健康恢复解除隔离或额度达到预警线时，在聊天界面弹出轻量级浮动提醒。通过 `enableToasts: true` 控制。
-  enableQueue: true         # v0.6.62: 账户并发请求排队与限流
-  accountMaxConcurrency: 2  # v0.6.62: 单账户最大并行活跃流
-  maxQueueSize: 20          # v0.6.62: 队列最大等待深度
-  queueTimeoutMs: 30000     # v0.6.62: 队列最大等待超时时间（毫秒）
+  enableQueue: true         # 账户并发请求排队与限流
+  accountMaxConcurrency: 2  # 单账户最大并行活跃流
+  maxQueueSize: 20          # 队列最大等待深度
+  queueTimeoutMs: 30000     # 队列最大等待超时时间（毫秒）
 * **自动化 Webhook 告警集成**：通过 `notifyQuarantineEntered` 与 `notifyQuarantineReleased` 自动向外部通知系统派发隔离生命周期事件。
 
-### 🩺 服务商鉴权诊断、网络延迟 RTT 指标、动态模型同步与客户端轻量化 (v0.6.72)
+### 🩺 服务商鉴权诊断、网络延迟 RTT 指标、动态模型同步与客户端轻量化
 * **服务商错误诊断系统 (#543)**: 智能分析与解读服务商连接和鉴权失败原因（Cloudflare 403 / 地区限制、令牌过期、会话失效、模型权限不足、用量配额耗尽），并在卡片中直接展示修复建议。
 * **延迟 RTT 指标与快速 Ping 测试 (#542)**: 实时测量至服务商 API 的网络往返时间，支持色彩标记状态徽章（🟢 <250ms, 🟡 <750ms, 🔴 >750ms）及独立 POST /dsh-subscriptions/ping 接口。
 * **动态模型列表同步 (#541)**: 账户卡片一键「同步模型」按钮，直接从服务商 /v1/models 接口获取最新及账号专享模型，无需等待插件版本更新。
 * **客户端包体积优化 (#540)**: 将 lib/client.js 体积从 217.3 KiB 缩减至 199 KiB 以下（距离 256 KiB DSH Store 门禁阈值预留超 57 KiB 安全冗余空间）。
 
-### 🛡️ 弹性容灾、故障诊断与跨服务商回退 (v0.6.71)
+### 🛡️ 弹性容灾、故障诊断与跨服务商回退
 * **跨服务商级联故障转移与优先级排序 (#536)**: 支持自定义跨服务商回退顺序，可在 WebUI 中通过 ▲/▼ 交互调整优先级。
 * **一键链路测试与延迟检测 (#536)**: 在账户列表或状态弹窗中一键发起探活并显示往返延迟。
 * **冷却倒计时与就绪通知 (#536)**: 实时展示受限账户恢复倒计时，解除冷却时自动弹出就绪通知。
 * **主动 OAuth 令牌心跳 (#536)**: 提前预刷即将过期的访问令牌，避免用户请求时产生额外等待。
 * **最近错误环形日志审查 (#536)**: 内存保存最近 20 条已脱敏的运行错误，支持在 Diagnostics 中查看与清空。
 
-### Antigravity 分档思考模型、工具回放哨兵与流式自愈 (v0.6.69)
+### Antigravity 分档思考模型、工具回放哨兵与流式自愈
 * **Gemini 3 工具回放哨兵 (#534)**：在重建的工具调用中注入 `thoughtSignature: 'skip_thought_signature_validator'`，彻底解决多轮工具调用历史重放时 Gemini 3 的校验失败问题。
 * **分档 Flash 模型与思考档位 (#534)**：将 `gemini-3.8-flash-tiered` 与 `3.7` 自动解析展开为 High/Medium/Low 档位选择，并在调用时自动组装 `thinkingConfig.thinkingLevel`。
 * **流式空响应自愈与账号轮换 (#534)**：引入 30 秒 SSE 空闲超时保护与空响应检测，在未输出前自动重试一次，失败时通过 `EMPTY_RESPONSE` / `TIMEOUT` 自动轮换至下一个可用账号。
 
-### xAI Grok RFC 8628 设备码授权流支持 (v0.6.68)
+### xAI Grok RFC 8628 设备码授权流支持
 * **RFC 8628 设备码授权流 (GH #17, #532)**：为 xAI Grok 新增原生设备码登录授权支持。彻底解决 xAI 针对 CLI 客户端标识返回 Grok Build 验证码页面且不触发回环重定向回调导致的死锁问题。直接在槽位卡片展示用户授权码，并自动在后台轮询兑换会话令牌。
 
-### Claude 账户级计费归因隔离与动态轮次索引 (v0.6.67)
+### Claude 账户级计费归因隔离与动态轮次索引
 * **按账户隔离 `cc_turn_index` 与 `cch` (#530)**：将 Claude Code 计费归因状态（会话哈希 `cch` 与递增轮次 `cc_turn_index`）按 `accountId` 隔离在有界模块级映射表中，彻底消除 `globalThis` 跨订阅账户状态混用问题。
 * **动态计算 `cc_prompt_index` 与禁用开关**：根据多轮对话消息历史自动计算从 0 开始的 `cc_prompt_index`，并支持通过环境变量 `CLAUDE_CODE_ATTRIBUTION_HEADER=0` 或 `disableBillingHeader: true` 禁用归因头注入。
 
-### Antigravity 客户端密钥架构与无感 CLI 令牌刷新 (v0.6.60)
+### Antigravity 客户端密钥架构与无感 CLI 令牌刷新
 * **配置架构密钥字段 (`antigravityClientSecret`)**：支持用户在设置中自定义配置 Google Cloud OAuth 客户端密钥（Client Secret），公共接口自动脱敏掩码 (`••••••`)，彻底解决机密型 OAuth 客户端刷新令牌被拒的问题。
 * **CLI 令牌零配置平滑刷新**：内置官方 Gemini / Antigravity CLI 客户端的公共应用凭据 (`Google Gemini CLI Client ID` / `Google Gemini CLI Client Secret`)，使通过 `📥 从 CLI 导入` 的会话能够持久无限刷新，不再出现 1 小时后失效问题。
 * **Windows 凭据管理器自动发现**：原生支持在 `win32` 系统下自动检测 Windows 凭据管理器中的 `gemini:antigravity` 目标，直接完成 CLI 会话导入。
 * **清晰明确的错误指引**：在缺少密钥或上游凭据异常时抛出指引性错误，替代原始的 HTTP 400 提示。
 
-### HTTP API 路由（`v0.4.9`）
+### HTTP API 路由
 | 路由 | 方法 | 用途 |
 |---|---|---|
 | `/dsh-subscriptions/diagnostics` | GET | 匿名诊断报告（无密钥、无令牌、无代理地址） |
@@ -234,7 +234,7 @@ dsh-subscriptions:
 - 错误缓冲区和诊断报告会在存储或返回前脱敏 bearer 令牌、API 密钥、JWT 和 `key=value` 凭据。
 
 
-## 🧠 Claude 自适应思考与推理深度控制 (v0.6.7 新增)
+## 🧠 Claude 自适应思考与推理深度控制
 
 支持 Anthropic 自适应思考 (`thinking: { type: "adaptive" }`) 及推理深度调节 (`output_config: { effort }`):
 - **模型支持**: 针对 Opus 4.6+、Opus 4.7+、Opus 5 (`low`, `medium`, `high`, `xhigh`, `max`) 及 Sonnet 4.6+、Sonnet 5 (`low`, `medium`, `high`) 自动提供对应推理级别。
@@ -243,7 +243,7 @@ dsh-subscriptions:
 
 ---
 
-## 🌐 完整双语支持 (EN / ZH) 与单账户健康探活 (v0.6.8 新增)
+## 🌐 完整双语支持 (EN / ZH) 与单账户健康探活
 
 - **原生双语支持**: 内置 UI 字典全面提供英语 (`en`) 与简体中文 (`zh`) 翻译，所有服务商获取令牌指引均具备中英双语版。
 - **解耦外部翻译**: 俄语等其他语种由独立语言包插件（如 `dsh-russian-lang`）在运行时翻译，插件源码保持纯净零硬编码。
@@ -251,7 +251,7 @@ dsh-subscriptions:
 
 ---
 
-## 🚀 一键插件自更新与稳定性强化 (v0.6.9 新增)
+## 🚀 一键插件自更新与稳定性强化
 
 - **宿主端一键更新**: 挂载于 `/dsh-subscriptions/update` 的就地更新机制，自动对比 npm registry 最新版本并通过宿主 DSH CLI 执行单飞安装 (`dsh plugin add`)。
 - **安全与来源防护**: 更新接口严格校验环回地址（支持 IPv4 `127.0.0.1`、IPv6 `::1`、`localhost`）、`x-dsh-plugin-update` 请求头及同源策略，阻断未授权跨站调用。
@@ -263,7 +263,7 @@ dsh-subscriptions:
 
 ---
 
-## 🛡️ Token 用量规范化与会话投影修复 (v0.6.12 新增)
+## 🛡️ Token 用量规范化与会话投影修复
 
 - **会话投影崩溃修复 (GitHub #4)**：修复了使用 ChatGPT Codex 及其他流式模型时，首次回复后会话损坏、刷新页面报错 `received NaN, expected number on uncachedInputTokens and outputTokens` 且无法加载的问题。
 - **全格式通用 TokenUsage 转换**：在所有流式传输通道（`codexResponsesStream`、`openaiChatStream`、`anthropicStream`、`googleStream`）中引入统一的 `toTokenUsage()` 转换逻辑，将各服务商的原始用量数据标准化为 DSH 规范的 `TokenUsage` 接口（`inputTokens`、`outputTokens`、`cacheReadTokens`、`cacheWriteTokens`、`reasoningTokens`、`totalTokens`）。
@@ -272,7 +272,7 @@ dsh-subscriptions:
 
 ---
 
-## 🔒 OAuth Client ID 校验保护与控制台地址更新 (v0.6.11 新增)
+## 🔒 OAuth Client ID 校验保护与控制台地址更新
 
 - **Google OAuth Client ID 校验保护 (GitHub #2)**：uildAuthorizeUrl 和 ntigravity.authorizeUrl 严格要求非空 clientId。未配置时服务端返回明确的 HTTP 400 (missing_client_id)，前端界面提示用户在插件设置中填写 ntigravityClientId 或使用“📥 从 CLI 导入”，避免浏览器跳转至 Google OAuth 400 报错页面。
 - **配置架构新增密钥项**：在插件 Config 架构中新增 ntigravityClientSecret，方便用户在设置中配置客户端密钥，并在公共接口中自动脱敏脱密。
@@ -280,7 +280,7 @@ dsh-subscriptions:
 
 ---
 
-## 🛡️ 稳定性与代码质量强化 (v0.6.10 新增)
+## 🛡️ 稳定性与代码质量强化
 
 - **结构化异常降级**: 全面移除运行时空 catch 块，统一采用带诊断日志的 `bestEffort` 安全兜底机制。
 - **原生上下文日志**: 所有日志统一接入 Cordis 规范子系统 `ctx.logger('subscriptions')`。
