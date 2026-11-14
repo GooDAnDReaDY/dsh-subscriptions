@@ -1,3 +1,18 @@
+## [0.7.87] - 2026-11-14
+
+### Added
+- **#1043** Settings search and a working Dashboard tab:
+  - the tab bar and the searchable provider picker were already present; the Dashboard tab had no CSS rule and therefore showed every group, and the long form had no search;
+  - added `[data-tab=dashboard]` pane rules, a settings search input that filters visible groups by heading/body text (Escape clears), and the `.dsub-search` / `.dsub-hidden` styles.
+- **#1044** First-run onboarding:
+  - a three-step block appears only while no account is connected: choose a provider (existing picker), find credentials the CLIs already stored (existing `discover-local`, imported through `import-local`), verify the connection (existing smoke test);
+  - English and Chinese labels for every new string.
+
+### Verification
+- Full suite: 1390 tests, 100% pass, exit 0.
+- Coverage: lines 93.9%, branches 80.4%, functions 87.1%.
+- ESLint clean, TypeScript check clean, pack size OK (largest file 231 371 B against the 240 000 B client-bundle ceiling).
+
 ## [0.7.86] - 2026-11-14
 
 ### Added
