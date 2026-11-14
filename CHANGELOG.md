@@ -1,3 +1,18 @@
+## [0.7.89] - 2026-11-14
+
+### Fixed (external reports)
+- **#34** React #310 broke Settings -> Subscriptions in 0.7.87 and 0.7.88: the settings-search effect introduced in #1043 was declared after the `if (!draft) return` loading branch, so the hook count changed between the first and second render. The effect is hoisted above the early return and depends on `Boolean(draft)`; a regression test now forbids any hook after that return. Analysis and patch by **GoldCatCar** (GitHub PR #35).
+- **#33** Claude re-authentication: Anthropic moved the Claude Code OAuth flow to `platform.claude.com`. The authorize URL and `redirect_uri` are updated (the old console callback now redirects) and the default `claudeCcVersion` is bumped to 2.1.325.
+- **#32** Antigravity streams: Cloud Code rejects every 1.x client by answering HTTP 200 with a "no longer supported" notice and no `finishReason`, which DSH reported as INCOMPLETE. The client user-agent is bumped to `antigravity/2.32.0`, a version the same token accepts.
+
+### Added
+- **#1048** Subscription passport: `GET /dsh-subscriptions/passport?format=md|html` renders a token-free, shareable report (masked labels, totals, empty state) in Markdown or standalone HTML.
+- **#1050** Fallback proxy pool: `proxyPool` / `proxyPoolCooldownMs`; when an account has no `proxyUrl`, the next healthy pool entry is used, failures get an increasing cooldown, and `/status` exposes the pool health.
+
+### Verification
+- Full suite: 1424 tests, 100% pass, exit 0; new tests cover the hook order, the Claude endpoints, the Antigravity UA, the passport renderer and the pool.
+- Coverage: lines ~93.9%, branches ~80.4%, functions ~87.1%; pack size 231 388 B.
+
 ## [0.7.88] - 2026-11-14
 
 ### Added
