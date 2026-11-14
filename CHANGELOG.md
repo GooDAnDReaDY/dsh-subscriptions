@@ -1,3 +1,22 @@
+## [0.8.0] - 2026-11-14
+
+First minor release on top of the 0.7 line. No breaking changes: the bump marks
+the end of the audit cycle (#1039-#1059), the four upstream/regression fixes and
+the new routing, quota, media and operations surfaces shipped since 0.7.80.
+
+### Highlights since 0.7.84
+- Cross-process account lease (#1039) - two DSH instances no longer burn the same quota window.
+- Settings that work again: the #1043 hook-order regression is fixed (#34, patch by GoldCatCar).
+- Vendor drift fixed: Claude OAuth on `platform.claude.com` (#33), Antigravity client UA 2.32.0 (#32).
+- Window-aligned quota forecast (#1041), chained logins (#1040), routing presets (#1045), time-of-day account windows (#1046, now normalised from config - #1076).
+- Shareable subscription passport (#1048) and a fallback proxy pool (#1050).
+- Client bundle split: 251 364 B -> 231 388 B with a 240 000 B ceiling; module decomposition (#1059); DESIGN.md as a contract (#1054); READMEs without release chronology (#1055).
+
+### Verification
+- Full suite: 1429 tests, 100% pass, exit 0.
+- Coverage: lines 93.5%, branches 80.3%, functions 87.4%; pack size 231 388 B.
+- Isolated test server: exact .tgz installed, health reports 0.8.0.
+
 ## [0.7.89] - 2026-11-14
 
 ### Fixed (external reports)
