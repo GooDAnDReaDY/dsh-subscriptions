@@ -1,3 +1,16 @@
+## [0.8.1] - 2026-11-14
+
+### Fixed
+- **#1078** Antigravity upstream sentinel: a "no longer supported" notice inside an HTTP 200 response (no `finishReason`) is now detected in both the streaming buffer and the end-of-stream flush and raised as `CLIENT_OUTDATED` with a short preview and an update hint. The router treats it as fatal instead of rotating through every account; ordinary streams are untouched.
+
+### Changed
+- **#1077** Module split without behaviour change: `lib/routes/accounts.js` 703 -> 555 (`routes/login.js` for the chained-login slot, `routes/presets.js` for preset CRUD/apply), `lib/index.js` 614 -> 588 (`fetch-for-ref.js` for the per-account fetch factory). Routes, methods and payloads are identical; the route smoke test now counts the moved handlers in their own files.
+
+### Verification
+- Full suite: 1433 tests, 100% pass, exit 0.
+- Coverage: lines 93.60%, branches 80.17%, functions 87.40%; pack size 231 388 B, 164 files, no internal artefacts.
+- Preflight: FAIL=0.
+
 ## [0.8.0] - 2026-11-14
 
 First minor release on top of the 0.7 line. No breaking changes: the bump marks
