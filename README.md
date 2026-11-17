@@ -143,7 +143,15 @@ const res = await ctx.subscriptions.request('codex', '/backend-api/codex/images/
 * **Anonymized Diagnostics Report**: The settings card has a **Generate diagnostics report** block: one click fetches an anonymized report (plugin/runtime versions, OS, per-vendor health counters, aggregate HTTP status counts, last ≥400 errors with timings, non-secret settings) and copies it to the clipboard. Tokens, emails, credential refs and proxy URLs are strictly excluded (verified by tests).
 * **Issue-Ready**: The same block links to the project issue tracker, so a bug report is: generate → paste → submit.
 
-### 8. 🔌 HTTP API
+### 8. 🎚️ Experience Modes (`experienceMode`)
+* **What it is**: One selector at the top of the routing settings decides how much of the policy surface the card presents. It is a **view**, not a second store: switching modes never writes, resets or hides a stored value, so leaving Power for Simple and coming back finds every number where you left it.
+* **Simple**: for one or two accounts. Rotation, cooldown, prompt-cache affinity and quota alerts only. No pool tuning is presented.
+* **Balanced** (default): for a small pool. Adds drain-before-reset, token refresh timing, daily warm-up, account lease and proxy pool. Proactive guard, schedules, routing presets and tool policies stay one disclosure away.
+* **Power**: every control the plugin has, including proactive quota guard, time-of-day rules, routing presets and tool policies.
+* **Honest about what it hides**: a group that the current mode does not present says how many settings it is holding back and points at the Power mode, so nothing looks silently broken.
+* **Unrecognised value falls back to Balanced**, never to Power, so a typo or an older config cannot flood the card with advanced controls.
+
+### 9. 🔌 HTTP API
 | Route | Method | Purpose |
 |---|---|---|
 | `/dsh-subscriptions/diagnostics` | GET | Anonymized diagnostics report (no secrets, no tokens, no proxy URLs) |
@@ -156,95 +164,95 @@ const res = await ctx.subscriptions.request('codex', '/backend-api/codex/images/
 
 ---
 
-### 9. 🦛 Local Ollama Gateway & Seamless Fallback
+### 10. 🦛 Local Ollama Gateway & Seamless Fallback
 * **Native Provider (`ollama`)**: When a local Ollama is reachable at `ollamaBaseUrl` (default `http://127.0.0.1:11434`), it appears in the native DSH model picker with the models discovered from `/api/tags`. No API key needed.
 * **Seamless Quota Fallback (`ollamaFallback`, on by default)**: When every account of a provider is exhausted (or unreachable) and nothing has been streamed yet, the chat continues on a local model (`ollamaFallbackModel`, or the first model from `/api/tags`). The fallback is logged and recorded in request history as `kind: fallback`.
 * **Free ($0) Emergency Path**: Works with no internet and no quota — ideal for offline demos.
 
-### 10. ⚡ Reasoning Effort, Verbosity & Fast Mode
+### 11. ⚡ Reasoning Effort, Verbosity & Fast Mode
 * **Reasoning Effort**: Codex models advertise their supported effort levels from the live catalog; the native picker validates and the chosen effort is transmitted as `reasoning.effort` in the Codex `/responses` protocol. Grok forwards effort with its own catalog-aware filtering.
 * **Verbosity (`codexVerbosity`)**: `low` / `medium` / `high` is sent as `text.verbosity` for Codex reasoning models. Empty = protocol default.
 * **Fast Mode (`codexFastMode`)**: Sends `service_tier: priority` (1.5x speed billing tier) with every Codex request. The active-subscription chip shows a `⚡` prefix while enabled.
 
-### 11. 🚦 Family-Scoped Cooldowns & Model Filtering
+### 12. 🚦 Family-Scoped Cooldowns & Model Filtering
 * **Reasoning vs Standard**: A 429 on a reasoning model (claude `*thinking*`, grok `*reasoning*`, all codex models) cools down only the reasoning family of that account — standard models on the same account keep working immediately. Legacy cooldowns (from older versions) still block the whole account until expiry.
 * **Hide Deprecated Models (`hideDeprecatedModels`)**: Filters `test`/`preview`/`dev`/`alpha`/`beta`/`legacy` model ids out of the native picker (applies to live catalogs and the static fallback).
 
 ---
 
-### 12. 🧯 Safe Reset Credits
+### 13. 🧯 Safe Reset Credits
 * **Reset Card Visibility**: The Codex account card shows how many ChatGPT quota reset cards are available and when the earliest one expires.
 * **Deliberate Confirmation Flow**: Consuming a card requires an explicit checkbox ("I understand one attempt will be consumed") plus a mandatory 5-second cooldown before the Reset button activates.
 * **Double-Click Proof**: A host-side single-flight gate (synchronous pending lock before the first network await) makes it impossible for a double click or a concurrent call to consume two cards. Uncertain network results return the challenge to "prepared" for a safe retry of the same request.
 * **Honest Results**: Server verdicts are shown verbatim: `reset` / `nothing to reset` (nothing consumed) / `no usable credit` / `already redeemed`.
 
-### 13. 📊 Composer Quota Indicator & Runway Forecast
+### 14. 📊 Composer Quota Indicator & Runway Forecast
 * **Placement**: Renders in the input area next to the model switcher (`conversation.input.right` slot).
 * **Four display modes (`composerQuota` setting)**: `off` / `percent` (`85%`) / `bar` (40px mini bar, green>30 / amber 10-30 / red <10) / `forecast`.
 * **Runway Forecast**: A sliding 24h window of remaining-percent samples (up to 192 points) feeds a recency-weighted least-squares burn rate; below 30 min of observation or <1% consumed it stays `calibrating…`, with no consumption it says `no usage`. Ready state shows `~4.5h` / `~12m`.
 * **Auto-Hide**: No indicator for local Ollama or when nothing is active.
 
-### 14. 🧑‍💻 SUBS Pill & Session Console
+### 15. 🧑‍💻 SUBS Pill & Session Console
 * **Pill in the Session Header**: `SUBS (N)` in the session header actions area with a pool-health LED: green <50% max usage, amber 50-90%, red ≥90%, gray when nothing is connected.
 * **Modal Console**: Clicking the pill opens an in-session modal listing every account (provider #index, connected/not, cooldown, quota %) and a shortcut to the settings card. Closes on outside click, ✕ or Escape.
 
-### 15. 🫧 Draggable HUD Widget
+### 16. 🫧 Draggable HUD Widget
 * **Floating Bubble** on `shell.overlay`: a 64px circle with an SVG ring gauge of the active subscription balance, mounted via `createPortal`.
 * **Drag & Dock**: Drag anywhere; it snaps to any screen edge within 24px (peek-style half-hidden until hovered) and remembers its position in `localStorage`.
 * **Frosted Panel**: Hovering reveals a `backdrop-filter: blur(28px)` panel listing every account with usage bars. Clicking the bubble refreshes quota data; data also refreshes every 60 s.
 * **Settings Card Polish**: Chevron switched to the core `IconChevronDownOutline14` primitive; explicit settings snapshot states (loading / unavailable + Retry) guard against phantom input.
 
-### 16. ⚡ ClineBot-Inspired UI & Hardened Telemetry
+### 17. ⚡ ClineBot-Inspired UI & Hardened Telemetry
 * **Live Status Badge Bar**: Instant latency check to the host (`Host online (XX ms)`), real-time connected account indicators, and pool size at a glance.
 * **One-Click Smoke Test (Ping)**: Test live connectivity to the active upstream subscription provider and measure real round-trip latency.
 * **Session Telemetry Dashboard**: Visual stat cards displaying successful/total requests, average latency, session success rate, and last request activity.
 * **Curated Models Catalog**: Quick preview of supported model families with context windows and capability tags (Vision, Reasoning, Hybrid).
 * **Non-Blocking Storage**: `HistoryStore` debounces disk persistence asynchronously to prevent blocking the Node.js event loop during high-throughput streaming.
 
-### 17. 🛡️ Quarantine Management, Live Quota Countdown & In-App Toast Alerts
+### 18. 🛡️ Quarantine Management, Live Quota Countdown & In-App Toast Alerts
 * **Manual Quarantine Control (Park & Probe)**: Directly park active accounts in quarantine (`POST /dsh-subscriptions/quarantine/park`) for maintenance or pause, or trigger an immediate live warmup probe and instant release (`POST /dsh-subscriptions/quarantine/probe`) right from the account slot card.
 * **Dynamic Quota Window Countdown**: Live second-by-second countdown timer displayed in the `SubsPill` session widget and account settings cards, showing exact time remaining until rolling rate-limit windows (`five_hour`, `seven_day`, `primary_window`) reset.
 * **In-App Toast Alerts (`enableToasts`)**: Lightweight floating toast alerts in the DSH chat interface notifying you when accounts enter quarantine, recover from cooldowns, or exceed quota safety thresholds.
 * **Automated Webhook Integration**: Instant event notifications dispatched via `notifyQuarantineEntered` and `notifyQuarantineReleased`.
 
-### 18. 🩺 Vendor Auth Doctor, Latency RTT Indicator, Dynamic Model Sync & Client Bundle Relief
+### 19. 🩺 Vendor Auth Doctor, Latency RTT Indicator, Dynamic Model Sync & Client Bundle Relief
 * **Vendor Auth Doctor (#543)**: Intelligent classification and explanation of provider authentication and connection errors (Cloudflare 403 / Geoblock, expired tokens, revoked sessions, missing model scopes, exhausted quotas). Displays diagnostic verdict with actionable recommendations in the account card.
 * **Latency RTT Indicator & Fast Ping Probe (#542)**: Live round-trip time measurement to vendor APIs with color-coded badges (🟢 <250ms, 🟡 <750ms, 🔴 >750ms). Dedicated ping endpoint (POST /dsh-subscriptions/ping) and latency metrics in connection tests.
 * **Dynamic Model Catalog Discovery & Sync (#541)**: One-click "Sync Models" button on account cards querying live vendor /v1/models endpoints to discover newly released and subscription-specific models dynamically without waiting for plugin updates.
 * **Client Bundle Modularization & Store Limit Relief (#540)**: Reduced lib/client.js bundle size from 217.3 KiB to < 199 KiB (>57 KiB buffer below the 256 KiB DSH Store ceiling) via createElement aliasing, CSS minification, and dynamic instruction loading.
 
-### 19. 🛡️ Resilience, Diagnostics & Fallback Enhancements
+### 20. 🛡️ Resilience, Diagnostics & Fallback Enhancements
 * **Cross-Vendor Cascading Fallback & Provider Priority Ordering (#536)**: Configure fallback ordering across subscription providers with interactive reordering in WebUI.
 * **1-Click Connection Smoke Test & Latency Ping (#536)**: Test individual account connections on the spot with real-time latency badges.
 * **Live Cooldown Countdown & Availability Toasts (#536)**: Exact countdown timer for cooled-down accounts and automated toast alerts upon recovery.
 * **Proactive OAuth Token Heartbeat (#536)**: Pre-emptive background token refresh before expiry to prevent first-query latency spikes.
 * **Recent Errors Ring Buffer Inspector (#536)**: In-memory sanitized log of the last 20 runtime failures in WebUI Diagnostics.
 
-### 20. 🧠 Antigravity Tiered Models, Tool Sentinel & Stream Resilience
+### 21. 🧠 Antigravity Tiered Models, Tool Sentinel & Stream Resilience
 * **Gemini 3 Tool Replay Sentinel (#534)**: Injects `thoughtSignature: 'skip_thought_signature_validator'` on reconstructed tool calls, enabling reliable multi-turn tool calling without Gemini 3 validation failures.
 * **Tiered Flash Models & Thinking Levels (#534)**: Exposes Gemini 3.8 and 3.7 Flash High, Medium, and Low thinking levels with upstream `*-flash-tiered` mapping.
 * **Stream Resilience & Empty Stream Retry (#534)**: Idle SSE timeout (30s), empty response detection, and transient stream retry with automatic account rotation.
 
-### 21. ⚡ xAI Grok RFC 8628 Device Authorization Flow
+### 22. ⚡ xAI Grok RFC 8628 Device Authorization Flow
 * **RFC 8628 Device Code Authorization (GH #17, #532)**: Native device authorization grant support for xAI Grok. Solves the issue where xAI presents a Grok Build user-code verification page for CLI client IDs without redirecting back to loopback callbacks. Provides direct user code display and automatic token polling.
 
-### 22. 🛡️ Per-Account Claude Billing Attribution Isolation
+### 23. 🛡️ Per-Account Claude Billing Attribution Isolation
 * **Per-Account `cc_turn_index` & `cch` Isolation (#530)**: Isolates Claude Code billing attribution state (`cch` session hash and `cc_turn_index` counter) per subscription account (`accountId`) in a bounded module Map instead of `globalThis`, preventing cross-account telemetry mixing in multi-account pools.
 * **Dynamic `cc_prompt_index` & Kill-Switch**: Automatically derives 0-based `cc_prompt_index` from multi-turn `messages` history and supports suppression via `CLAUDE_CODE_ATTRIBUTION_HEADER=0` or `disableBillingHeader: true`.
 
-### 23. 🤖 Native Copilot CLI SDK Mode & Local Tool Calling
+### 24. 🤖 Native Copilot CLI SDK Mode & Local Tool Calling
 * **Direct Copilot CLI Integration (#508)**: Native driver `copilot-cli.js` supporting execution via local `copilot` / `github-copilot-cli` binaries with zero network token emulation risk.
 * **Smart Mode Switching (`copilotMode`)**: Choose between `auto` (prefers local CLI with graceful web API fallback), `cli` (strict CLI SDK execution), and `web` (direct OAuth/API).
 * **Multi-Source Credential Detection**: Automatically discovers tokens from GitHub CLI (`gh hosts.yml`), Copilot config files (`hosts.json`, `apps.json`), and environment variables (`GITHUB_COPILOT_TOKEN`, `GH_TOKEN`).
 * **Full Tool-Calling & Streaming**: Seamless translation of CLI process output into real-time streaming chunks and multi-turn tool-call deltas.
 
-### 24. 🧠 Session Reasoning Effort Management & Contract Matrix
+### 25. 🧠 Session Reasoning Effort Management & Contract Matrix
 * **Session-Scoped Reasoning Effort Control (#505)**: Dynamically adjust reasoning effort (`low`, `medium`, `high`, `max`) or disable reasoning (`off`) per conversation session via REST endpoints (`GET`, `POST`, `DELETE /dsh-subscriptions/session-reasoning`).
 * **Model-Switch Invariant & Safety Guard**: Automatic suppression of reasoning parameters when switching from a reasoning model (e.g. `o1`) to a standard model (e.g. `gpt-4o`), avoiding upstream HTTP 400 parameter errors.
 * **Extended Multi-Vendor Capability**: Native reasoning support across Codex (`o1`, `o3`), Claude (`claude-3-7-sonnet*`, `claude-4.6+` thinking tokens & budgets), Antigravity/Gemini (`thinkingConfig`), Grok (`grok-3-mini`), and Kimi (`k1.5`).
 * **Comprehensive Adapter Contract Matrix (#521)**: Automated offline wire contract verification (`test/contract-matrix.test.mjs`) testing 8 providers across 7 wire protocol capabilities (`stream`, `tools`, `reasoning`, `usage`, `caching`, `auth_errors`, `rate_limit`).
 
-### 25. 🔑 Antigravity Client Secret & Resilient CLI Refresh
+### 26. 🔑 Antigravity Client Secret & Resilient CLI Refresh
 * **Client Secret in Schema (`antigravityClientSecret`)**: Configure custom Google Cloud OAuth client secrets with automatic mask redaction (`••••••`), resolving token refresh rejections for confidential OAuth clients.
 * **Zero-Config CLI Token Refresh**: Bundled public application credentials for the standard Gemini / Antigravity CLI client (`Google Gemini CLI Client ID` / `Google Gemini CLI Client Secret`), ensuring imported CLI sessions keep refreshing indefinitely without dying after 1 hour.
 * **Windows Credential Manager CLI Discovery**: Native `win32` discovery for Windows Credential Manager generic target `gemini:antigravity`, enabling seamless `📥 From CLI` import on Windows.
@@ -276,6 +284,7 @@ dsh-subscriptions:
   cooldownMs: 60000
   autoLoopback: true        # catch loopback OAuth callbacks automatically
   privacyMask: false        # mask emails and account identifiers in the UI
+  experienceMode: balanced  # simple | balanced | power — how much policy the card presents first
   ollamaBaseUrl: http://127.0.0.1:11434  # local Ollama gateway
   ollamaFallback: true      # seamless fallback when all accounts are exhausted
   ollamaFallbackModel: ''   # e.g. qwen2.5-coder; empty = first model from /api/tags

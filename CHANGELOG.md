@@ -3,6 +3,13 @@
 Work in progress for the next release. Entries move to a versioned section
 when the release is cut; keep them grouped by effect, not by commit.
 
+---
+
+## [0.9.0] - 2026-11-17
+
+The audit batch: measure the browser half, bring the managed settings into the
+card, and make the documentation a product of the code.
+
 ### Added
 - Browser-half test harness on jsdom: the real `client.js` is imported through
   its loader contract and mounted, so hook-order and portal defects fail the
@@ -27,7 +34,6 @@ when the release is cut; keep them grouped by effect, not by commit.
   routes were undocumented (#1089).
 
 ---
-
 ## [0.9.1] - 2026-11-17
 
 A follow-up to 0.9.0 driven by an external bug report (GitHub #36). Every item
@@ -63,6 +69,24 @@ here was reproduced against the code before it was fixed.
 - Full suite: 1510 tests, exit 0.
 - Coverage: server 93.62 / 80.30 / 87.35; browser 37.31 / 48.95 / 37.02.
 - Pack size: largest file `lib/client.js` 233150 B.
+
+## [0.9.2] - 2026-11-17
+
+### Added
+- **#1103** Experience modes: `experienceMode` (`simple` / `balanced` / `power`)
+  decides how much of the policy surface the settings card presents first, so
+  someone with two accounts is not asked to configure an account lease. A mode is
+  a view over the same settings, not a second store — switching never writes,
+  resets or hides a stored value. An unrecognised value falls back to `balanced`,
+  never to `power`, and a group the current mode holds back says how many settings
+  it is hiding.
+
+### Verification
+- Full suite: 1527 tests, exit 0.
+- Coverage: server 93.67 / 80.12 / 87.38; browser 37.37 / 48.96 / 37.02.
+- CI: quality, parallel-tests, node22-tests, host-cohort — all green.
+
+---
 
 ## [0.8.1] - 2026-11-14
 
