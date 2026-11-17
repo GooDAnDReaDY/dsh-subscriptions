@@ -377,82 +377,75 @@ Supports Anthropic's adaptive thinking (`thinking: { type: "adaptive" }`) and re
 
 ## 🔌 HTTP API
 
-The plugin registers 55 exact routes on the DSH web server. Unless noted, they accept same-origin or loopback requests; mutating requests must carry `Origin` or `Referer` matching the host (#782). Responses are JSON unless noted.
+<!-- routes:begin -->
 
-### Core & Status
-| Method | Path | Purpose |
-|---|---|---|
-| GET | `/dsh-subscriptions/status` | Global status, configured account slots, active usage and quotas |
-| GET | `/dsh-subscriptions/health` | Deep health inspection for monitoring (#745); public GET |
-| GET | `/dsh-subscriptions/metrics` | Prometheus text exposition (#744); loopback or same-origin |
-| GET | `/dsh-subscriptions/models` | Enriched model catalog for active subscriptions |
-| POST | `/dsh-subscriptions/heartbeat/run` | Trigger quota and health refresh; returns `{ok, refreshed}` (#968) |
-| GET | `/dsh-subscriptions/subscriptions` | Localhost-only responsive HTML table overview (#1021) |
-| GET | `/dsh-subscriptions/telemetry` | Request counter aggregates, latency and error rates |
-| GET | `/dsh-subscriptions/usage` | Quota snapshot and per-call ledger for external plugins (#687) |
-| POST | `/dsh-subscriptions/smoke` | Synthetic test request against active providers |
-| GET | `/dsh-subscriptions/ping` | Lightweight round-trip latency check |
-| GET | `/dsh-subscriptions/instructions` | Dynamic vendor connection instructions (#540) |
-| GET | `/dsh-subscriptions/alerts` | In-app alerts and notifications buffer |
+The plugin registers 61 exact routes on the DSH web server. This table is generated from `lib/` by `scripts/route-doc.mjs`; do not edit it by hand. Unless noted, routes accept same-origin or loopback requests, and mutating requests must carry `Origin` or `Referer` matching the host (#782).
 
-### Accounts, Rotation & Reasoning
-| Method | Path | Purpose |
+| Route | Methods | Group |
 |---|---|---|
-| GET/PUT | `/dsh-subscriptions/config` | Configuration schema read and atomic update |
-| POST | `/dsh-subscriptions/check` | Validate account credentials and fetch quotas from vendor API |
-| POST | `/dsh-subscriptions/logout` | Disconnect account slot and purge stored credentials |
-| GET | `/dsh-subscriptions/discover-local` | Detect local CLI credentials on machine |
-| POST | `/dsh-subscriptions/import-local` | Import detected local CLI credentials into account slot |
-| POST | `/dsh-subscriptions/import-token` | Manual refresh token or API key import |
-| POST | `/dsh-subscriptions/accounts/sync-models` | Fetch live models catalog from upstream provider for slot |
-| POST | `/dsh-subscriptions/accounts/switch-organization` | Switch active organization for Codex account |
-| POST | `/dsh-subscriptions/quarantine/park` | Manually park account in quarantine (durationMs, reason) |
-| POST | `/dsh-subscriptions/quarantine/probe` | Probe warmup probe or release quarantined account |
-| GET/POST | `/dsh-subscriptions/reset-credits` | Inspect, prepare, and consume reset credits for Codex slots |
-| GET | `/dsh-subscriptions/routing/trace` | Live routing decision audit trace and reason summary (#1028) |
-| GET/POST/DEL | `/dsh-subscriptions/session-reasoning` | Session reasoning effort and thinking budget overrides |
-| GET/POST | `/dsh-subscriptions/speed` | Session fast-tier speed mode toggle |
+| `/dsh-subscriptions/accounts/next-slot` | POST | accounts |
+| `/dsh-subscriptions/accounts/switch-organization` | POST | accounts |
+| `/dsh-subscriptions/accounts/sync-models` | POST | accounts |
+| `/dsh-subscriptions/alerts` | GET | alerts |
+| `/dsh-subscriptions/analytics` | GET | analytics |
+| `/dsh-subscriptions/analytics/savings` | GET | analytics |
+| `/dsh-subscriptions/analyze-session` | POST | analyze-session |
+| `/dsh-subscriptions/check` | POST | check |
+| `/dsh-subscriptions/client.css` | GET | client.css |
+| `/dsh-subscriptions/config` | GET, PUT | config |
+| `/dsh-subscriptions/diagnostic-wizard` | POST | diagnostic-wizard |
+| `/dsh-subscriptions/diagnostics` | GET | diagnostics |
+| `/dsh-subscriptions/diagnostics/errors/clear` | POST | diagnostics |
+| `/dsh-subscriptions/discover-local` | GET | discover-local |
+| `/dsh-subscriptions/health` | GET | health |
+| `/dsh-subscriptions/heartbeat/run` | POST | heartbeat |
+| `/dsh-subscriptions/history` | GET | history |
+| `/dsh-subscriptions/import-local` | POST | import-local |
+| `/dsh-subscriptions/import-token` | POST | import-token |
+| `/dsh-subscriptions/instructions` | GET | instructions |
+| `/dsh-subscriptions/logout` | POST | logout |
+| `/dsh-subscriptions/metrics` | GET | metrics |
+| `/dsh-subscriptions/models` | GET | models |
+| `/dsh-subscriptions/oauth/callback` | GET | oauth |
+| `/dsh-subscriptions/oauth/complete` | POST | oauth |
+| `/dsh-subscriptions/oauth/device/poll` | POST | oauth |
+| `/dsh-subscriptions/oauth/device/start` | POST | oauth |
+| `/dsh-subscriptions/oauth/headless-info` | GET | oauth |
+| `/dsh-subscriptions/oauth/headless-redirect` | GET | oauth |
+| `/dsh-subscriptions/oauth/start` | GET | oauth |
+| `/dsh-subscriptions/passport` | GET | passport |
+| `/dsh-subscriptions/ping` | POST | ping |
+| `/dsh-subscriptions/presets` | POST | presets |
+| `/dsh-subscriptions/presets/apply` | POST | presets |
+| `/dsh-subscriptions/provider-packs/validate` | POST | provider-packs |
+| `/dsh-subscriptions/proxy-check` | POST | proxy-check |
+| `/dsh-subscriptions/proxy/` | GET, POST | proxy |
+| `/dsh-subscriptions/quarantine/park` | POST | quarantine |
+| `/dsh-subscriptions/quarantine/probe` | POST | quarantine |
+| `/dsh-subscriptions/queue` | GET | queue |
+| `/dsh-subscriptions/quota-forecast` | GET | quota-forecast |
+| `/dsh-subscriptions/reset-credits` | GET | reset-credits |
+| `/dsh-subscriptions/reset-credits/consume` | POST | reset-credits |
+| `/dsh-subscriptions/reset-credits/prepare` | POST | reset-credits |
+| `/dsh-subscriptions/routing/trace` | GET | routing |
+| `/dsh-subscriptions/session-reasoning` | DELETE, GET, POST | session-reasoning |
+| `/dsh-subscriptions/smoke` | POST | smoke |
+| `/dsh-subscriptions/sources` | GET | sources |
+| `/dsh-subscriptions/speed` | GET, POST | speed |
+| `/dsh-subscriptions/status` | DELETE, GET | status |
+| `/dsh-subscriptions/subscriptions` | GET | subscriptions |
+| `/dsh-subscriptions/telemetry` | GET | telemetry |
+| `/dsh-subscriptions/usage` | GET | usage |
+| `/dsh-subscriptions/vault/export` | POST | vault |
+| `/dsh-subscriptions/vault/import` | GET | vault |
+| `/dsh-subscriptions/vault/snapshots` | GET, POST | vault |
+| `/dsh-subscriptions/vault/snapshots/restore` | POST | vault |
+| `/dsh-subscriptions/vault/sync/pull` | POST | vault |
+| `/dsh-subscriptions/vault/sync/push` | POST | vault |
+| `/dsh-subscriptions/vault/sync/status` | GET | vault |
+| `/dsh-subscriptions/webhook/test` | POST | webhook |
 
-### Analytics, Savings & Concurrency
-| Method | Path | Purpose |
-|---|---|---|
-| GET | `/dsh-subscriptions/analytics` | Cache efficiency, 24h hourly buckets, heatmap and forecast |
-| GET | `/dsh-subscriptions/analytics/savings` | Financial savings, cache savings, and ROI report across timeframes (#1029) |
-| GET | `/dsh-subscriptions/queue` | Real-time concurrency queue depth and active requests (#518) |
-| GET | `/dsh-subscriptions/history` | Historical request ledger entries |
-
-### OAuth & Device Authentication
-| Method | Path | Purpose |
-|---|---|---|
-| GET | `/dsh-subscriptions/oauth/start` | Start browser OAuth authorization flow |
-| GET | `/dsh-subscriptions/oauth/callback` | OAuth loopback redirect listener (#1019) |
-| POST | `/dsh-subscriptions/oauth/complete` | Complete OAuth with redirected URL or code |
-| POST | `/dsh-subscriptions/oauth/device/start` | Start RFC 8628 device code flow (Codex, Grok, Copilot) |
-| POST | `/dsh-subscriptions/oauth/device/poll` | Poll device code authorization status |
-| GET | `/dsh-subscriptions/oauth/headless-info` | SSH tunnel command and SVG QR code for headless servers |
-| GET | `/dsh-subscriptions/oauth/headless-redirect` | Browser-friendly redirect to upstream OAuth login URL |
-
-### Encrypted Vault & Sync
-| Method | Path | Purpose |
-|---|---|---|
-| GET/POST | `/dsh-subscriptions/vault/snapshots` | List or capture encrypted pre-pull snapshots (#734) |
-| POST | `/dsh-subscriptions/vault/snapshots/restore` | Restore credentials from snapshot with fail-closed rollback (#1003, #1022) |
-| POST | `/dsh-subscriptions/vault/export` | Export encrypted portable backup archive |
-| POST | `/dsh-subscriptions/vault/import` | Import encrypted portable backup archive |
-| GET | `/dsh-subscriptions/vault/sync/status` | Remote Git Vault synchronization status |
-| POST | `/dsh-subscriptions/vault/sync/push` | Push encrypted credentials snapshot to remote Vault |
-| POST | `/dsh-subscriptions/vault/sync/pull` | Pull and apply encrypted snapshot from remote Vault |
-
-### Diagnostics & Utilities
-| Method | Path | Purpose |
-|---|---|---|
-| GET | `/dsh-subscriptions/diagnostics` | Anonymized diagnostic report (zero secrets) |
-| POST | `/dsh-subscriptions/diagnostics/errors/clear` | Clear recent error buffer |
-| POST | `/dsh-subscriptions/diagnostic-wizard` | Automated diagnostic wizard and error triage |
-| POST | `/dsh-subscriptions/webhook/test` | Test configured webhook delivery |
-| POST | `/dsh-subscriptions/proxy-check` | Measure proxy latency to upstream vendor endpoint |
-| GET | `/dsh-subscriptions/sources` | List active context sources and integrations |
-| POST | `/dsh-subscriptions/provider-packs/validate` | Validate custom vendor pack specification |
+<!-- routes:end -->
 
 ## 🌐 Localization
 

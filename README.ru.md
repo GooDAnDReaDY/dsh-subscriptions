@@ -348,81 +348,75 @@ dsh-subscriptions:
 ## 🔌 HTTP API
 
 Плагин регистрирует 55 маршрутов на веб-сервере DSH. Запросы защищены проверкой Origin/Referer и loopback (#782). Ответы в формате JSON (если не указано иное).
+<!-- routes:begin -->
 
-### Базовые и статусные
-| Метод | Путь | Назначение |
-|---|---|---|
-| GET | `/dsh-subscriptions/status` | Общий статус, настроенные слоты, остатки квот и активный аккаунт |
-| GET | `/dsh-subscriptions/health` | Глубокая проверка здоровья для мониторинга (#745) |
-| GET | `/dsh-subscriptions/metrics` | Текстовые метрики Prometheus (#744); loopback или same-origin |
-| GET | `/dsh-subscriptions/models` | Обогащённый каталог моделей для активных подписок |
-| POST | `/dsh-subscriptions/heartbeat/run` | Запуск обновления квот и здоровья (#968) |
-| GET | `/dsh-subscriptions/subscriptions` | Адаптивная HTML-таблица подписок для localhost (#1021) |
-| GET | `/dsh-subscriptions/telemetry` | Агрегаты запросов, задержек и ошибок |
-| GET | `/dsh-subscriptions/usage` | Снимок квот и журнал вызовов для внешних плагинов (#687) |
-| POST | `/dsh-subscriptions/smoke` | Синтетический тестовый запрос к активным провайдерам |
-| GET | `/dsh-subscriptions/ping` | Быстрая проверка сетевой задержки |
-| GET | `/dsh-subscriptions/instructions` | Динамические инструкции подключения провайдеров (#540) |
-| GET | `/dsh-subscriptions/alerts` | Буфер внутрисистемных уведомлений и алертов |
+Плагин регистрирует 61 exact-маршрутов на web-сервере DSH. Таблица генерируется из `lib/` скриптом `scripts/route-doc.mjs`; не редактируйте её вручную. Если не указано иное, маршруты принимают same-origin или loopback запросы, а пишущие запросы обязаны нести `Origin` или `Referer`, совпадающий с хостом (#782).
 
-### Аккаунты, роутинг и рассуждения
-| Метод | Путь | Назначение |
+| Маршрут | Methods | Группа |
 |---|---|---|
-| GET/PUT | `/dsh-subscriptions/config` | Чтение и атомарное сохранение конфигурации |
-| POST | `/dsh-subscriptions/check` | Проверка учётных данных и опрос квот через API вендора |
-| POST | `/dsh-subscriptions/logout` | Отключение аккаунта и очистка сохранённых токенов |
-| GET | `/dsh-subscriptions/discover-local` | Обнаружение локальных CLI-сессий |
-| POST | `/dsh-subscriptions/import-local` | Импорт локальной CLI-сессии в слот аккаунта |
-| POST | `/dsh-subscriptions/import-token` | Ручной импорт refresh token или API ключа |
-| POST | `/dsh-subscriptions/accounts/sync-models` | Синхронизация каталога моделей из API вендора |
-| POST | `/dsh-subscriptions/accounts/switch-organization` | Переключение организации в аккаунте Codex |
-| POST | `/dsh-subscriptions/quarantine/park` | Ручной перевод аккаунта в карантин (durationMs, reason) |
-| POST | `/dsh-subscriptions/quarantine/probe` | Прогрев или досрочный вывод аккаунта из карантина |
-| GET/POST | `/dsh-subscriptions/reset-credits` | Проверка, подготовка и списание reset credits (Codex) |
-| GET | `/dsh-subscriptions/routing/trace` | Журнал решений роутера с причинами и кеш-хитами (#1028) |
-| GET/POST/DEL | `/dsh-subscriptions/session-reasoning` | Управление уровнем и бюджетом рассуждений сессии |
-| GET/POST | `/dsh-subscriptions/speed` | Переключение быстрого режима (speed tier) для сессии |
+| `/dsh-subscriptions/accounts/next-slot` | POST | accounts |
+| `/dsh-subscriptions/accounts/switch-organization` | POST | accounts |
+| `/dsh-subscriptions/accounts/sync-models` | POST | accounts |
+| `/dsh-subscriptions/alerts` | GET | alerts |
+| `/dsh-subscriptions/analytics` | GET | analytics |
+| `/dsh-subscriptions/analytics/savings` | GET | analytics |
+| `/dsh-subscriptions/analyze-session` | POST | analyze-session |
+| `/dsh-subscriptions/check` | POST | check |
+| `/dsh-subscriptions/client.css` | GET | client.css |
+| `/dsh-subscriptions/config` | GET, PUT | config |
+| `/dsh-subscriptions/diagnostic-wizard` | POST | diagnostic-wizard |
+| `/dsh-subscriptions/diagnostics` | GET | diagnostics |
+| `/dsh-subscriptions/diagnostics/errors/clear` | POST | diagnostics |
+| `/dsh-subscriptions/discover-local` | GET | discover-local |
+| `/dsh-subscriptions/health` | GET | health |
+| `/dsh-subscriptions/heartbeat/run` | POST | heartbeat |
+| `/dsh-subscriptions/history` | GET | history |
+| `/dsh-subscriptions/import-local` | POST | import-local |
+| `/dsh-subscriptions/import-token` | POST | import-token |
+| `/dsh-subscriptions/instructions` | GET | instructions |
+| `/dsh-subscriptions/logout` | POST | logout |
+| `/dsh-subscriptions/metrics` | GET | metrics |
+| `/dsh-subscriptions/models` | GET | models |
+| `/dsh-subscriptions/oauth/callback` | GET | oauth |
+| `/dsh-subscriptions/oauth/complete` | POST | oauth |
+| `/dsh-subscriptions/oauth/device/poll` | POST | oauth |
+| `/dsh-subscriptions/oauth/device/start` | POST | oauth |
+| `/dsh-subscriptions/oauth/headless-info` | GET | oauth |
+| `/dsh-subscriptions/oauth/headless-redirect` | GET | oauth |
+| `/dsh-subscriptions/oauth/start` | GET | oauth |
+| `/dsh-subscriptions/passport` | GET | passport |
+| `/dsh-subscriptions/ping` | POST | ping |
+| `/dsh-subscriptions/presets` | POST | presets |
+| `/dsh-subscriptions/presets/apply` | POST | presets |
+| `/dsh-subscriptions/provider-packs/validate` | POST | provider-packs |
+| `/dsh-subscriptions/proxy-check` | POST | proxy-check |
+| `/dsh-subscriptions/proxy/` | GET, POST | proxy |
+| `/dsh-subscriptions/quarantine/park` | POST | quarantine |
+| `/dsh-subscriptions/quarantine/probe` | POST | quarantine |
+| `/dsh-subscriptions/queue` | GET | queue |
+| `/dsh-subscriptions/quota-forecast` | GET | quota-forecast |
+| `/dsh-subscriptions/reset-credits` | GET | reset-credits |
+| `/dsh-subscriptions/reset-credits/consume` | POST | reset-credits |
+| `/dsh-subscriptions/reset-credits/prepare` | POST | reset-credits |
+| `/dsh-subscriptions/routing/trace` | GET | routing |
+| `/dsh-subscriptions/session-reasoning` | DELETE, GET, POST | session-reasoning |
+| `/dsh-subscriptions/smoke` | POST | smoke |
+| `/dsh-subscriptions/sources` | GET | sources |
+| `/dsh-subscriptions/speed` | GET, POST | speed |
+| `/dsh-subscriptions/status` | DELETE, GET | status |
+| `/dsh-subscriptions/subscriptions` | GET | subscriptions |
+| `/dsh-subscriptions/telemetry` | GET | telemetry |
+| `/dsh-subscriptions/usage` | GET | usage |
+| `/dsh-subscriptions/vault/export` | POST | vault |
+| `/dsh-subscriptions/vault/import` | GET | vault |
+| `/dsh-subscriptions/vault/snapshots` | GET, POST | vault |
+| `/dsh-subscriptions/vault/snapshots/restore` | POST | vault |
+| `/dsh-subscriptions/vault/sync/pull` | POST | vault |
+| `/dsh-subscriptions/vault/sync/push` | POST | vault |
+| `/dsh-subscriptions/vault/sync/status` | GET | vault |
+| `/dsh-subscriptions/webhook/test` | POST | webhook |
 
-### Аналитика, экономия и очередь
-| Метод | Путь | Назначение |
-|---|---|---|
-| GET | `/dsh-subscriptions/analytics` | Эффективность кеша, почасовые бакеты, тепловая карта и прогноз |
-| GET | `/dsh-subscriptions/analytics/savings` | Финансовая экономия, экономия на кеше и ROI по периодам (#1029) |
-| GET | `/dsh-subscriptions/queue` | Статус и глубина очереди параллельных запросов (#518) |
-| GET | `/dsh-subscriptions/history` | История обращений и журналы вызовов |
-
-### OAuth и авторизация устройств
-| Метод | Путь | Назначение |
-|---|---|---|
-| GET | `/dsh-subscriptions/oauth/start` | Запуск авторизации в браузере |
-| GET | `/dsh-subscriptions/oauth/callback` | Локальный loopback слушатель редиректа (#1019) |
-| POST | `/dsh-subscriptions/oauth/complete` | Завершение авторизации по URL редиректа или коду |
-| POST | `/dsh-subscriptions/oauth/device/start` | Старт RFC 8628 Device Flow (Codex, Grok, Copilot) |
-| POST | `/dsh-subscriptions/oauth/device/poll` | Опрос статуса авторизации устройства |
-| GET | `/dsh-subscriptions/oauth/headless-info` | SSH-туннель и QR-код для удалённых серверов |
-| GET | `/dsh-subscriptions/oauth/headless-redirect` | Редирект в веб-интерфейс авторизации вендора |
-
-### Зашифрованный Vault и синхронизация
-| Метод | Путь | Назначение |
-|---|---|---|
-| GET/POST | `/dsh-subscriptions/vault/snapshots` | Список и создание локальных зашифрованных снимков (#734) |
-| POST | `/dsh-subscriptions/vault/snapshots/restore` | Восстановление снимка с безопасным откатом (#1003, #1022) |
-| POST | `/dsh-subscriptions/vault/export` | Экспорт переносимого зашифрованного архива |
-| POST | `/dsh-subscriptions/vault/import` | Импорт переносимого зашифрованного архива |
-| GET | `/dsh-subscriptions/vault/sync/status` | Статус синхронизации с удалённым Git Vault |
-| POST | `/dsh-subscriptions/vault/sync/push` | Отправка снимка в удалённый Git Vault |
-| POST | `/dsh-subscriptions/vault/sync/pull` | Получение и применение снимка из Git Vault |
-
-### Диагностика и утилиты
-| Метод | Путь | Назначение |
-|---|---|---|
-| GET | `/dsh-subscriptions/diagnostics` | Анонимизированный диагностический отчёт (без секретов) |
-| POST | `/dsh-subscriptions/diagnostics/errors/clear` | Очистка буфера недавних ошибок |
-| POST | `/dsh-subscriptions/diagnostic-wizard` | Мастер автоматической диагностики проблем |
-| POST | `/dsh-subscriptions/webhook/test` | Тестовая отправка вебхука |
-| POST | `/dsh-subscriptions/proxy-check` | Измерение задержки прокси до API провайдера |
-| GET | `/dsh-subscriptions/sources` | Список активных источников контекста |
-| POST | `/dsh-subscriptions/provider-packs/validate` | Валидация кастомных пакетов провайдеров |
+<!-- routes:end -->
 
 ## 🌐 Локализация
 

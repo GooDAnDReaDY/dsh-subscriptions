@@ -1,3 +1,69 @@
+## [Unreleased]
+
+Work in progress for the next release. Entries move to a versioned section
+when the release is cut; keep them grouped by effect, not by commit.
+
+### Added
+- Browser-half test harness on jsdom: the real `client.js` is imported through
+  its loader contract and mounted, so hook-order and portal defects fail the
+  suite instead of reaching users (#1086).
+- `lib/client.policy.js`: 44 managed settings that previously required a
+  `settings.yaml` edit now have controls in the plugin card (#1087).
+- `scripts/route-doc.mjs`: the README route catalog is generated from the code
+  and checked in CI, so documentation cannot drift again (#1089).
+- `scripts/version-guard.mjs`: rejects a version the registry would normalise,
+  the shape that turned `0.6.90` into an unusable `0.6.9` (#1091).
+
+### Changed
+- `npm test` now runs two coverage gates: the server half keeps its 85/80/75
+  thresholds, and the browser half is measured separately at its own floor.
+- `docs/design/DESIGN.md` states where each setting lives and points at the
+  guard test that enforces the rule instead of pinning a version (#1088).
+
+### Fixed
+- `docs/plans/` is no longer referenced as a live path; the browser chunks and
+  the 127-key schema are described as they are (#1088).
+- README route tables listed 55 routes while the code registered 61, and ten
+  routes were undocumented (#1089).
+
+---
+
+## [0.9.1] - 2026-11-17
+
+A follow-up to 0.9.0 driven by an external bug report (GitHub #36). Every item
+here was reproduced against the code before it was fixed.
+
+### Fixed
+- **#1096** A transport failure is no longer treated as an account fault. One
+  `UND_ERR_CONNECT_TIMEOUT` behind a proxy used to park a healthy account for the
+  full cooldown (30m) plus quarantine (60m) and answer `no usable subscription
+  account`; the account was fine. Connection-level codes (`UND_ERR_*`, `ECONNREFUSED`,
+  `ENOTFOUND`, TLS failures) and gateway statuses (`502`/`503`/`504`) now form their
+  own class: a short bounded retry, then an error that names the network cause,
+  with no cooldown and no quarantine. Explicit `429`/`401`/`402` verdicts are
+  unchanged.
+- **#1097** One context window per account. The same codex model reported 200 000
+  in the model catalogue, 128 000 in `accounts[].capabilities`, and the vendor
+  rejected above 150 000. `lib/context-window.js` is now the only source, with
+  model rules, plan upgrades and provider defaults in one place, so compaction
+  budgets and picker badges agree.
+- **#1098** An account that was never probed no longer reads `100 / healthy`.
+  `computeHealthScore()` returns `null` without observations and the badge says
+  `unprobed`; the settings table shows "not probed" instead of a green score
+  nobody measured.
+
+### Added
+- **#1099** A successful `POST /dsh-subscriptions/check` now clears an automatic
+  cooldown and releases an automatic quarantine, and reports what it cleared in
+  `cleared: []`. Before this, users waited out the window (or restarted DSH) after
+  the network recovered. A manual park is preserved, because it is an operator
+  decision rather than a failure state.
+
+### Verification
+- Full suite: 1510 tests, exit 0.
+- Coverage: server 93.62 / 80.30 / 87.35; browser 37.31 / 48.95 / 37.02.
+- Pack size: largest file `lib/client.js` 233150 B.
+
 ## [0.8.1] - 2026-11-14
 
 ### Fixed

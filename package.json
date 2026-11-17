@@ -1,6 +1,6 @@
 {
   "name": "@goodandready/dsh-subscriptions",
-  "version": "0.8.1",
+  "version": "0.9.1",
   "description": "Use ChatGPT Codex, Claude, Grok, Antigravity, Kimi, GLM, Cursor, Kiro, Copilot, Qwen, ERNIE, Spark, JetBrains, Perplexity, Replit, and Cody subscriptions as DeepSeek Harness LLM providers via OAuth.",
   "license": "MIT",
   "type": "module",
@@ -39,7 +39,9 @@
     "url": "https://github.com/GooDAnDReaDY/dsh-subscriptions/issues"
   },
   "scripts": {
-    "test": "eslint lib/ test/ bin/ scripts/*.mjs && npm run typecheck && node --import ./test/_setup.mjs --test --experimental-test-coverage --test-coverage-lines=85 --test-coverage-branches=80 --test-coverage-functions=75 --test-coverage-include='lib/**/*.js' --test-coverage-include='bin/**/*.mjs' --test-coverage-exclude='lib/client.js' test/*.test.mjs && node scripts/check-pack-size.mjs",
+    "test": "eslint lib/ test/ bin/ scripts/*.mjs && npm run typecheck && npm run test:server && npm run test:browser && node scripts/check-pack-size.mjs",
+    "test:server": "node --import ./test/_setup.mjs --test --experimental-test-coverage --test-coverage-lines=85 --test-coverage-branches=80 --test-coverage-functions=75 --test-coverage-include='lib/**/*.js' --test-coverage-include='bin/**/*.mjs' --test-coverage-exclude='lib/client.js' test/*.test.mjs",
+    "test:browser": "node --import ./test/_setup.mjs --test --experimental-test-coverage --test-coverage-lines=35 --test-coverage-branches=46 --test-coverage-functions=35 --test-coverage-include='lib/client.js' --test-coverage-exclude='test/**' test/ui-harness.test.mjs test/ui-harness-guards.test.mjs test/ui-surfaces.test.mjs",
     "typecheck": "tsc -p tsconfig.checkjs.json"
   },
   "dsh": {
@@ -56,11 +58,11 @@
     "market": {
       "name": {
         "en": "Subscriptions",
-        "zh": "\u8ba2\u9605\u7ba1\u7406"
+        "zh": "订阅管理"
       },
       "description": {
         "en": "Use ChatGPT, Claude, Grok, Antigravity and 12 more subscriptions as DSH providers with account pools, quota tools and OAuth.",
-        "zh": "\u5c06 ChatGPT\u3001Claude\u3001Grok\u3001Antigravity \u7b49 16 \u79cd\u8ba2\u9605\u63a5\u5165 DSH\uff0c\u652f\u6301\u8d26\u6237\u6c60\u3001\u989d\u5ea6\u5de5\u5177\u548c OAuth\u3002"
+        "zh": "将 ChatGPT、Claude、Grok、Antigravity 等 16 种订阅接入 DSH，支持账户池、额度工具和 OAuth。"
       },
       "category": "providers",
       "icon": "subscriptions",
@@ -113,6 +115,9 @@
     "@deepseek-ai/schemastery": "^3.18.4",
     "@types/node": "^22.20.2",
     "eslint": "^10.4.0",
+    "jsdom": "^31.0.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
     "typescript": "^7.0.2"
   },
   "bin": {
