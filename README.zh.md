@@ -296,7 +296,7 @@ dsh-subscriptions:
 插件在 DSH Web 服务器上注册以下 55 个精确路由。除特别说明外，接受同源或 loopback 请求；写入操作必须携带与 Host 匹配的 `Origin` 或 `Referer`（#782）。响应均为 JSON（除非另有说明）。
 <!-- routes:begin -->
 
-插件在 DSH Web 服务器上注册了 61 个精确路由。此表由 `scripts/route-doc.mjs` 从 `lib/` 生成，请勿手动编辑。除非另有说明，路由接受同源或回环请求，写入请求必须携带与主机匹配的 `Origin` 或 `Referer`（#782）。
+插件在 DSH Web 服务器上注册了 59 个精确路由。此表由 `scripts/route-doc.mjs` 从 `lib/` 生成，请勿手动编辑。除非另有说明，路由接受同源或回环请求，写入请求必须携带与主机匹配的 `Origin` 或 `Referer`（#782）。
 
 | 路由 | Methods | 分组 |
 |---|---|---|
@@ -307,7 +307,6 @@ dsh-subscriptions:
 | `/dsh-subscriptions/analytics` | GET | analytics |
 | `/dsh-subscriptions/analytics/savings` | GET | analytics |
 | `/dsh-subscriptions/analyze-session` | POST | analyze-session |
-| `/dsh-subscriptions/check` | POST | check |
 | `/dsh-subscriptions/client.css` | GET | client.css |
 | `/dsh-subscriptions/config` | GET, PUT | config |
 | `/dsh-subscriptions/diagnostic-wizard` | POST | diagnostic-wizard |
@@ -331,9 +330,9 @@ dsh-subscriptions:
 | `/dsh-subscriptions/oauth/headless-redirect` | GET | oauth |
 | `/dsh-subscriptions/oauth/start` | GET | oauth |
 | `/dsh-subscriptions/passport` | GET | passport |
-| `/dsh-subscriptions/ping` | POST | ping |
 | `/dsh-subscriptions/presets` | POST | presets |
 | `/dsh-subscriptions/presets/apply` | POST | presets |
+| `/dsh-subscriptions/probe` | GET | probe |
 | `/dsh-subscriptions/provider-packs/validate` | POST | provider-packs |
 | `/dsh-subscriptions/proxy-check` | POST | proxy-check |
 | `/dsh-subscriptions/proxy/` | GET, POST | proxy |
@@ -346,7 +345,6 @@ dsh-subscriptions:
 | `/dsh-subscriptions/reset-credits/prepare` | POST | reset-credits |
 | `/dsh-subscriptions/routing/trace` | GET | routing |
 | `/dsh-subscriptions/session-reasoning` | DELETE, GET, POST | session-reasoning |
-| `/dsh-subscriptions/smoke` | POST | smoke |
 | `/dsh-subscriptions/sources` | GET | sources |
 | `/dsh-subscriptions/speed` | GET, POST | speed |
 | `/dsh-subscriptions/status` | DELETE, GET | status |

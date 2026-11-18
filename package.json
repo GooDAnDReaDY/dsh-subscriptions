@@ -1,6 +1,6 @@
 {
   "name": "@goodandready/dsh-subscriptions",
-  "version": "0.9.2",
+  "version": "0.10.0",
   "description": "Use ChatGPT Codex, Claude, Grok, Antigravity, Kimi, GLM, Cursor, Kiro, Copilot, Qwen, ERNIE, Spark, JetBrains, Perplexity, Replit, and Cody subscriptions as DeepSeek Harness LLM providers via OAuth.",
   "license": "MIT",
   "type": "module",
@@ -40,8 +40,8 @@
   },
   "scripts": {
     "test": "eslint lib/ test/ bin/ scripts/*.mjs && npm run typecheck && npm run test:server && npm run test:browser && node scripts/check-pack-size.mjs",
-    "test:server": "node --import ./test/_setup.mjs --test --experimental-test-coverage --test-coverage-lines=85 --test-coverage-branches=80 --test-coverage-functions=75 --test-coverage-include='lib/**/*.js' --test-coverage-include='bin/**/*.mjs' --test-coverage-exclude='lib/client.js' test/*.test.mjs",
-    "test:browser": "node --import ./test/_setup.mjs --test --experimental-test-coverage --test-coverage-lines=35 --test-coverage-branches=46 --test-coverage-functions=35 --test-coverage-include='lib/client.js' --test-coverage-exclude='test/**' test/ui-harness.test.mjs test/ui-harness-guards.test.mjs test/ui-surfaces.test.mjs",
+    "test:server": "node --import ./test/_setup.mjs --test --experimental-test-coverage --test-coverage-lines=85 --test-coverage-branches=80 --test-coverage-functions=75 --test-coverage-include='lib/**/*.js' --test-coverage-include='bin/**/*.mjs' --test-coverage-exclude='lib/client.js' --test-coverage-exclude='lib/client.*.js' test/*.test.mjs",
+    "test:browser": "node --import ./test/_setup.mjs --test --experimental-test-coverage --test-coverage-lines=35 --test-coverage-branches=46 --test-coverage-functions=35 --test-coverage-include='lib/client.js' --test-coverage-include='lib/client.widgets.js' --test-coverage-include='lib/client.accounts.js' --test-coverage-include='lib/client.modals.js' --test-coverage-exclude='test/**' test/ui-harness.test.mjs test/ui-harness-guards.test.mjs test/ui-surfaces.test.mjs test/widgets-chunk.test.mjs test/accounts-chunk.test.mjs test/accounts-actions.test.mjs test/accounts-branches.test.mjs test/modals-chunk.test.mjs",
     "typecheck": "tsc -p tsconfig.checkjs.json"
   },
   "dsh": {

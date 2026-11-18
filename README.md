@@ -91,6 +91,33 @@ graph LR
 
 *Custom vendors can also be dynamically registered via the `createVendorFromProfile` factory.*
 
+**Adding a vendor is data, not code.** The OpenAI-compatible `/chat/completions`
+family — `replit`, `spark`, `cody`, `qwen` — is built from a profile by
+`createChatVendor()` (`lib/vendors/chat-vendor.js`). A new provider in that family
+needs a profile object, not a new module:
+
+```js
+import { createChatVendor } from './chat-vendor.js'
+
+const vendor = createChatVendor({
+  id: 'my-provider',
+  name: 'My Provider',
+  apiBase: 'https://api.my-provider.example/v1',
+  authorizeUrl: 'https://my-provider.example/keys',   // where a user gets a token
+  models: [{ id: 'my-model', name: 'My Model', contextWindow: 128000, maxTokens: 8192 }],
+  authFields: ['accessToken', 'apiKey'],   // blob fields to try, in order
+  authStyle: 'bearer',                     // or 'token' when the vendor wants that
+  missingAuth: 'My Provider requires an API key',
+})
+```
+
+Providers whose protocol genuinely differs stay hand-written: `claude` (Anthropic
+messages), `codex` (Responses + device login), `antigravity` (Cloud Code Assist),
+`grok`, `copilot` (CLI and web modes), and `glm` / `kimi` / `kiro` / `cursor` /
+`perplexity` / `jetbrains`, which each have their own quota endpoints. A test
+(`test/declarative-vendors.test.mjs`) fails if one of those is folded into the chat
+factory, so the boundary is a decision rather than an accident.
+
 ---
 
 ### 2. 🔄 Multi-Account Rotation & Rate-Limit Mitigation (`rotate.js`, `ratelimit.js`)
@@ -388,7 +415,7 @@ Supports Anthropic's adaptive thinking (`thinking: { type: "adaptive" }`) and re
 
 <!-- routes:begin -->
 
-The plugin registers 61 exact routes on the DSH web server. This table is generated from `lib/` by `scripts/route-doc.mjs`; do not edit it by hand. Unless noted, routes accept same-origin or loopback requests, and mutating requests must carry `Origin` or `Referer` matching the host (#782).
+The plugin registers 59 exact routes on the DSH web server. This table is generated from `lib/` by `scripts/route-doc.mjs`; do not edit it by hand. Unless noted, routes accept same-origin or loopback requests, and mutating requests must carry `Origin` or `Referer` matching the host (#782).
 
 | Route | Methods | Group |
 |---|---|---|
@@ -399,7 +426,6 @@ The plugin registers 61 exact routes on the DSH web server. This table is genera
 | `/dsh-subscriptions/analytics` | GET | analytics |
 | `/dsh-subscriptions/analytics/savings` | GET | analytics |
 | `/dsh-subscriptions/analyze-session` | POST | analyze-session |
-| `/dsh-subscriptions/check` | POST | check |
 | `/dsh-subscriptions/client.css` | GET | client.css |
 | `/dsh-subscriptions/config` | GET, PUT | config |
 | `/dsh-subscriptions/diagnostic-wizard` | POST | diagnostic-wizard |
@@ -423,9 +449,9 @@ The plugin registers 61 exact routes on the DSH web server. This table is genera
 | `/dsh-subscriptions/oauth/headless-redirect` | GET | oauth |
 | `/dsh-subscriptions/oauth/start` | GET | oauth |
 | `/dsh-subscriptions/passport` | GET | passport |
-| `/dsh-subscriptions/ping` | POST | ping |
 | `/dsh-subscriptions/presets` | POST | presets |
 | `/dsh-subscriptions/presets/apply` | POST | presets |
+| `/dsh-subscriptions/probe` | GET | probe |
 | `/dsh-subscriptions/provider-packs/validate` | POST | provider-packs |
 | `/dsh-subscriptions/proxy-check` | POST | proxy-check |
 | `/dsh-subscriptions/proxy/` | GET, POST | proxy |
@@ -438,7 +464,6 @@ The plugin registers 61 exact routes on the DSH web server. This table is genera
 | `/dsh-subscriptions/reset-credits/prepare` | POST | reset-credits |
 | `/dsh-subscriptions/routing/trace` | GET | routing |
 | `/dsh-subscriptions/session-reasoning` | DELETE, GET, POST | session-reasoning |
-| `/dsh-subscriptions/smoke` | POST | smoke |
 | `/dsh-subscriptions/sources` | GET | sources |
 | `/dsh-subscriptions/speed` | GET, POST | speed |
 | `/dsh-subscriptions/status` | DELETE, GET | status |

@@ -5,6 +5,85 @@ when the release is cut; keep them grouped by effect, not by commit.
 
 ---
 
+## [0.10.0] - 2026-11-18
+
+The surface batch: the card is split into chunks, the settings that needed a
+`settings.yaml` edit get controls, and three diagnostic routes become one probe.
+This is a minor bump because three public routes were removed — see Changed.
+
+### Changed
+- **#1094** Seven settings that required hand-editing `settings.yaml` now have
+  controls in the card: `connectAttemptTimeoutMs`, `rateLimitMaxWaitMs`,
+  `rateLimitWait`, `toolPolicies`, `modelContextWindows`,
+  `modelReasoningDefaults` and `modelPlans`. The YAML-only exception list drops
+  from 39 to 32, and the settings-coverage guard fails if one of them becomes
+  stale — that is what caught the removal being incomplete.
+  The remaining 32 are deliberate: 24 are per-vendor protocol identity (OAuth
+  client ids, redirect URIs, prompt prefixes, static model fallbacks) that a user
+  sets once per install, and 8 are secrets or storage paths (`masterKey`,
+  `leaseDir`, `vaultDeviceId`, `vaultPerDeviceKeys`) that must not be editable
+  from a browser tab.
+- **#1094** The public route surface shrank from 61 to 59. `/check`, `/ping` and
+  `/smoke` were the same probe with different decoration: each resolved an
+  account ref, refreshed the blob, called the vendor's check, timed it and
+  recorded the verdict. They are now one `POST /probe?mode=check|ping|smoke`, and
+  283 lines of handler became 170.
+  The differences were never deliberate, and one of them was a defect: `/check`
+  released an automatic cooldown after a successful probe while `/ping` did not,
+  so the same account could stay parked after the card said it was healthy. Mode
+  `check` releases state; `ping` and `smoke` do not.
+- **#1094** Adding an OpenAI-compatible vendor no longer needs code. A
+  `customVendors` entry can now declare `protocol: chat`, which takes a `baseUrl`
+  and a model list and skips the OAuth trio (`authUrl`, `tokenUrl`, `clientId`)
+  that the Responses-API profiles require. It builds through the same
+  `createChatVendor` the built-in declarative vendors use, so each protocol
+  family has one implementation. Before this, the only way to add a static
+  endpoint was to write a module — with or without a config, which is the
+  opposite of what the criterion asked.
+  The two factories were never duplicates: `vendor-factory.js` speaks the
+  Responses API (`/responses`) and `chat-vendor.js` speaks `/chat/completions`.
+  Merging them would have been wrong; the fix was to let the profile choose.
+- **#1094** `lib/client.js` is now **144,352 B**, under the 150,000 B the epic
+  sets as an acceptance criterion. The last part to leave was the diagnostic
+  wizard and the vault backup panel — 168 lines of render code that now live in
+  `lib/client.modals.js`. Neither owned a hook, so both moved unchanged and take
+  their state through props.
+  The browser gate measures 57.02 / 54.65 / 37.99 across the chunks, up from
+  36.93 / 58.62 / 37.84 when `client.js` alone was measured.
+- **#623** The accounts pane left `SubsSection`: the block that renders every
+  provider's slot list was a single 740-line IIFE reading 44 names out of the
+  enclosing component's closure, which is why it could not be rendered or tested
+  on its own. It is now `lib/client.accounts.js`, built by
+  `createAccountsPane(deps)` and handed its state in one `scope` object, so every
+  dependency is a name you can see.
+  It owned no hooks, so moving it changes no behaviour. `lib/client.js` went from
+  233,632 B at the start of this work to 153,393 B against the Store's 262,144 B,
+  and `SubsSection` itself dropped from 2723 to 1996 lines.
+  The extraction also made a latent dependency explicit: `SidebarQuotaCard` read
+  the translator from module scope instead of props (#1107), which worked only
+  because it sat in the same closure.
+- **#1107** The four session widgets — SUBS pill, composer quota indicator,
+  draggable quota capsule, sidebar meter — now load from
+  `lib/client.widgets.js` instead of shipping in the main bundle.
+- **#629** The OpenAI-compatible `/chat/completions` family — `replit`, `spark`,
+  `cody`, `qwen` — is now built from a profile by `createChatVendor()`
+  (`lib/vendors/chat-vendor.js`) instead of four near-identical modules. The four
+  files went from 302 lines of duplicated protocol code to 163 lines of data plus
+  one shared template, so a protocol fix lands once. Behaviour is pinned per
+  vendor by `test/declarative-vendors.test.mjs`, including each vendor's own
+  credential field and header prefix. Providers with genuinely different
+  protocols stay hand-written, and a test fails if one is folded in.
+
+### Fixed
+- **#1101** A comment in `lib/headless-auth.js` named one of our own machines,
+  and that line shipped in the 0.9.0-0.9.2 packages and the public GitHub tree.
+  Replaced with a neutral description. New `test/anonymity.test.mjs` scans every
+  published file for our host names, LAN addresses, developer paths and ssh key
+  names, and fails the build on a hit; it also asserts each rule fires on a
+  sample, so the guard cannot pass by being empty.
+
+---
+
 ## [0.9.0] - 2026-11-17
 
 The audit batch: measure the browser half, bring the managed settings into the

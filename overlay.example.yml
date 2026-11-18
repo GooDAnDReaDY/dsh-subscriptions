@@ -6,3 +6,17 @@
     composerQuota: percent
     composerQuotaDisplay: current
     rotationStrategy: least-loaded
+    # #1094: a static OpenAI-compatible vendor needs no code — just a profile.
+    # `protocol: chat` skips the OAuth trio (authUrl/tokenUrl/clientId) that the
+    # default Responses-API profiles require.
+    customVendors:
+      - protocol: chat
+        id: myvendor
+        displayName: My Vendor
+        baseUrl: https://api.myvendor.example
+        authStyle: bearer
+        models:
+          - id: my-model
+            name: My Model
+            contextWindow: 128000
+            maxTokens: 4096

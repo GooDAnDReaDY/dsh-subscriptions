@@ -350,7 +350,7 @@ dsh-subscriptions:
 Плагин регистрирует 55 маршрутов на веб-сервере DSH. Запросы защищены проверкой Origin/Referer и loopback (#782). Ответы в формате JSON (если не указано иное).
 <!-- routes:begin -->
 
-Плагин регистрирует 61 exact-маршрутов на web-сервере DSH. Таблица генерируется из `lib/` скриптом `scripts/route-doc.mjs`; не редактируйте её вручную. Если не указано иное, маршруты принимают same-origin или loopback запросы, а пишущие запросы обязаны нести `Origin` или `Referer`, совпадающий с хостом (#782).
+Плагин регистрирует 59 exact-маршрутов на web-сервере DSH. Таблица генерируется из `lib/` скриптом `scripts/route-doc.mjs`; не редактируйте её вручную. Если не указано иное, маршруты принимают same-origin или loopback запросы, а пишущие запросы обязаны нести `Origin` или `Referer`, совпадающий с хостом (#782).
 
 | Маршрут | Methods | Группа |
 |---|---|---|
@@ -361,7 +361,6 @@ dsh-subscriptions:
 | `/dsh-subscriptions/analytics` | GET | analytics |
 | `/dsh-subscriptions/analytics/savings` | GET | analytics |
 | `/dsh-subscriptions/analyze-session` | POST | analyze-session |
-| `/dsh-subscriptions/check` | POST | check |
 | `/dsh-subscriptions/client.css` | GET | client.css |
 | `/dsh-subscriptions/config` | GET, PUT | config |
 | `/dsh-subscriptions/diagnostic-wizard` | POST | diagnostic-wizard |
@@ -385,9 +384,9 @@ dsh-subscriptions:
 | `/dsh-subscriptions/oauth/headless-redirect` | GET | oauth |
 | `/dsh-subscriptions/oauth/start` | GET | oauth |
 | `/dsh-subscriptions/passport` | GET | passport |
-| `/dsh-subscriptions/ping` | POST | ping |
 | `/dsh-subscriptions/presets` | POST | presets |
 | `/dsh-subscriptions/presets/apply` | POST | presets |
+| `/dsh-subscriptions/probe` | GET | probe |
 | `/dsh-subscriptions/provider-packs/validate` | POST | provider-packs |
 | `/dsh-subscriptions/proxy-check` | POST | proxy-check |
 | `/dsh-subscriptions/proxy/` | GET, POST | proxy |
@@ -400,7 +399,6 @@ dsh-subscriptions:
 | `/dsh-subscriptions/reset-credits/prepare` | POST | reset-credits |
 | `/dsh-subscriptions/routing/trace` | GET | routing |
 | `/dsh-subscriptions/session-reasoning` | DELETE, GET, POST | session-reasoning |
-| `/dsh-subscriptions/smoke` | POST | smoke |
 | `/dsh-subscriptions/sources` | GET | sources |
 | `/dsh-subscriptions/speed` | GET, POST | speed |
 | `/dsh-subscriptions/status` | DELETE, GET | status |
