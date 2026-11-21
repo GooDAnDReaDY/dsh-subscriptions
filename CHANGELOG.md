@@ -5,11 +5,12 @@ when the release is cut; keep them grouped by effect, not by commit.
 
 ---
 
-## [0.10.0] - 2026-11-18
+## [0.9.3] - 2026-11-21
 
-The surface batch: the card is split into chunks, the settings that needed a
-`settings.yaml` edit get controls, and three diagnostic routes become one probe.
-This is a minor bump because three public routes were removed — see Changed.
+The surface batch: the card is split into chunks, its state is grouped by
+concern, the settings that needed a `settings.yaml` edit get controls, and three
+diagnostic routes become one probe. Minor-looking work, but three public routes
+were removed — see Changed.
 
 ### Changed
 - **#1094** Seven settings that required hand-editing `settings.yaml` now have

@@ -29,7 +29,7 @@
 
 **`dsh-subscriptions`** bridges your paid personal AI subscriptions directly into **DeepSeek Harness** as first-class LLM providers.
 
-Instead of burning expensive pay-as-you-go API credits for everyday agent tasks, `dsh-subscriptions` allows you to authenticate your existing web subscriptions via standard OAuth PKCE. It features **multi-account rotation pools** (automatically switching accounts when a rate limit or cooldown is reached), **preemptive quota switching**, and an **in-process Cordis service (`ctx.subscriptions`)** that safely powers sibling plugins like [`dsh-image-gen`](https://github.com/GooDAnDReaDY/dsh-image-gen) and [`dsh-grok-xsearch`](https://github.com/GooDAnDReaDY/dsh-grok-xsearch) with zero token leakage.
+Instead of burning expensive pay-as-you-go API credits for everyday agent tasks, `dsh-subscriptions` authenticates your existing web subscriptions through standard OAuth PKCE. It adds **multi-account rotation pools** that switch accounts when a rate limit or cooldown is reached, **preemptive quota switching** before a window runs dry, and an **in-process Cordis service (`ctx.subscriptions`)** that powers sibling plugins such as [`dsh-image-gen`](https://github.com/GooDAnDReaDY/dsh-image-gen) and [`dsh-grok-xsearch`](https://github.com/GooDAnDReaDY/dsh-grok-xsearch) with zero token leakage.
 
 ```mermaid
 graph LR
@@ -46,7 +46,7 @@ graph LR
         Rotate -->|Switches Traffic| Acc2
     end
 
-    subgraph VendorBridges [4 Upstream Vendor Bridges]
+    subgraph VendorBridges [Upstream Vendor Bridges]
         Acc1 --> B1[ChatGPT / Codex Backend]
         Acc1 --> B2[Claude Pro / Max Protocol]
         Acc1 --> B3[xAI / Grok Subscriptions]
@@ -66,9 +66,9 @@ graph LR
 
 ---
 
-## ✨ Key Features & Capabilities
+## ✨ Capabilities
 
-### 1. 🌐 16 Supported Built-in Subscription Vendors
+### 🌐 Supported built-in subscription vendors
 
 | Vendor Key | Subscription Tier | Protocol & Features |
 |---|---|---|
@@ -76,25 +76,20 @@ graph LR
 | `claude` | Claude Pro / Max | Native Claude Messages protocol, usage tracking (`/v1/messages`, `/api/oauth/...`) |
 | `grok` | xAI / X Premium | Real-time reasoning responses, billing checks & social search |
 | `antigravity` | Google Cloud Code Assist | Antigravity engine (`/v1/loadCodeAssist`, `/v1/streamGenerateContent`) |
-| `kimi` | Moonshot Kimi | OAuth Device Flow login (`auth.kimi.com`), OpenAI-compatible chat |
-| `glm` | Z.ai GLM Coding Plan | GLM coding endpoint (`api.z.ai`), live quota monitor (`/api/monitor/usage/quota/limit`) |
-| `cursor` | Cursor | Cursor backend (`api2.cursor.sh`), billing-period usage dashboard parsing |
-| `kiro` | AWS Kiro | Kiro desktop OAuth (`app.kiro.dev`), streaming code assistance |
-| `copilot` | GitHub Copilot | GitHub Device Flow login (`github.com/login/device`), Copilot chat completions |
-| `qwen` | Alibaba Qwen (DashScope) | OpenAI-compatible endpoint (`dashscope.aliyuncs.com/compatible-mode/v1`), API key auth |
+| `kimi` | Moonshot Kimi | OAuth Device Flow login, OpenAI-compatible chat |
+| `glm` | Z.ai GLM Coding Plan | GLM coding endpoint, live quota monitor |
+| `cursor` | Cursor | Cursor backend, billing-period usage dashboard parsing |
+| `kiro` | AWS Kiro | Kiro desktop OAuth, streaming code assistance |
+| `copilot` | GitHub Copilot | GitHub Device Flow login, Copilot chat completions |
+| `qwen` | Alibaba Qwen (DashScope) | OpenAI-compatible endpoint, API key auth |
 | `ernie` | Baidu ERNIE (Qianfan) | OAuth2 token refresh via API Key + Secret Key, Wenxinworkshop chat |
-| `spark` | iFlytek Spark | OpenAI-compatible Spark HTTP API (`spark-api-open.xf-yun.com/v1`) |
-| `jetbrains` | JetBrains AI Assistant | JetBrains AI relay (`api.jetbrains.ai`) |
-| `perplexity` | Perplexity Pro | Sonar model catalog (`api.perplexity.ai`) |
-| `replit` | Replit Core | Replit AI API (`replit.com/api/v1/ai`), connect-token auth |
-| `cody` | Sourcegraph Cody Pro | Sourcegraph API (`sourcegraph.com/.api`), access-token auth |
+| `spark` | iFlytek Spark | OpenAI-compatible Spark HTTP API |
+| `jetbrains` | JetBrains AI Assistant | JetBrains AI relay |
+| `perplexity` | Perplexity Pro | Sonar model catalog |
+| `replit` | Replit Core | Replit AI API, connect-token auth |
+| `cody` | Sourcegraph Cody Pro | Sourcegraph API, access-token auth |
 
-*Custom vendors can also be dynamically registered via the `createVendorFromProfile` factory.*
-
-**Adding a vendor is data, not code.** The OpenAI-compatible `/chat/completions`
-family — `replit`, `spark`, `cody`, `qwen` — is built from a profile by
-`createChatVendor()` (`lib/vendors/chat-vendor.js`). A new provider in that family
-needs a profile object, not a new module:
+**Adding a vendor is data, not code.** The OpenAI-compatible `/chat/completions` family — `replit`, `spark`, `cody`, `qwen` — is built from a profile by `createChatVendor()` (`lib/vendors/chat-vendor.js`). A new provider in that family needs a profile object, not a module:
 
 ```js
 import { createChatVendor } from './chat-vendor.js'
@@ -111,179 +106,151 @@ const vendor = createChatVendor({
 })
 ```
 
-Providers whose protocol genuinely differs stay hand-written: `claude` (Anthropic
-messages), `codex` (Responses + device login), `antigravity` (Cloud Code Assist),
-`grok`, `copilot` (CLI and web modes), and `glm` / `kimi` / `kiro` / `cursor` /
-`perplexity` / `jetbrains`, which each have their own quota endpoints. A test
-(`test/declarative-vendors.test.mjs`) fails if one of those is folded into the chat
-factory, so the boundary is a decision rather than an accident.
+The same shape works from configuration: a `customVendors` entry with `protocol: chat` takes a `baseUrl` and a model list and skips the OAuth trio that the Responses-API profiles require:
+
+```yaml
+customVendors:
+  - protocol: chat
+    id: my-provider
+    displayName: My Provider
+    baseUrl: https://api.my-provider.example
+    authStyle: bearer
+    models:
+      - id: my-model
+        name: My Model
+        contextWindow: 128000
+        maxTokens: 8192
+```
+
+Providers whose protocol genuinely differs stay hand-written — `claude` (Anthropic messages), `codex` (Responses + device login), `antigravity` (Cloud Code Assist), `grok`, `copilot` (CLI and web modes), and `glm` / `kimi` / `kiro` / `cursor` / `perplexity` / `jetbrains`, which each have their own quota endpoints. A test (`test/declarative-vendors.test.mjs`) fails if one of those is folded into the chat factory, so the boundary is a decision rather than an accident.
 
 ---
 
-### 2. 🔄 Multi-Account Rotation & Rate-Limit Mitigation (`rotate.js`, `ratelimit.js`)
-* **Multi-Account Pooling**: Attach multiple accounts per vendor (e.g. `CODEX_OAUTH_1`, `CODEX_OAUTH_2`, `CODEX_OAUTH_3`).
-* **Automatic 429 Failover**: When an account encounters a rate limit (`HTTP 429`, `RATE_LIMIT`, `QUOTA_EXCEEDED`), traffic instantly fails over to the next healthy account in the pool.
-* **Preemptive Quota Switching (`switchAtRemaining`)**: Automatically rotates to the next account before hitting zero if the rate-limit window reset is imminent.
-* **Dynamic Cooldown Calculation**: Parses upstream headers (`Retry-After`, `x-ratelimit-reset`, ISO dates, epoch timestamps) and auto-restores cooled-down accounts when their window resets.
-* **Synchronous Decision Tracing & Routing Explanation (#517)**: Real-time decision traces capture every account selection, rotation step, failure reason, and cascade fallback without post-hoc reconstruction, exposed in WebUI telemetry and diagnostics.
-* **Dynamic Model Catalog & Live Quota Visualizer (#507)**: Dynamic model catalog with pool-level health calculation (individual quarantine degrades rather than disables the pool), context window badges, capability tags (`vision`, `tools`, `reasoning`, `coding`, `fast`), and live reset countdowns.
-* **Cache-Aware Session Pinning (#520)**: Retains session affinity for prompt-caching providers (Claude, Codex, Antigravity, Grok) to maximize token cache reuse while strictly releasing pins when an account enters cooldown, quarantine, or quota exhaustion.
-* **Guided Diagnostic Wizard (#519)**: Interactive step-by-step checklist verifying credentials, network/proxy connectivity, token freshness, and model catalog reachability without paid inference and with full secret redaction.
-* **Desktop Electron Compatibility (#524)**: Non-HTTP app schemes (`dsh-app://`) bypass web-only host equality checks while strictly preserving loopback socket verification and fail-closed cross-site protection.
+### 🔄 Multi-account rotation, cooldowns and quota
+
+* **Multi-account pooling** — attach several accounts per vendor (`CODEX_OAUTH_1`, `CODEX_OAUTH_2`, …) and keep them in one pool.
+* **Automatic 429 failover** — when an account hits a rate limit (`429`, `RATE_LIMIT`, `QUOTA_EXCEEDED`), traffic fails over to the next healthy account immediately.
+* **Preemptive quota switching (`switchAtRemaining`)** — rotate to the next account before the current one reaches zero, when its window reset is still far away.
+* **Dynamic cooldown calculation** — upstream headers (`Retry-After`, `x-ratelimit-reset`, ISO dates, epoch timestamps) decide when an account comes back, so it is restored when the window resets instead of after a fixed guess.
+* **Transport failures are not account faults** — a connection-level error (`connect-timeout`, `ECONNREFUSED`, `ENOTFOUND`, TLS, gateway `5xx`) says nothing about the account. It gets a short bounded retry and never spends the quota cooldown a real `429` earns. The stored cooldown also records *why* it exists, so the card and the diagnostics report can tell an unreachable upstream from an exhausted quota.
+* **Family-scoped cooldowns** — a rate limit on a reasoning model cools down only that account's reasoning family; standard models on the same account keep working.
+* **Bounded concurrency queue** — `enableQueue`, `accountMaxConcurrency`, `maxQueueSize` and `queueTimeoutMs` cap active streams per account, so a burst cannot turn into a wall of `429`s.
+* **Cache-aware session pinning** — keeps session affinity for prompt-caching providers (Claude, Codex, Antigravity, Grok) to maximise cache reuse, and strictly releases the pin when an account enters cooldown, quarantine or exhaustion.
+* **Per-account health and latency** — every slot records live upstream round-trip time (`latencyMs`) and a health score. An account that was never probed reads `unprobed`, not a perfect score nobody measured.
+* **Live quota countdown** — account cards and the session pill show a second-by-second countdown to the next rolling-window reset (`five_hour`, `seven_day`, `primary_window`).
+* **Cascading fallback across vendors** — configure provider fallback ordering with interactive reordering in the Web UI.
+* **Safe reset credits** — the Codex card shows how many quota reset cards remain and when the earliest expires. Consuming one requires an explicit confirmation checkbox plus a five-second hold, and a host-side single-flight lock makes a double click unable to spend two cards. Verdicts are shown verbatim: `reset`, `nothing to reset`, `no usable credit`, `already redeemed`.
 
 ---
 
-### 3. 🔒 Zero-Leak Credential Security & Headless OAuth
-* **Zero Token Leakage**: OAuth tokens are **never** returned over HTTP API endpoints or rendered in the Web UI. The UI only receives masked account labels, connection health, and quota bars.
-* **Secure Host Storage**: Tokens reside in encrypted `$DSH_HOME/.credentials.yaml` managed by the host credentials service.
-* **Headless / Remote Login Fallback**: If running DSH on a headless server over SSH where browser popups cannot redirect to `localhost`, simply paste the redirected callback URL or authorization code directly into the account card.
-* **Proactive Background Token Refresh**: Access tokens are refreshed automatically before expiration.
+### 🛡️ Resilience and fallback
+
+* **Seamless local fallback (`ollamaFallback`)** — when every account of a provider is exhausted or unreachable and nothing has streamed yet, the chat continues on a local model (`ollamaFallbackModel`, or the first model from `/api/tags`). The switch is logged and recorded in request history as `kind: fallback`.
+* **Local Ollama gateway** — when Ollama answers at `ollamaBaseUrl` (default `http://127.0.0.1:11434`), it appears in the native model picker with the models discovered from `/api/tags`. No API key needed, and it works with no internet at all.
+* **Stream resilience** — idle SSE timeout, empty-response detection and a transient retry with account rotation, so a stalled connection does not end the turn.
+* **Proactive token heartbeat** — background refresh runs *before* expiry, so the first query after a gap does not pay the refresh latency.
+* **Guaranteed request timeouts** — vendor probes and quota calls carry explicit abort timers, so a hanging socket cannot wedge the pool during an outage.
+* **Structured error handling** — no empty catch blocks; every ignored failure goes through a `bestEffort` helper into the diagnostics buffer instead of vanishing.
+* **Canonical token accounting** — all streaming pipelines map vendor usage payloads into DSH's canonical `TokenUsage`, with counts guarded to non-negative integers. An unrecognised or partial payload yields zero, never `NaN`, and the adapter validates before a session is persisted.
 
 ---
 
-### 4. 🧩 In-Process Cordis Service (`ctx.subscriptions`)
-Sibling plugins can tap into subscription capabilities directly in memory via Cordis:
+### 🩺 Diagnostics, health and telemetry
+
+* **Vendor Auth Doctor** — classifies provider authentication and connection errors (Cloudflare `403` / geoblock, expired tokens, revoked sessions, missing model scopes, exhausted quotas) and shows a verdict with an actionable recommendation in the account card.
+* **Probing on demand** — a single `POST /dsh-subscriptions/probe?mode=check|ping|smoke` covers three questions: `check` refreshes the credential, reports quota and releases an automatic cooldown or quarantine; `ping` measures latency; `smoke` picks a connected account for you. A successful `check` does not disturb a manual park, because that is an operator decision.
+* **Guided diagnostic wizard** — a step-by-step checklist verifying credentials, network and proxy reachability, token freshness and model-catalog reachability, without paid inference and with full secret redaction.
+* **Rate-limit and quota alerts** — configurable thresholds (`alertThresholds`) fire in-app toasts and optional webhook events when an account enters quarantine, recovers, or crosses a quota threshold.
+* **Live status bar** — host reachability with latency, connected-account count and pool size at the top of the settings card.
+* **Session telemetry dashboard** — request counts, success rate, average latency and last activity, plus a curated model catalog preview with context windows and capability tags.
+* **Recent-errors inspector** — an in-memory, sanitised ring buffer of the last failures, available in the Web UI and in the diagnostics report.
+* **Decision tracing** — every account selection, rotation step, failure reason and cascade fallback is recorded as it happens, not reconstructed afterwards, and is exposed in telemetry and the diagnostics report.
+* **Anonymized diagnostics report** — one click produces a report (plugin and runtime versions, OS, per-vendor health counters, aggregate HTTP status counts, recent failures with their reasons and timings, non-secret settings) ready to paste into an issue. Tokens, emails, credential refs and proxy URLs are excluded, and tests enforce that.
+* **Metrics endpoint** — a summary suitable for scraping, for operators who watch rather than click.
+* **Non-blocking history store** — disk persistence is debounced asynchronously so a high-throughput stream does not block the event loop.
+
+---
+
+### 🔒 Credentials, privacy and proxies
+
+* **Zero token leakage** — OAuth tokens are never returned over HTTP or rendered in the UI. The card receives masked labels, connection health and quota bars only.
+* **Host-managed storage** — tokens live in the host credentials store (`$DSH_HOME/.credentials.yaml`), encrypted by the host service and optionally sealed with a master key.
+* **Privacy masking (`privacyMask`)** — one toggle masks personal data across the entire UI: emails render as `j***n@example.com` in account lists, status labels and check results. Masking happens server-side, so labels never leak through API responses either, and the stored data is never overwritten.
+* **Per-account HTTP/SOCKS proxy (`proxyUrl`)** — every slot accepts its own `http://`, `https://` or `socks5://[user:pass@]host:port`. OAuth refresh, vendor checks and model requests for that account all go through it. Empty means direct.
+* **One-click proxy check** — a real request to the vendor base URL through the configured proxy, reporting round-trip latency or the failure reason.
+* **Request timings** — every recorded request carries its duration, so direct and proxied latency can be compared over time.
+* **Vault export, import and sync** — encrypted backup through `/vault/export` and `/vault/import`, with optional WebDAV, Gist or S3 synchronisation and point-in-time snapshots that can be restored.
+* **Redaction before storage** — the error buffer and every report strip bearer tokens, API keys, JWTs and `key=value` credentials before they are stored or returned.
+* **Host trust rules** — custom vendor URLs and base-URL overrides are restricted to `https://`, with plain `http://` accepted only on loopback, so a bearer token cannot be redirected to an untrusted host.
+
+---
+
+### 🔐 Signing in without a browser
+
+* **Automatic loopback callback (`autoLoopback`, on by default)** — for vendors whose redirect URI is a loopback address, the plugin starts a temporary local HTTP server and catches the callback itself. No URL pasting needed, and the paste fallback always stays available.
+* **Device code login** — on a fully headless machine, request a short user code, open the verification page on any device, and the plugin completes the PKCE exchange. Supported for Codex and Grok (RFC 8628).
+* **Headless paste fallback** — paste the redirected callback URL or the authorization code into the account card when neither loopback nor device flow is available.
+* **Importing existing sessions** — discover credentials already on the machine (vendor CLI config files, GitHub CLI `hosts.yml`, Windows Credential Manager) instead of signing in again.
+* **Resilient refresh** — imported CLI sessions keep refreshing instead of dying after an hour, and a missing or invalid client credential is reported by name rather than as a generic upstream `400`.
+* **Desktop app support** — non-HTTP app schemes (`dsh-app://`) get through the web-only host equality check while loopback socket verification and fail-closed cross-site protection stay in force.
+
+---
+
+### 🧠 Reasoning, effort and model catalog
+
+* **Reasoning effort** — models advertise their supported levels from the live catalog; the chosen effort travels in each vendor's own protocol (Codex `/responses`, Claude adaptive thinking, Grok, Antigravity `thinkingConfig`).
+* **Session-scoped control** — adjust effort (`low` / `medium` / `high` / `max`) or disable it per conversation through `GET`, `POST` and `DELETE /dsh-subscriptions/session-reasoning`.
+* **Model-switch safety** — reasoning parameters are suppressed automatically when a session switches from a reasoning model to a standard one, avoiding upstream `400` parameter errors.
+* **Claude adaptive thinking** — effort levels are gated per model; a model that does not support adaptive thinking rejects the parameter cleanly and the request proceeds unaugmented rather than failing with `400`.
+* **Verbosity (`codexVerbosity`)** — `low` / `medium` / `high` is forwarded for Codex reasoning models; empty means protocol default.
+* **Fast mode (`codexFastMode`)** — requests the priority service tier (faster, billed higher); the active-subscription chip shows a `⚡` prefix while enabled.
+* **Dynamic model discovery** — a one-click sync queries live vendor `/v1/models` endpoints, so newly released and plan-specific models appear without waiting for a plugin update.
+* **Catalog hygiene** — `hideDeprecatedModels` filters `test` / `preview` / `dev` / `alpha` / `beta` / `legacy` model ids out of the picker.
+* **One context-window source** — model rules, plan upgrades and provider defaults resolve through a single module, so compaction budgets and picker badges cannot disagree.
+* **Tiered thinking models** — Antigravity Flash exposes high, medium and low thinking levels with the matching upstream mapping, and reconstructed tool calls carry the signature Gemini expects, so multi-turn tool use survives validation.
+* **Per-account plan badges** — plan and tier labels render beside the model, normalised per vendor.
+* **Per-account billing attribution** — Claude billing state is kept per account rather than globally, so a multi-account pool does not mix attribution between accounts.
+
+---
+
+### 🎛️ Settings card, modes and widgets
+
+* **Experience modes (`experienceMode`)** — one selector at the top of the routing settings decides how much of the policy surface the card presents. It is a **view**, not a second store: switching modes never writes, resets or hides a stored value, so leaving Power for Simple and coming back finds every number where you left it.
+  * **Simple** — for one or two accounts. Rotation, cooldown, prompt-cache affinity and quota alerts only.
+  * **Balanced** (default) — adds drain-before-reset, token refresh timing, daily warm-up, account lease and proxy pool. Proactive guard, schedules, routing presets and tool policies stay one disclosure away.
+  * **Power** — every control, including the proactive quota guard, time-of-day rules, routing presets and tool policies.
+  * A group the current mode does not present says how many settings it is holding back and points at Power, so nothing looks silently broken. An unrecognised value falls back to Balanced, never to Power.
+* **Everything common is in the card** — account slots, `autoLoopback`, `privacyMask`, quota widgets, expiry notifications, fast mode, verbosity, Ollama fallback, the per-provider tool allowlist, transport timings and the cooldown and probe intervals. Only protocol identity (OAuth client ids, redirect URIs, base-URL overrides) and secrets stay in `settings.yaml`.
+* **Composer quota indicator (`composerQuota`)** — renders beside the model switcher. Modes: `off`, `percent`, `bar` (a mini bar with green / amber / red thresholds) and `forecast` (a runway estimate from a recency-weighted burn rate; it says `calibrating…` until it has enough samples and `no usage` when nothing is consumed). It hides itself for local Ollama and when nothing is active.
+* **SUBS session pill** — `SUBS (N)` in the session header with a pool-health LED (green below 50% max usage, amber 50–90%, red at or above 90%, grey when nothing is connected). Clicking it opens a console listing every account with its cooldown and quota.
+* **Draggable HUD widget** — a floating bubble with a ring gauge of the active balance on `shell.overlay`, mounted through a portal. It drags anywhere, snaps to any screen edge within 24px, peeks when half-hidden and remembers its position.
+* **Sidebar quota meter** — an optional always-available indicator in the sidebar footer.
+* **Speed toggle** — an optional composer button for the Codex fast tier.
+* **One-click updater** — the header shows the current version, an update badge when the registry has a newer release, and an Update button with a restart countdown. Update endpoints enforce loopback-only access, a dedicated header and same-origin checks.
+
+---
+
+### 🧩 In-process Cordis service (`ctx.subscriptions`)
+
+Sibling plugins tap into subscription capabilities in memory, without an HTTP hop and without ever seeing a token:
+
 ```javascript
-// Example in dsh-image-gen or custom plugins:
 const res = await ctx.subscriptions.request('codex', '/backend-api/codex/images/generations', {
   method: 'POST',
   body: JSON.stringify({ prompt: 'Cyberpunk landscape', size: '1024x1024' }),
 })
 ```
-* **Zero Overhead**: Eliminates intermediate HTTP loops and keeps auth tokens strictly in-memory.
-* **Strict Path Allowlist (`ALLOWLIST`)**: Restricts calls to verified vendor endpoints, preventing SSRF vulnerabilities.
+
+* **Zero overhead** — no intermediate HTTP loop; tokens stay in process memory.
+* **Strict path allowlist** — calls are restricted to verified vendor endpoints, which prevents the service from becoming an SSRF primitive.
+* **Image generation** — `ctx.subscriptionImages` exposes availability, sizes and generation for the providers that support drawing, routed through the same policy layer as the native tool.
 
 ---
 
-### 5. 🔐 Login Without a Browser: Loopback & Device Code
-* **Automatic Loopback Callback (`autoLoopback`, on by default)**: For vendors whose OAuth redirect URI is a loopback address (Codex `:1455`, Grok `:56121`), the plugin spins up a temporary local HTTP server and catches the callback by itself — no URL pasting needed. The paste fallback always stays available.
-* **Device Code Login (Codex)**: On fully headless machines (no browser on any reachable host), use the **Device login** button in the Codex account card. The plugin requests a short user code from `auth.openai.com`, you open `https://auth.openai.com/codex/device` on any device, enter the code, and the plugin completes the standard PKCE exchange automatically.
-* **Classic Fallbacks Intact**: Web-origin redirect (`useWebCallback`) and manual paste of the redirected URL / authorization code remain available for custom OAuth clients.
+### 🔌 Tools exposed to the agent
 
-### 6. 🌍 Per-Account HTTP/SOCKS Proxy
-* **Individual Proxy per Account (`proxyUrl`)**: Every account slot accepts its own proxy URL (`http://`, `https://`, `socks5://[user:pass@]host:port`). All requests for that account — OAuth token refresh, vendor checks, model requests — are routed through it. Empty = direct connection.
-* **One-Click Proxy Check**: The account card has a **Check proxy** button: it performs a real request to the vendor base URL through the configured proxy and shows the round-trip latency or the failure reason.
-* **Request History Timings**: Every recorded request now carries its duration (`ms`) in the history store, so you can compare direct vs proxied latency over time.
-
-### 7. 🕶️ Privacy Masking & Diagnostics Report
-* **Privacy Masking (`privacyMask`)**: One toggle in the settings card masks personal data across the whole UI: emails render as `j***n@example.com` everywhere (account lists, status labels, check results). Designed for screen sharing and streaming. Server-side masking means labels never leak through API responses either; the underlying account data is never overwritten.
-* **Anonymized Diagnostics Report**: The settings card has a **Generate diagnostics report** block: one click fetches an anonymized report (plugin/runtime versions, OS, per-vendor health counters, aggregate HTTP status counts, last ≥400 errors with timings, non-secret settings) and copies it to the clipboard. Tokens, emails, credential refs and proxy URLs are strictly excluded (verified by tests).
-* **Issue-Ready**: The same block links to the project issue tracker, so a bug report is: generate → paste → submit.
-
-### 8. 🎚️ Experience Modes (`experienceMode`)
-* **What it is**: One selector at the top of the routing settings decides how much of the policy surface the card presents. It is a **view**, not a second store: switching modes never writes, resets or hides a stored value, so leaving Power for Simple and coming back finds every number where you left it.
-* **Simple**: for one or two accounts. Rotation, cooldown, prompt-cache affinity and quota alerts only. No pool tuning is presented.
-* **Balanced** (default): for a small pool. Adds drain-before-reset, token refresh timing, daily warm-up, account lease and proxy pool. Proactive guard, schedules, routing presets and tool policies stay one disclosure away.
-* **Power**: every control the plugin has, including proactive quota guard, time-of-day rules, routing presets and tool policies.
-* **Honest about what it hides**: a group that the current mode does not present says how many settings it is holding back and points at the Power mode, so nothing looks silently broken.
-* **Unrecognised value falls back to Balanced**, never to Power, so a typo or an older config cannot flood the card with advanced controls.
-
-### 9. 🔌 HTTP API
-| Route | Method | Purpose |
-|---|---|---|
-| `/dsh-subscriptions/diagnostics` | GET | Anonymized diagnostics report (no secrets, no tokens, no proxy URLs) |
-| `/dsh-subscriptions/proxy-check` | POST | Latency check of a slot's proxy against its vendor base URL |
-| `/dsh-subscriptions/oauth/device/start` | POST | Begin Codex device-code login (returns user code + verification URL) |
-| `/dsh-subscriptions/oauth/device/poll` | POST | Poll device-code authorization status |
-| `/dsh-subscriptions/quarantine/park` | POST | Park an account into quarantine for custom duration (`durationMs`, `reason`) |
-| `/dsh-subscriptions/quarantine/probe` | POST | Run immediate live warmup health probe or force-release account |
-| `/dsh-subscriptions/alerts` | GET | List recent in-app alerts and notifications |
-
----
-
-### 10. 🦛 Local Ollama Gateway & Seamless Fallback
-* **Native Provider (`ollama`)**: When a local Ollama is reachable at `ollamaBaseUrl` (default `http://127.0.0.1:11434`), it appears in the native DSH model picker with the models discovered from `/api/tags`. No API key needed.
-* **Seamless Quota Fallback (`ollamaFallback`, on by default)**: When every account of a provider is exhausted (or unreachable) and nothing has been streamed yet, the chat continues on a local model (`ollamaFallbackModel`, or the first model from `/api/tags`). The fallback is logged and recorded in request history as `kind: fallback`.
-* **Free ($0) Emergency Path**: Works with no internet and no quota — ideal for offline demos.
-
-### 11. ⚡ Reasoning Effort, Verbosity & Fast Mode
-* **Reasoning Effort**: Codex models advertise their supported effort levels from the live catalog; the native picker validates and the chosen effort is transmitted as `reasoning.effort` in the Codex `/responses` protocol. Grok forwards effort with its own catalog-aware filtering.
-* **Verbosity (`codexVerbosity`)**: `low` / `medium` / `high` is sent as `text.verbosity` for Codex reasoning models. Empty = protocol default.
-* **Fast Mode (`codexFastMode`)**: Sends `service_tier: priority` (1.5x speed billing tier) with every Codex request. The active-subscription chip shows a `⚡` prefix while enabled.
-
-### 12. 🚦 Family-Scoped Cooldowns & Model Filtering
-* **Reasoning vs Standard**: A 429 on a reasoning model (claude `*thinking*`, grok `*reasoning*`, all codex models) cools down only the reasoning family of that account — standard models on the same account keep working immediately. Legacy cooldowns (from older versions) still block the whole account until expiry.
-* **Hide Deprecated Models (`hideDeprecatedModels`)**: Filters `test`/`preview`/`dev`/`alpha`/`beta`/`legacy` model ids out of the native picker (applies to live catalogs and the static fallback).
-
----
-
-### 13. 🧯 Safe Reset Credits
-* **Reset Card Visibility**: The Codex account card shows how many ChatGPT quota reset cards are available and when the earliest one expires.
-* **Deliberate Confirmation Flow**: Consuming a card requires an explicit checkbox ("I understand one attempt will be consumed") plus a mandatory 5-second cooldown before the Reset button activates.
-* **Double-Click Proof**: A host-side single-flight gate (synchronous pending lock before the first network await) makes it impossible for a double click or a concurrent call to consume two cards. Uncertain network results return the challenge to "prepared" for a safe retry of the same request.
-* **Honest Results**: Server verdicts are shown verbatim: `reset` / `nothing to reset` (nothing consumed) / `no usable credit` / `already redeemed`.
-
-### 14. 📊 Composer Quota Indicator & Runway Forecast
-* **Placement**: Renders in the input area next to the model switcher (`conversation.input.right` slot).
-* **Four display modes (`composerQuota` setting)**: `off` / `percent` (`85%`) / `bar` (40px mini bar, green>30 / amber 10-30 / red <10) / `forecast`.
-* **Runway Forecast**: A sliding 24h window of remaining-percent samples (up to 192 points) feeds a recency-weighted least-squares burn rate; below 30 min of observation or <1% consumed it stays `calibrating…`, with no consumption it says `no usage`. Ready state shows `~4.5h` / `~12m`.
-* **Auto-Hide**: No indicator for local Ollama or when nothing is active.
-
-### 15. 🧑‍💻 SUBS Pill & Session Console
-* **Pill in the Session Header**: `SUBS (N)` in the session header actions area with a pool-health LED: green <50% max usage, amber 50-90%, red ≥90%, gray when nothing is connected.
-* **Modal Console**: Clicking the pill opens an in-session modal listing every account (provider #index, connected/not, cooldown, quota %) and a shortcut to the settings card. Closes on outside click, ✕ or Escape.
-
-### 16. 🫧 Draggable HUD Widget
-* **Floating Bubble** on `shell.overlay`: a 64px circle with an SVG ring gauge of the active subscription balance, mounted via `createPortal`.
-* **Drag & Dock**: Drag anywhere; it snaps to any screen edge within 24px (peek-style half-hidden until hovered) and remembers its position in `localStorage`.
-* **Frosted Panel**: Hovering reveals a `backdrop-filter: blur(28px)` panel listing every account with usage bars. Clicking the bubble refreshes quota data; data also refreshes every 60 s.
-* **Settings Card Polish**: Chevron switched to the core `IconChevronDownOutline14` primitive; explicit settings snapshot states (loading / unavailable + Retry) guard against phantom input.
-
-### 17. ⚡ ClineBot-Inspired UI & Hardened Telemetry
-* **Live Status Badge Bar**: Instant latency check to the host (`Host online (XX ms)`), real-time connected account indicators, and pool size at a glance.
-* **One-Click Smoke Test (Ping)**: Test live connectivity to the active upstream subscription provider and measure real round-trip latency.
-* **Session Telemetry Dashboard**: Visual stat cards displaying successful/total requests, average latency, session success rate, and last request activity.
-* **Curated Models Catalog**: Quick preview of supported model families with context windows and capability tags (Vision, Reasoning, Hybrid).
-* **Non-Blocking Storage**: `HistoryStore` debounces disk persistence asynchronously to prevent blocking the Node.js event loop during high-throughput streaming.
-
-### 18. 🛡️ Quarantine Management, Live Quota Countdown & In-App Toast Alerts
-* **Manual Quarantine Control (Park & Probe)**: Directly park active accounts in quarantine (`POST /dsh-subscriptions/quarantine/park`) for maintenance or pause, or trigger an immediate live warmup probe and instant release (`POST /dsh-subscriptions/quarantine/probe`) right from the account slot card.
-* **Dynamic Quota Window Countdown**: Live second-by-second countdown timer displayed in the `SubsPill` session widget and account settings cards, showing exact time remaining until rolling rate-limit windows (`five_hour`, `seven_day`, `primary_window`) reset.
-* **In-App Toast Alerts (`enableToasts`)**: Lightweight floating toast alerts in the DSH chat interface notifying you when accounts enter quarantine, recover from cooldowns, or exceed quota safety thresholds.
-* **Automated Webhook Integration**: Instant event notifications dispatched via `notifyQuarantineEntered` and `notifyQuarantineReleased`.
-
-### 19. 🩺 Vendor Auth Doctor, Latency RTT Indicator, Dynamic Model Sync & Client Bundle Relief
-* **Vendor Auth Doctor (#543)**: Intelligent classification and explanation of provider authentication and connection errors (Cloudflare 403 / Geoblock, expired tokens, revoked sessions, missing model scopes, exhausted quotas). Displays diagnostic verdict with actionable recommendations in the account card.
-* **Latency RTT Indicator & Fast Ping Probe (#542)**: Live round-trip time measurement to vendor APIs with color-coded badges (🟢 <250ms, 🟡 <750ms, 🔴 >750ms). Dedicated ping endpoint (POST /dsh-subscriptions/ping) and latency metrics in connection tests.
-* **Dynamic Model Catalog Discovery & Sync (#541)**: One-click "Sync Models" button on account cards querying live vendor /v1/models endpoints to discover newly released and subscription-specific models dynamically without waiting for plugin updates.
-* **Client Bundle Modularization & Store Limit Relief (#540)**: Reduced lib/client.js bundle size from 217.3 KiB to < 199 KiB (>57 KiB buffer below the 256 KiB DSH Store ceiling) via createElement aliasing, CSS minification, and dynamic instruction loading.
-
-### 20. 🛡️ Resilience, Diagnostics & Fallback Enhancements
-* **Cross-Vendor Cascading Fallback & Provider Priority Ordering (#536)**: Configure fallback ordering across subscription providers with interactive reordering in WebUI.
-* **1-Click Connection Smoke Test & Latency Ping (#536)**: Test individual account connections on the spot with real-time latency badges.
-* **Live Cooldown Countdown & Availability Toasts (#536)**: Exact countdown timer for cooled-down accounts and automated toast alerts upon recovery.
-* **Proactive OAuth Token Heartbeat (#536)**: Pre-emptive background token refresh before expiry to prevent first-query latency spikes.
-* **Recent Errors Ring Buffer Inspector (#536)**: In-memory sanitized log of the last 20 runtime failures in WebUI Diagnostics.
-
-### 21. 🧠 Antigravity Tiered Models, Tool Sentinel & Stream Resilience
-* **Gemini 3 Tool Replay Sentinel (#534)**: Injects `thoughtSignature: 'skip_thought_signature_validator'` on reconstructed tool calls, enabling reliable multi-turn tool calling without Gemini 3 validation failures.
-* **Tiered Flash Models & Thinking Levels (#534)**: Exposes Gemini 3.8 and 3.7 Flash High, Medium, and Low thinking levels with upstream `*-flash-tiered` mapping.
-* **Stream Resilience & Empty Stream Retry (#534)**: Idle SSE timeout (30s), empty response detection, and transient stream retry with automatic account rotation.
-
-### 22. ⚡ xAI Grok RFC 8628 Device Authorization Flow
-* **RFC 8628 Device Code Authorization (GH #17, #532)**: Native device authorization grant support for xAI Grok. Solves the issue where xAI presents a Grok Build user-code verification page for CLI client IDs without redirecting back to loopback callbacks. Provides direct user code display and automatic token polling.
-
-### 23. 🛡️ Per-Account Claude Billing Attribution Isolation
-* **Per-Account `cc_turn_index` & `cch` Isolation (#530)**: Isolates Claude Code billing attribution state (`cch` session hash and `cc_turn_index` counter) per subscription account (`accountId`) in a bounded module Map instead of `globalThis`, preventing cross-account telemetry mixing in multi-account pools.
-* **Dynamic `cc_prompt_index` & Kill-Switch**: Automatically derives 0-based `cc_prompt_index` from multi-turn `messages` history and supports suppression via `CLAUDE_CODE_ATTRIBUTION_HEADER=0` or `disableBillingHeader: true`.
-
-### 24. 🤖 Native Copilot CLI SDK Mode & Local Tool Calling
-* **Direct Copilot CLI Integration (#508)**: Native driver `copilot-cli.js` supporting execution via local `copilot` / `github-copilot-cli` binaries with zero network token emulation risk.
-* **Smart Mode Switching (`copilotMode`)**: Choose between `auto` (prefers local CLI with graceful web API fallback), `cli` (strict CLI SDK execution), and `web` (direct OAuth/API).
-* **Multi-Source Credential Detection**: Automatically discovers tokens from GitHub CLI (`gh hosts.yml`), Copilot config files (`hosts.json`, `apps.json`), and environment variables (`GITHUB_COPILOT_TOKEN`, `GH_TOKEN`).
-* **Full Tool-Calling & Streaming**: Seamless translation of CLI process output into real-time streaming chunks and multi-turn tool-call deltas.
-
-### 25. 🧠 Session Reasoning Effort Management & Contract Matrix
-* **Session-Scoped Reasoning Effort Control (#505)**: Dynamically adjust reasoning effort (`low`, `medium`, `high`, `max`) or disable reasoning (`off`) per conversation session via REST endpoints (`GET`, `POST`, `DELETE /dsh-subscriptions/session-reasoning`).
-* **Model-Switch Invariant & Safety Guard**: Automatic suppression of reasoning parameters when switching from a reasoning model (e.g. `o1`) to a standard model (e.g. `gpt-4o`), avoiding upstream HTTP 400 parameter errors.
-* **Extended Multi-Vendor Capability**: Native reasoning support across Codex (`o1`, `o3`), Claude (`claude-3-7-sonnet*`, `claude-4.6+` thinking tokens & budgets), Antigravity/Gemini (`thinkingConfig`), Grok (`grok-3-mini`), and Kimi (`k1.5`).
-* **Comprehensive Adapter Contract Matrix (#521)**: Automated offline wire contract verification (`test/contract-matrix.test.mjs`) testing 8 providers across 7 wire protocol capabilities (`stream`, `tools`, `reasoning`, `usage`, `caching`, `auth_errors`, `rate_limit`).
-
-### 26. 🔑 Antigravity Client Secret & Resilient CLI Refresh
-* **Client Secret in Schema (`antigravityClientSecret`)**: Configure custom Google Cloud OAuth client secrets with automatic mask redaction (`••••••`), resolving token refresh rejections for confidential OAuth clients.
-* **Zero-Config CLI Token Refresh**: Bundled public application credentials for the standard Gemini / Antigravity CLI client (`Google Gemini CLI Client ID` / `Google Gemini CLI Client Secret`), ensuring imported CLI sessions keep refreshing indefinitely without dying after 1 hour.
-* **Windows Credential Manager CLI Discovery**: Native `win32` discovery for Windows Credential Manager generic target `gemini:antigravity`, enabling seamless `📥 From CLI` import on Windows.
-* **Descriptive Refresh Diagnostics**: Actionable error reporting identifying missing or invalid client credentials instead of generic upstream HTTP 400 errors.
+* **`image_generate`** — draw an image with an active subscription, optionally with up to five reference images for editing, honouring per-provider media policy and account rotation, and reporting a policy refusal as an error rather than an empty result.
+* **Local tool calling** — the Copilot CLI driver translates CLI process output into streaming chunks and multi-turn tool-call deltas, so tool use works in CLI mode with no token emulation.
 
 ---
 
@@ -294,16 +261,14 @@ dsh plugin --profile web add @goodandready/dsh-subscriptions
 ```
 
 > [!IMPORTANT]
-> Restart DSH Web UI after installation (`systemctl --user restart dsh-web`) and navigate to **Settings → Plugins → Plugin Settings → Subscriptions** to link your accounts.
+> Restart DSH Web UI after installation (`systemctl --user restart dsh-web`) and open **Settings → Plugins → Plugin Settings → Subscriptions** to link your accounts.
 
 ---
 
+## ⚙️ Configuration Reference (`settings.yaml`)
 
 > [!TIP]
-> **UI Settings Card vs YAML Overrides**:
-> All common options (account slots, autoLoopback, privacyMask, composerQuota, expiryNotifyDays, codexFastMode, codexVerbosity, ollamaFallback/baseUrl/model, and cooldown/probe intervals) can be managed directly in the Web UI card (**Settings → Plugins → Plugin Settings → Subscriptions**). Low-level parameters such as OAuth client IDs/redirect URIs, API base URL overrides, and custom vendors are configured in `settings.yaml`.
-
-## ⚙️ Configuration Reference (`settings.yaml`)
+> **UI card vs YAML overrides.** Everything you are likely to change — account slots, `autoLoopback`, `privacyMask`, quota widgets, expiry notifications, fast mode, verbosity, Ollama fallback, the per-provider tool allowlist, transport timings and the cooldown and probe intervals — is editable in the card (**Settings → Plugins → Plugin Settings → Subscriptions**). Only protocol identity (OAuth client ids, redirect URIs, base-URL overrides) and secrets belong in `settings.yaml`.
 
 ```yaml
 dsh-subscriptions:
@@ -314,19 +279,24 @@ dsh-subscriptions:
   experienceMode: balanced  # simple | balanced | power — how much policy the card presents first
   ollamaBaseUrl: http://127.0.0.1:11434  # local Ollama gateway
   ollamaFallback: true      # seamless fallback when all accounts are exhausted
-  ollamaFallbackModel: ''   # e.g. qwen2.5-coder; empty = first model from /api/tags
+  ollamaFallbackModel: ''   # empty = first model from /api/tags
   hideDeprecatedModels: false # filter test/preview/beta/legacy model ids
   codexVerbosity: ''        # low | medium | high (text.verbosity)
   codexFastMode: false      # service_tier priority (1.5x speed tier)
   composerQuota: 'off'      # composer indicator: off | percent | bar | forecast
   sidebarQuotaDisplay: 'off' # sidebar meter: off | auto | always
-  showSpeedToggle: false    # show the Codex Speed button in the composer (default: false)
-  showSubsPill: false       # show the SUBS indicator in the chat header (default: false)
-  enableToasts: true        # real-time in-app toast alerts on quarantine and quota events
+  showSpeedToggle: false    # show the Codex Speed button in the composer
+  showSubsPill: false       # show the SUBS indicator in the chat header
+  enableToasts: true        # in-app toast alerts on quarantine and quota events
   enableQueue: true         # bounded concurrency queue to prevent bursts of 429 errors
   accountMaxConcurrency: 2  # max concurrent active streams per account
-  maxQueueSize: 20          # max queue depth before load shedding / reject
-  queueTimeoutMs: 30000     # max queue wait duration in ms before timeout
+  maxQueueSize: 20          # max queue depth before load shedding
+  queueTimeoutMs: 30000     # max queue wait before timeout
+  connectAttemptTimeoutMs: 1500 # per-address connect floor for plugin network calls
+  rateLimitMaxWaitMs: 0     # upper bound on waiting out a rate-limit window
+  rateLimitWait: true       # false = fail fast instead of waiting for the window
+  toolPolicies:             # per-provider tool allowlist
+    codex: { web: true, image: true, video: false, search: true, tools: true }
   # Per-slot fields: expiresAt (ms epoch), proxyUrl (http/https/socks5://)
   accounts:
     codex:
@@ -342,76 +312,31 @@ dsh-subscriptions:
         label: "X Premium"
 ```
 
----
+### Custom providers and host trust
 
-### Custom Providers and Host Trust
-
-- `customVendors.authUrl`, `tokenUrl` and `baseUrl` must use `https://`. Plain `http://` is accepted only for loopback hosts (`localhost`, `127.0.0.1`, `::1`).
-- Grok `baseUrl` overrides must point to `api.x.ai`, `grok.com` / `*.grok.com`, or a loopback host; other hosts are rejected with `GROK_UNTRUSTED_HOST` so bearer tokens never leave trusted xAI infrastructure.
-- Antigravity CLI imports must configure `antigravityClientSecret`; the embedded default was removed.
-- `copilotCliPath` must point to a `copilot`, `github-copilot-cli` or `copilot-cli` binary; rename custom wrappers.
-- Credential backup uses `/dsh-subscriptions/vault/export` and `/vault/import`; the legacy `/export`, `/import`, `/export-backup` and `/import-backup` routes were removed.
-- The error buffer and diagnostics reports redact bearer tokens, API keys, JWTs and `key=value` credentials before storing or returning them.
-
-
-## 🧠 Claude Adaptive Thinking & Effort
-
-Supports Anthropic's adaptive thinking (`thinking: { type: "adaptive" }`) and reasoning effort steering (`output_config: { effort }`):
-- **Model Support**: Automatically gates effort levels for Opus 4.6+, Opus 4.7+, Opus 5 (`low`, `medium`, `high`, `xhigh`, `max`) and Sonnet 4.6+, Sonnet 5 (`low`, `medium`, `high`).
-- **Safe Fallback**: Models that do not support adaptive thinking (Haiku, Fable, 4.5 and earlier) reject the parameter cleanly and leave requests unaugmented to prevent 400 Bad Request API errors.
-- **Dynamic Catalog**: The provider model catalog exports matching `reasoning.efforts` options to the DeepSeek Harness interface.
-
----
-
-## 🌐 Full Bilingual Localization (EN / ZH) & Account Health
-
-- **Strict Localization Standards**: Built-in UI dictionary is now 100% bilingual with complete English (`en`) and Simplified Chinese (`zh`) translation dictionaries and instruction guides.
-- **Decoupled Translations**: Russian and other localized translations are provided at runtime via standalone dictionary packages (such as `dsh-russian-lang`), leaving the core plugin codebase lean and zero-hardcoded.
-- **Per-Account Health & Latency Probe**: The slot check button now records live upstream round-trip latency (`latencyMs`) for each individual subscription account slot.
-
----
-
-## 🚀 One-Click Plugin Updater & Stability Hardening
-
-- **Host One-Click Updater**: Automatic in-place updater mounted at `/dsh-subscriptions/update`, checking the npm registry for newer releases and executing single-flight installation via the host DSH CLI (`dsh plugin add`).
-- **Security & Origin Protection**: Updater endpoints enforce strict loopback address checks (supporting IPv4 `127.0.0.1`, IPv6 `::1`, `localhost`), `x-dsh-plugin-update` header verification, and same-origin validation to prevent unauthorized updates.
-- **Header Badge & UI Action**: The settings header bar displays current plugin version, an update warning badge when a new release is detected, and an instant "Update" button with live restart countdown.
-- **Network Timeout Hardening**: Quota balance and smoke test probes now enforce guaranteed 15-second abort timeouts (`AbortSignal.timeout(15_000)`), preventing hanging sockets during vendor outages.
-- **Parameter Normalization & Deduplication**: Unified support for `provider || vendor` and `index || accountIndex` aliases in check endpoints, and deduplicated threshold notification loops.
-
----
-
----
-
-## 🛡️ Token Usage Normalization & Session Projection Fix
-
-- **Session Projection Fix (GitHub #4)**: Fixed an issue where ChatGPT Codex and other streaming provider responses caused DSH session recovery to fail on page reload with `received NaN, expected number on uncachedInputTokens and outputTokens`.
-- **Canonical `TokenUsage` Normalization**: Introduced `toTokenUsage()` across all streaming pipelines (`codexResponsesStream`, `openaiChatStream`, `anthropicStream`, and `googleStream`) to map raw vendor usage payloads into canonical DSH `TokenUsage` (`inputTokens`, `outputTokens`, `cacheReadTokens`, `cacheWriteTokens`, `reasoningTokens`, `totalTokens`).
-- **Strict Integer Guard**: All token counts are strictly guarded to non-negative finite integers (guaranteeing `0` fallback, never `NaN` or `undefined`). Disjoint uncached token calculation is performed when cached tokens are folded into prompt totals.
-- **Defense in Depth**: Added adapter-level stream validation in `SubscriptionAdapter` to prevent malformed or invalid token usage chunks from ever reaching DSH session persistence.
-
----
-
-## 🔒 OAuth Client Validation & Route Updates
-
-- **OAuth Client ID Guard (GitHub #2)**: uildAuthorizeUrl and ntigravity.authorizeUrl now strictly require a non-empty clientId. If unconfigured, the endpoint returns an explicit HTTP 400 (missing_client_id) and the UI prompts the user to configure ntigravityClientId in plugin settings or use "From CLI" instead of directing the browser to a failing Google OAuth page.
-- **Config Schema Secret Key**: Added ntigravityClientSecret to the plugin configuration schema, allowing convenient entry of private client secrets alongside ntigravityClientId with automatic masking in public endpoints.
-- **Zhipu GLM Console Route Migration (GitHub #3)**: Updated the Zhipu GLM authorization and API key center link to the active console route (https://bigmodel.cn/usercenter/proj-mgmt/apikeys), eliminating 404 navigation errors caused by vendor console restructuring.
-
----
-
-## 🛡️ Reliability & Quality Hardening
-
-- **Structured Error Handling**: Eliminated all empty catch blocks across the plugin runtime via safe `bestEffort` helper logging debug diagnostics.
-- **Native Context Logger**: Migrated all plugin logging to the canonical Cordis `ctx.logger('subscriptions')` subsystem.
-- **Network Timeout Protection**: Hardened external vendor API calls (`listModels`, `fetchFor`, `quotaFetch`, `jsonTokenRequest`) with explicit `fetchWithTimeout` and `AbortSignal.timeout` safeguards.
-- **Design System Theming**: Replaced hardcoded styling values with native DeepSeek Harness CSS theme tokens (`--dsw-alias-*`, `color-mix`), achieving 100% theme token coverage and zero standalone `rgba` values.
-- **Client Dependency Injections**: Explicitly declared required client platform dependencies (`@deepseek-ai/dsh-client-locale`, `@deepseek-ai/dsh-client-ui-slots`) in package manifest.
-- **Strict Repository Hygiene**: Removed internal development instructions and planning artifacts from git tracking, enforcing clean public releases.
+* `customVendors` entries require `https://` for `authUrl`, `tokenUrl` and `baseUrl`. Plain `http://` is accepted only for loopback hosts (`localhost`, `127.0.0.1`, `::1`).
+* A `protocol: chat` entry needs `id`, `baseUrl` and `models`, plus optionally `authStyle` (`bearer` or `token`), `authFields`, `missingAuth`, `tools`, `generationParams` and `modelAliases`.
+* Grok `baseUrl` overrides must point at `api.x.ai`, `grok.com` / `*.grok.com`, or a loopback host; anything else is rejected with `GROK_UNTRUSTED_HOST`, so bearer tokens never leave trusted xAI infrastructure.
+* Antigravity CLI imports must configure `antigravityClientSecret`; the embedded default was removed, and a missing client id is reported explicitly instead of sending the browser to a failing consent page.
+* `copilotCliPath` must point at a `copilot`, `github-copilot-cli` or `copilot-cli` binary; rename custom wrappers accordingly.
+* Credential backup uses `/vault/export` and `/vault/import`; the legacy `/export`, `/import`, `/export-backup` and `/import-backup` routes were removed.
 
 ---
 
 ## 🔌 HTTP API
+
+The complete, generated route catalog follows. The routes you are most likely to call by hand:
+
+| Route | Method | Purpose |
+|---|---|---|
+| `/dsh-subscriptions/status` | GET / DELETE | Pool status; `DELETE` clears alerts |
+| `/dsh-subscriptions/probe?mode=check\|ping\|smoke` | POST | Probe one account: `check` refreshes and releases state, `ping` measures latency, `smoke` picks a connected account |
+| `/dsh-subscriptions/diagnostics` | GET | Anonymized diagnostics report |
+| `/dsh-subscriptions/diagnostic-wizard` | POST | Run the guided diagnostic checklist |
+| `/dsh-subscriptions/proxy-check` | POST | Latency check of a slot's proxy |
+| `/dsh-subscriptions/quarantine/park` | POST | Park an account into quarantine |
+| `/dsh-subscriptions/quarantine/probe` | POST | Live warmup probe or forced release |
+| `/dsh-subscriptions/alerts` | GET | Recent in-app alerts |
 
 <!-- routes:begin -->
 
@@ -481,9 +406,11 @@ The plugin registers 59 exact routes on the DSH web server. This table is genera
 
 <!-- routes:end -->
 
+---
+
 ## 🌐 Localization
 
-The plugin source language is English only. Russian and other translations are provided at runtime by separate language plugins (for example the russification plugin), which translate the registered locale keys - the package itself ships no bundled translations.
+The plugin source language is English only. Every user-facing string goes through the locale mechanism and ships with an English source and a Simplified Chinese translation. Russian and other languages are provided at runtime by separate language plugins (for example `dsh-russian-lang`), which translate the registered locale keys — the package itself bundles no Russian strings.
 
 ## 🪞 Mirror
 
