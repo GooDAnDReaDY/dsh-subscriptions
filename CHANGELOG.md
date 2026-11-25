@@ -5,6 +5,42 @@ when the release is cut; keep them grouped by effect, not by commit.
 
 ---
 
+## [0.9.4] - 2026-11-25
+
+Three fixes from outside: two reports that arrived through the GitHub mirror and
+one found by the audit that followed them. All three had been shipping.
+
+### Fixed
+- **#1122** An account with purchased credit is no longer treated as exhausted.
+  Codex reports a closed plan window and a credit balance at the same time, and
+  upstream keeps answering on the overage; only the window was read, so the pool
+  refused to send. Availability now comes from a separate `creditsAvailable` flag
+  rather than from the percentage, and `usedPercent` stays truthful — the card
+  still says the window is spent, because it is.
+  Two things made this worth a release of its own. The report named three gates;
+  the one that actually dropped the account was a fourth, checked earlier, so
+  fixing exactly what was reported would have left the bug in place. And the
+  account row is assembled field by field, so the flag needed one more hop to
+  reach the pool — without it the tests would have passed and production would
+  have behaved exactly as before.
+- **#1123** Tools now carry `strict` explicitly on the Responses path. Some
+  endpoints read an omitted `strict` as strict mode, where every schema property
+  becomes required, so a tool declaring an optional parameter could not express
+  "leave it out" — `subagent` sent `""` for provider and model on every call.
+  The flag is set on the Responses path only: Chat Completions shares the builder
+  and its vendors include proxies never tested against the field.
+- **#1126 (audit)** Upstream error text is redacted before it reaches a response.
+  `sanitizeSecrets` already covered bearer tokens, `ya29.` Google tokens, JWTs and
+  `api_key=` in URLs, but 27 route handlers copied `err.message` out verbatim —
+  and a provider's error body is exactly where the failing request, with its
+  Authorization header, tends to be echoed back. They all go through one
+  `errorMessage()` helper now.
+- **#1125 (audit)** Dropping an account now also drops its stored ping and dynamic
+  model list. Both were read by the card, so a re-added slot could show the
+  previous account's latency and models until the next probe.
+
+---
+
 ## [0.9.3] - 2026-11-21
 
 The surface batch: the card is split into chunks, its state is grouped by
