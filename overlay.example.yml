@@ -20,3 +20,17 @@
             name: My Model
             contextWindow: 128000
             maxTokens: 4096
+    # #1128: a pack can also say where its quota comes from, so the pool rotates
+    # on it without a hand-written vendor module. Omit `quota` and the pack still
+    # works — usage is then reported as unknown instead of guessed.
+    providerPacks:
+      - id: myvendor-pack
+        displayName: My Vendor
+        authUrl: https://auth.myvendor.example/authorize
+        tokenUrl: https://auth.myvendor.example/token
+        baseUrl: https://api.myvendor.example
+        clientId: my-client-id
+        quota:
+          path: /usage
+          extract: deepest
+          credits: auto

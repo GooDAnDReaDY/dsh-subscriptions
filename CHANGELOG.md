@@ -5,6 +5,48 @@ when the release is cut; keep them grouped by effect, not by commit.
 
 ---
 
+## [0.9.5] - 2026-11-25
+
+One feature and the two defects found while building it. The feature is the
+foundation for the registry idea: until now the codebase had no way to say what a
+provider's quota response means except a function nobody tested against a
+recorded body — which is why the previous release was three quota bugs in a row.
+
+### Added
+- A `providerPacks` entry can now declare where its quota comes from, so a vendor
+  with a quota no longer has to be hand-written to have one:
+
+  ```yaml
+  quota:
+    path: /usage          # relative to the pack's baseUrl
+    method: GET
+    extract: deepest      # deepest | billing | field
+    field: quota.used_percent   # only for extract: field
+    credits: auto         # auto | none | bool
+  ```
+
+  `extract` names a response shape rather than matching a regex against one, and
+  `credits` is kept separate from the percentage on purpose — that is exactly the
+  distinction whose absence blocked funded accounts in #1122. A pack without
+  `quota` still works and reports usage as unknown instead of inventing it.
+
+  The declared shapes are pinned by `test/fixtures/quota-shapes.json`: recorded
+  bodies, including the codex one that was misread in 0.9.3, with the expected
+  outcome next to each. A declaration that does not reproduce them is rejected by
+  `provider-packs/validate`.
+
+### Fixed
+- A declarative pack or `protocol: chat` vendor was called through `vendor.usage()`
+  even though the factory gives it none. The resulting `TypeError` was swallowed
+  by the refresh loop's catch and reported as "Network timeout fetching usage", so
+  a provider that never had a quota source looked like an unreachable one. The
+  call is guarded now, and the card reports usage as unknown.
+- A pack could set `quota.path` to an absolute or protocol-relative URL and send
+  the account's bearer token to another host. Only paths relative to the pack's
+  own `baseUrl` are accepted.
+
+---
+
 ## [0.9.4] - 2026-11-25
 
 Three fixes from outside: two reports that arrived through the GitHub mirror and

@@ -124,6 +124,44 @@ customVendors:
 
 Providers whose protocol genuinely differs stay hand-written — `claude` (Anthropic messages), `codex` (Responses + device login), `antigravity` (Cloud Code Assist), `grok`, `copilot` (CLI and web modes), and `glm` / `kimi` / `kiro` / `cursor` / `perplexity` / `jetbrains`, which each have their own quota endpoints. A test (`test/declarative-vendors.test.mjs`) fails if one of those is folded into the chat factory, so the boundary is a decision rather than an accident.
 
+#### Where a pack's quota comes from
+
+A pack may also declare its quota endpoint, and then the pool rotates on it like any built-in vendor. This is the part that used to require code: every vendor with a quota implemented the same pipeline by hand, and a wrong assumption about someone's response shape shipped as a release instead of failing a test.
+
+```yaml
+providerPacks:
+  - id: my-provider
+    displayName: My Provider
+    authUrl: https://auth.my-provider.example/authorize
+    tokenUrl: https://auth.my-provider.example/token
+    baseUrl: https://api.my-provider.example
+    clientId: my-client-id
+    quota:
+      path: /usage            # relative to baseUrl; absolute URLs are rejected
+      method: GET             # GET or POST
+      extract: deepest        # deepest | billing | field
+      field: quota.used_percent   # required only for extract: field
+      credits: auto           # auto | none | bool — see below
+      resetField: reset_at
+      timeoutMs: 15000
+```
+
+`extract` names the shape of the response, not a regex over it:
+
+* `deepest` — walk the body and take the highest used percentage. Handles both `used_percent`-style numbers and `remainingFraction` fractions.
+* `billing` — a credits document (`monthlyLimit` + `used`) rather than windows.
+* `field` — read one dotted path and nothing else, for vendors that report a single number.
+
+`credits` decides whether a spent window is still usable, which is the difference between "this account is out of quota" and "this account is spending overage":
+
+* `auto` — read the `credits` node (`has_credits && !overage_limit_reached && balance > 0`).
+* `bool` — read the path named in `field` and treat it as the answer.
+* `none` — this vendor has no credit concept; a closed window is closed.
+
+Leaving `quota` out is fine: the pack then has no quota source, and the card reports usage as unknown rather than inventing one.
+
+The declared shapes are covered by `test/fixtures/quota-shapes.json` and `test/pack-quota.test.mjs`. Those fixtures are recorded bodies, including the codex one that was misread in 0.9.3 — a pack whose declaration does not reproduce them is rejected by `POST /dsh-subscriptions/provider-packs/validate`.
+
 ---
 
 ### 🔄 Multi-account rotation, cooldowns and quota
