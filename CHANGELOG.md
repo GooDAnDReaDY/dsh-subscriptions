@@ -5,6 +5,32 @@ when the release is cut; keep them grouped by effect, not by commit.
 
 ---
 
+## [0.9.6] - 2026-11-27
+
+A release with no product changes: it ships the guard that makes the release
+pipeline tell the truth about its own credential. The three releases before it
+each looked like a publishing bug in the package, and were not.
+
+### Fixed
+- The release pipeline now reports which npm credential it holds, and refuses to
+  continue when that credential is dead. Three releases in a row (0.9.3, 0.9.4,
+  0.9.5) failed at the publish step with a bare `E404`, which the registry
+  returns both for "no such package" and for "you may not write here" — so the
+  log never named the problem. What it actually was: the `NPM_TOKEN` secret
+  existed and was passed to the job, but the registry no longer accepted the
+  value, and nothing said so. Verified by running the pipeline: the same script
+  printed `authenticated as goodandready` with the host token and nothing at all
+  with the secret.
+- The check runs in a dry run too, where the publish step is skipped — that is
+  the mode the release is verified in, so a dead token is now caught before the
+  tag rather than after it.
+- A wrong token fails with a sentence that names what to regenerate, instead of
+  `E404`.
+
+_No user-facing behaviour changed in this release._
+
+---
+
 ## [0.9.5] - 2026-11-25
 
 One feature and the two defects found while building it. The feature is the
